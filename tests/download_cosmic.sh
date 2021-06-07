@@ -16,25 +16,22 @@ export RED='\033[0;31m'
 export CYAN='\033[0;36m'
 export NO_COLOR='\033[0m' 
 
-download_basicAccessAuthentication="download_basicAccessAuthentication"
+read_credentials () {
+  local key_=$1
+  local credentials_="cosmic_credentials"
+  jq --raw-output .${key_} ${credentials_}.json
+}
+username=$(read_credentials "username")
+password=$(read_credentials "password")
+authentication_string=$(echo "${username}:${password}" | base64)
+
 cosmic="CosmicCodingMuts.normal"
-credentials="cosmic_credentials"
-
-username=$(jq .username ${credentials}.json)
-password=$(jq .password ${credentials}.json)
-
-# auxilary file to help download COSMIC data
-if [[ ! -e ${download_basicAccessAuthentication}.py ]]; then
-  curl https://gist.githubusercontent.com/petermchale/f382537e680f59c169cd24c3a88c344e/raw/5dd85b2223bbe8b3c42c71ff9501c2f30ff8c5ad/${download_basicAccessAuthentication}.py > ${download_basicAccessAuthentication}.py
-fi
-
-# download COSMIC data
 # https://cancer.sanger.ac.uk/cosmic/download?genome=38
-echo "${CYAN}downloading, zipping, and indexing the COSMIC data file ... ${NO_COLOR}"
-python ${download_basicAccessAuthentication}.py \
-	--url https://cancer.sanger.ac.uk/cosmic/file_download/GRCh38/cosmic/v94/VCF/${cosmic}.vcf.gz \
-	--username ${username} \
-	--password ${password}
+url="https://cancer.sanger.ac.uk/cosmic/file_download/GRCh38/cosmic/v94/VCF/${cosmic}.vcf.gz"
+
+authenticated_url=$(curl --header "Authorization: Basic ${authentication_string}" ${url}  | jq --raw-output .url)
+curl ${authenticated_url} > ${cosmic}.vcf.gz
+
 gunzip ${cosmic}.vcf.gz
 bgzip ${cosmic}.vcf
 tabix ${cosmic}.vcf.gz
