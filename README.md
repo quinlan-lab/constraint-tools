@@ -1,6 +1,8 @@
 # constraint-tools
 
-Mutation Annotation Format (MAF) specification: https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/
+## Mutation Annotation Format (MAF) specification
+
+https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/
 
 
 ## Gotchas
