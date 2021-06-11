@@ -1,11 +1,12 @@
 # constraint-tools
 
-## Mutation Annotation Format (MAF) specification
+## Mutation Annotation Format (MAF) 
 
 1. specification: https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/
-2. tools: 
+2. minimal example: https://github.com/mskcc/vcf2maf/blob/main/data/minimalist_test_maf.tsv
+3. tooling: 
     1. [maf-lib](https://github.com/NCI-GDC/maf-lib): comprehensive, but lacks so much documentation that it is effectively un-usable
-    2. [vcf2maf](https://github.com/mskcc/vcf2maf): contains a maf-to-vcf tool; also contains a [minimallly formatted MAF template](https://github.com/mskcc/vcf2maf/blob/main/data/minimalist_test_maf.tsv)
+    2. [vcf2maf](https://github.com/mskcc/vcf2maf): reliance on vep makes tool effectively unusable
 
 
 ## Data Gotchas
