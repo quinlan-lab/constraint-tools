@@ -8,7 +8,7 @@
     2. [vcf2maf](https://github.com/mskcc/vcf2maf): contains a maf-to-vcf tool
 
 
-## Gotchas
+## Data Gotchas
 
 Based upon: https://www.biostars.org/p/69222/
 
