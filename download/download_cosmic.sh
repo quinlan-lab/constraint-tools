@@ -31,7 +31,8 @@ url="https://cancer.sanger.ac.uk/cosmic/file_download/GRCh38/cosmic/v94/VCF/${co
 
 authenticated_url=$(curl --header "Authorization: Basic ${authentication_string}" ${url}  | jq --raw-output .url)
 echo -e "${CYAN}Downloading COSMIC...${NO_COLOR}\n"
-cosmic_path="data/cosmic/${cosmic}"
+root="/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools"
+cosmic_path="${root}/data/cosmic/${cosmic}"
 curl ${authenticated_url} > ${cosmic_path}.vcf.gz 
 
 gunzip ${cosmic_path}.vcf.gz

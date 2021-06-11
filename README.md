@@ -2,7 +2,10 @@
 
 ## Mutation Annotation Format (MAF) specification
 
-https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/
+1. specification: https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/
+2. tools: 
+  1. https://github.com/NCI-GDC/maf-lib comprehensive, but lacks so much documentation that it is effectively un-usable
+  2. https://github.com/mskcc/vcf2maf 
 
 
 ## Gotchas
