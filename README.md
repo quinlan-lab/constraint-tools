@@ -6,7 +6,7 @@
 2. minimal example: https://github.com/mskcc/vcf2maf/blob/main/data/minimalist_test_maf.tsv
 3. tooling: 
     1. [maf-lib](https://github.com/NCI-GDC/maf-lib): comprehensive, but lacks so much documentation that it is effectively unusable
-    2. [vcf2maf](https://github.com/mskcc/vcf2maf): reliance on vep makes tool effectively unusable
+    2. [vcf2maf](https://github.com/mskcc/vcf2maf): can convert maf to vcf, but reliance on vep makes tool effectively unusable
 
 
 ## Data Gotchas
