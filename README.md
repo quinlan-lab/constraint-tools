@@ -10,7 +10,7 @@ Sorted, block compressed, and indexed vcf, maf, gtf and fasta files can be found
 
 ## TODO 
 
-1. read: https://bioinfologics.github.io/post/2018/09/17/k-mer-counting-part-i-introduction/
+1. get minimal CLI working
 2. remove variants that have low read coverage, lie in low-complexity sequence, etc
 3. stratify variants by cancer type 
 
@@ -21,7 +21,6 @@ Sorted, block compressed, and indexed vcf, maf, gtf and fasta files can be found
 3. tooling: 
     1. [maf-lib](https://github.com/NCI-GDC/maf-lib): comprehensive, but lacks so much documentation that it is effectively unusable
     2. [vcf2maf](https://github.com/mskcc/vcf2maf): can convert maf to vcf, but reliance on vep makes tool effectively unusable
-
 
 ## Data Gotchas
 
