@@ -10,7 +10,7 @@ Sorted, block compressed, and indexed vcf, maf, gtf and fasta files can be found
 
 ## TODO 
 
-1. get minimal CLI working
+1. get minimal CLI working, using a test set (one of Jason's positive control genes and a manually selected, small neutral region)
 2. remove variants that have low read coverage, lie in low-complexity sequence, etc
 3. stratify variants by cancer type 
 
