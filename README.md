@@ -2,7 +2,7 @@
 
 ## Data 
 
-Sorted, block compressed, and index data files can be found at: 
+Sorted, block compressed, and indexed vcf, maf, gtf and fasta files can be found at: 
 
 ```
 /scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/data

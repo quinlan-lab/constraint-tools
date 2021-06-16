@@ -2,7 +2,7 @@
 # https://github.com/pysam-developers/pysam/blob/b82cbcae22c088e64fdb58f8acaf1e9773c7b088/pysam/libctabix.pyx
 import pysam
 
-mutations = pysam.TabixFile("data/icgc/mutations.sorted.maf.gz")
+mutations = pysam.TabixFile("/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/data/icgc/mutations.sorted.maf.gz")
 
 print(mutations.contigs)
 
