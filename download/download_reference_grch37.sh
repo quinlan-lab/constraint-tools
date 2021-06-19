@@ -16,8 +16,6 @@ export RED='\033[0;31m'
 export CYAN='\033[0;36m'
 export NO_COLOR='\033[0m' 
 
-echo -e "${CYAN}Downloading GRCH37 reference plus decoy sequences...${NO_COLOR}\n"
-
 # https://dcc.icgc.org/releases/PCAWG/reference_data/pcawg-bwa-mem
 # https://www.cureffi.org/2013/02/01/the-decoy-genome/
 
@@ -32,9 +30,9 @@ download_file_with_suffix () {
   wget ${url}/genome.${suffix_} --output-document=${path}/genome.${suffix_}  
 }
 
-# wget ${url}/README.txt --output-document=${path}/README.txt
-# download_file_with_suffix "fa.gz.fai"
-# download_file_with_suffix "fa.gz"
+echo -e "${CYAN}Downloading GRCH37 reference plus decoy sequences...${NO_COLOR}\n"
+wget ${url}/README.txt --output-document=${path}/README.txt
+download_file_with_suffix "fa.gz"
 
 check_digest () { 
   local suffix_=$1
@@ -48,9 +46,22 @@ check_digest () {
 }
 
 check_digest "fa.gz" "a07c7647c4f2e78977068e9a4a31af15"
-check_digest "fa.gz.fai" "bb77e60e9a492fd0172e2b11e6c16afd"
 
+echo -e "${CYAN}Decompressing reference file...${NO_COLOR}\n"
+# https://unix.stackexchange.com/a/158538/406037
+set +o errexit
+gzip --decompress ${path}/genome.fa.gz 
+set -o errexit
 
+echo -e "${CYAN}Block compressing reference file...${NO_COLOR}\n"
+bgzip --stdout ${path}/genome.fa > ${path}/genome.fa.gz
+
+echo -e "${CYAN}Indexing block-compressed fasta file....${NO_COLOR}"
+# the index produced is compatible with pyfaidx:
+samtools faidx ${path}/genome.fa.gz
+
+echo -e "${CYAN}Removing uncompressed fasta file ... ${NO_COLOR}"
+rm ${path}/genome.fa
 
 
 
