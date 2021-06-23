@@ -9,7 +9,14 @@ bash install.sh
 ```
 Only installation on Linux x86_64 is currently supported.
 
+## Quick Start
+
+```
+bash tests/test.sh
+```
+
 ## Usage
+
 Assuming that the path to this directory on your filesystem is `${root}`, usage is:
 
 ```
