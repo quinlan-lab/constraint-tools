@@ -1,6 +1,6 @@
 set -o errexit
 set -o pipefail
-# set -o nounset
+set -o nounset
 # set -o xtrace
 PS4='+ (${BASH_SOURCE[0]##*/} @ ${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 
