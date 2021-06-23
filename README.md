@@ -55,7 +55,7 @@ Required arguments are:
 ## Input 
 
 Assuming one has access to the protected environment on the CHPC at University of Utah, 
-then sorted, block compressed, and indexed vcf, maf, gtf and fasta files can be found at: 
+then sorted, block-compressed, and indexed vcf, maf, gtf and fasta files can be found at: 
 
 ```
 /scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/data
@@ -63,7 +63,10 @@ then sorted, block compressed, and indexed vcf, maf, gtf and fasta files can be 
 
 ## Output 
 
-A specification of the sequence-dependent mutation model in json format. 
+A specification of the sequence-dependent mutation model in json format viewable using, e.g., 
+```
+${root}/bin/jq . <json file> 
+```
 
 ## TODO 
 
