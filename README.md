@@ -63,7 +63,7 @@ then sorted, block-compressed, and indexed vcf, maf, gtf and fasta files can be 
 
 ## Output 
 
-A specification of the sequence-dependent mutation model in json format viewable using, e.g., 
+A specification of the sequence-dependent mutation model in json format, viewable using, e.g., 
 ```
 ${root}/bin/jq . <json file> 
 ```
