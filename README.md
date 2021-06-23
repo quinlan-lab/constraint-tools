@@ -19,7 +19,7 @@ bash tests/test.sh
 
 ## Usage
 
-Assuming that the path to this directory on your filesystem is `${root}`, usage is:
+Assuming that the path to the `constraint-tools` directory on your filesystem is `${root}`, usage is:
 
 ```
 PATH="${root}:$PATH"
