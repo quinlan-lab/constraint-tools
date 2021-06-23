@@ -25,7 +25,7 @@ genome="${root}/data/reference/grch37/genome.fa.gz"
 neutral_region="22:30,000,000-31,000,000"
 kmer_size="3"
 
-output="${root}/tests/results"
+output="${root}/tests"
 mkdir --parents ${output}
 
 # ${region} should be a putatively neutral genomic interval
