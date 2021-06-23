@@ -9,7 +9,9 @@ bash install.sh
 ```
 Only installation on Linux x86_64 is currently supported.
 
-## Quick Start
+## Quick Start 
+
+Assuming one has access to the protected environment on the CHPC at University of Utah: 
 
 ```
 bash tests/test.sh
