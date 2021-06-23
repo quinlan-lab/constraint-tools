@@ -2,11 +2,50 @@
 
 ## Installation
 
-git clone https://github.com/petermchale/trfermikit
-cd trfermikit
+```
+git clone https://github.com/quinlan-lab/constraint-tools
+cd constraint-tools
 bash install.sh 
-conda activate trfermikit
+```
 Only installation on Linux x86_64 is currently supported.
+
+## Usage
+Assuming that the path to this directory on your filesystem is `${root}`, usage is:
+
+```
+PATH="${root}:$PATH"
+constraint-tools [SUB_COMMAND] REQUIRED_ARGUMENTS
+```
+
+Valid sub-commands are: 
+
+```
+train 
+      estimate kmer-dependent mutation probabilities 
+predict
+      call genomic regions predicted to be under negative selection 
+```
+
+Required arguments are:
+
+```
+--genome STR
+      Path to the reference fasta. 
+      A "samtools faidx" index is expected to be present at the same path. 
+--region STR 
+      Samtools-style specification of a genomic interval (see examples in tests directory).
+--mutations STR 
+      Path to a set of mutations specified in Mutation Annotation Format.
+      A "tabix" index is expected to be present at the same path.
+--kmer-size INT
+      Size of kmer to use in model. 
+--output STR 
+      Path to a directory to store results in. 
+```
+
+## Output 
+
+A specification of the sequence-dependent mutation model in json format. 
 
 ## Data 
 
