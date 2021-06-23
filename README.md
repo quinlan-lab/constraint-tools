@@ -43,17 +43,17 @@ Required arguments are:
       Path to a directory to store results in. 
 ```
 
-## Output 
-
-A specification of the sequence-dependent mutation model in json format. 
-
-## Data 
+## Input 
 
 Sorted, block compressed, and indexed vcf, maf, gtf and fasta files can be found at: 
 
 ```
 /scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/data
 ```
+
+## Output 
+
+A specification of the sequence-dependent mutation model in json format. 
 
 ## TODO 
 
