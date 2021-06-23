@@ -20,7 +20,7 @@ set -o pipefail
 set -o noclobber
 set -o nounset
 
-set -o xtrace
+# set -o xtrace
 # Must use single quote to prevent variable expansion.
 # For example, if double quotes were used, ${LINENO} would take on the value of the current line,
 # instead of its value when PS4 is used later in the script
@@ -47,7 +47,7 @@ if [[ ! -f ${mutations%.maf.gz}.${column_heading}.txt ]]; then
 fi 
 
 number_tumors=$(cat ${mutations%.maf.gz}.${column_heading}.txt | wc -l)
-bash ${root}/utilities/info.sh "number tumors: ${number_tumors}"
+bash ${root}/utilities/info.sh "Number tumors: ${number_tumors}\n"
 
 python ${root}/train-model/estimate_mutation_probabilities.py \
   --kmer-size ${kmer_size} \

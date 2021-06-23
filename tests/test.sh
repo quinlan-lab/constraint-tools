@@ -2,7 +2,7 @@ set -o errexit
 set -o pipefail
 # set -o noclobber
 
-set -o xtrace
+# set -o xtrace
 # Must use single quote to prevent variable expansion.
 # For example, if double quotes were used, ${LINENO} would take on the value of the current line,
 # instead of its value when PS4 is used later in the script
@@ -28,11 +28,12 @@ kmer_size="3"
 output="${root}/tests"
 mkdir --parents ${output}
 
+set -o xtrace
 # ${region} should be a putatively neutral genomic interval
 constraint-tools train \
-  --mutations ${mutations} \
   --genome ${genome} \
   --region ${neutral_region} \
+  --mutations ${mutations} \
   --kmer-size ${kmer_size} \
   --output ${output}
 

@@ -1,5 +1,13 @@
 # constraint-tools
 
+## Installation
+
+git clone https://github.com/petermchale/trfermikit
+cd trfermikit
+bash install.sh 
+conda activate trfermikit
+Only installation on Linux x86_64 is currently supported.
+
 ## Data 
 
 Sorted, block compressed, and indexed vcf, maf, gtf and fasta files can be found at: 

@@ -26,10 +26,10 @@ root="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 export PYTHONPATH="${root}/utilities"
 
 tool="${1}" 
-# echo "tool: ${tool}"
+bash ${root}/utilities/info.sh "\nTool: ${tool}\n"
 shift
 args="${@}"
-# echo "args: ${args}"
+bash ${root}/utilities/info.sh "Tool arguments: ${args}\n"
 
 if [[ ${tool} == "train" ]]; then 
   bash ${root}/train-model/train-model.sh ${args} --root ${root} 

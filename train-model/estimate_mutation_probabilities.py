@@ -22,6 +22,7 @@ def compute_total_counts(genome, kmer_data, args):
   # Workaround is to parse "region" into "chromosome", "start", "end": 
   neutral_region = genome.fetch(*parse(args.region)).upper()    
 
+  print_string_as_info('Iterating over neutral region and counting kmers:')
   for position in np.arange(0, len(neutral_region), 1):
     try: 
       kmer = fetch_kmer_from_sequence(neutral_region, position, args.kmer_size)
@@ -30,10 +31,12 @@ def compute_total_counts(genome, kmer_data, args):
     except IndexError:
       print_string_as_info('IndexError at position: {}'.format(position))
       pass 
+  print('')
 
   return kmer_data   
 
 def compute_snv_counts(mutations, genome, kmer_data, args): 
+  print_string_as_info('Fetching SNVs in region and incrementing corresponding kmer counts\n')
   SNVs = fetch_SNVs(mutations, genome, args)
   for SNV in SNVs: 
     kmer_data[SNV['kmer']]['snv_count'] += 1
@@ -56,6 +59,7 @@ def estimate_mutation_probabilities():
     kmer_data = compute_total_counts(genome, kmer_data, args)
     kmer_data = compute_snv_counts(mutations, genome, kmer_data, args)    
     
+  print_string_as_info('Estimating mutation probabilities\n')
   for kmer, data in kmer_data.items():
       try: 
           kmer_data[kmer]['estimated_mutation_probability'] = data['snv_count']/data['cohort_sequence_count']
@@ -64,9 +68,12 @@ def estimate_mutation_probabilities():
           print_string_as_info('ZeroDivisionError:')
           print_string_as_info(kmer)
           print_json(data)
+      kmer_data[kmer]['number_tumors'] = args.number_tumors
       
-  with open(args.output + '/model.json', 'w') as fh:
+  model_path = args.output + '/binomial_model.json'
+  with open(model_path, 'w') as fh:
     json.dump(kmer_data, fh)
+  print_string_as_info('Writing binomial model to disk at: {}'.format(model_path))
 
 def parse_arguments(): 
   parser = argparse.ArgumentParser(description='')
