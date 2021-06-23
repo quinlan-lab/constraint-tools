@@ -16,9 +16,23 @@ export RED='\033[0;31m'
 export CYAN='\033[0;36m'
 export NO_COLOR='\033[0m'
 
-reference="/scratch/ucgd/lustre-work/quinlan/u6018199/chaisson_2019/reference/GRCh38_full_analysis_set_plus_decoy_hla"
+root="/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools"
 
-echo "***************************"
-echo -e "${CYAN}test: ${NO_COLOR}"
-echo -e "expected result:\nXXX"
-echo -e "observed result:\nYYY"
+PATH="${root}:$PATH"
+
+mutations="${root}/data/icgc/mutations.sorted.maf.gz"
+genome="${root}/data/reference/grch37/genome.fa.gz"
+neutral_region="22:30,000,000-31,000,000"
+kmer_size="3"
+
+output="${root}/tests/results"
+mkdir --parents ${output}
+
+# ${region} should be a putatively neutral genomic interval
+constraint-tools train \
+  --mutations ${mutations} \
+  --genome ${genome} \
+  --region ${neutral_region} \
+  --kmer-size ${kmer_size} \
+  --output ${output}
+

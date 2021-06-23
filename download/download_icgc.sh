@@ -17,7 +17,9 @@ export CYAN='\033[0;36m'
 export NO_COLOR='\033[0m' 
 
 # https://dcc.icgc.org/releases/PCAWG/consensus_snv_indel/
-# Supplementary Table 4 at https://www.nature.com/articles/s41586-020-1969-6#MOESM3
+# https://www.nature.com/articles/s41586-020-1969-6#MOESM3 : 
+# 1. Supplementary Table 4
+# 2. "Matching normal samples were obtained from blood (2,064 donors)" 
 url="https://dcc.icgc.org/api/v1/download?fn=/PCAWG/consensus_snv_indel/final_consensus_passonly.snv_mnv_indel.icgc.public.maf.gz"
 root="/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools"
 path="${root}/data/icgc"
