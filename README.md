@@ -54,7 +54,8 @@ Required arguments are:
 
 ## Input 
 
-Sorted, block compressed, and indexed vcf, maf, gtf and fasta files can be found at: 
+Assuming one has access to the protected environment on the CHPC at University of Utah, 
+then sorted, block compressed, and indexed vcf, maf, gtf and fasta files can be found at: 
 
 ```
 /scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/data
