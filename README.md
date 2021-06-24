@@ -70,9 +70,10 @@ ${root}/bin/jq . <json file>
 
 ## TODO 
 
-1. get minimal CLI working, using a test set (one of Jason's positive control genes and a manually selected, small neutral region)
-2. remove variants that have low read coverage, lie in low-complexity sequence, etc
-3. stratify variants by cancer type 
+Jason will manually select a contiguous, putatively neutral region of the genome to train the model on using
+`constraint-tools train ...`. He will also find the genomic coordinates of a positive-control exon. 
+
+Peter will implement a minimal version of `constraint-tools predict ...`. 
 
 ## Mutation Annotation Format (MAF) 
 
@@ -81,11 +82,6 @@ ${root}/bin/jq . <json file>
 3. tooling: 
     1. [maf-lib](https://github.com/NCI-GDC/maf-lib): comprehensive, but lacks so much documentation that it is effectively unusable
     2. [vcf2maf](https://github.com/mskcc/vcf2maf): can convert maf to vcf, but reliance on vep makes tool effectively unusable
+4. gotchas: https://www.biostars.org/p/69222/
 
-## Data Gotchas
-
-Based upon: https://www.biostars.org/p/69222/
-
-1. Ensure that different tumor sample barcodes were not used for the same sample by reducing the tumor IDs to the form "TCGA-XX-XXXX-XX". 
-2. Our model assumes that the probability of generating a mutation at a given site in a given tumor is independent of whether a mutation has been seen at the same site in another tumor. That assumption is violated when tumors share a common ancestor, as is the case for a primary tumor and a metastasis. Therefore one would probably want to ensure that no more than one tumor per patient is included in the maf.
 
