@@ -17,6 +17,8 @@ Assuming one has access to the protected environment on the CHPC at University o
 bash tests/test.sh
 ```
 
+Then view https://github.com/quinlan-lab/constraint-tools/blob/main/tests/plot_mutation_probabilities.ipynb
+ 
 ## Usage
 
 Assuming that the path to the `constraint-tools` directory on your filesystem is `${root}`, usage is:
