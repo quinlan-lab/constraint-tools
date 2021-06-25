@@ -1,5 +1,7 @@
 import itertools 
 
+bases = ['A', 'T', 'G', 'C']
+
 def is_odd(kmer_size): 
   if kmer_size % 2 == 0: 
     raise ValueError('kmer size must be odd: {}'.format(kmer_size))
@@ -33,6 +35,28 @@ def middle_base(kmer):
   return kmer[middle_index(kmer)]
 
 def compute_kmers(kmer_size): 
-  bases = ['A', 'T', 'G', 'C']
   return [''.join(tup) for tup in itertools.product(bases, repeat=kmer_size)]
+
+def alternate_bases(kmer): 
+  return set(bases) - {middle_base(kmer)}
+    
+def CpG(kmer): 
+    if len(kmer) == 1: return False 
+    return (
+        kmer[middle_index(kmer)] == 'C' and 
+        kmer[middle_index(kmer)+1] == 'G'
+    )
+
+def initialize_kmer_data(args): 
+  return {
+    kmer: {
+      'CpG': CpG(kmer),
+      'cohort_sequence_count': 0,
+      'sequence_count': 0,
+      'REF': middle_base(kmer),
+      'ALT_counts': { alternate_base: 0 for alternate_base in alternate_bases(kmer) } 
+    } for kmer in compute_kmers(args.kmer_size)
+  }
+
+      
 

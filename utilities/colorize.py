@@ -21,3 +21,5 @@ def print_string_as_error(text):
 def print_string_as_info(text):
   print(Fore.CYAN + text + Style.RESET_ALL, file=sys.stderr)
 
+def print_string_as_info_dim(text):
+  print(Fore.LIGHTBLACK_EX + text + Style.RESET_ALL, file=sys.stderr)

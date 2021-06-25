@@ -1,10 +1,6 @@
-# pysam API: 
-# https://github.com/pysam-developers/pysam/blob/b82cbcae22c088e64fdb58f8acaf1e9773c7b088/pysam/libctabix.pyx
-import pysam
-
-import numpy as np
 import json
 import argparse 
+import numpy as np 
 
 from kmer import initialize_kmer_data, fetch_kmer_from_sequence, alternate_bases, middle_base
 from colorize import print_json, print_string_as_info, print_string_as_info_dim
@@ -28,7 +24,6 @@ def compute_total_counts(genome, kmer_data, args):
       kmer = fetch_kmer_from_sequence(neutral_region, position, args.kmer_size)
       kmer_data[kmer]['cohort_sequence_count'] += args.number_tumors 
       kmer_data[kmer]['sequence_count'] += 1
-      kmer_data[kmer]['sequence_length'] = len(neutral_region)
     except IndexError:
       print_string_as_info_dim('IndexError at position: {}'.format(position))
       pass 
@@ -80,15 +75,3 @@ def estimate_mutation_probabilities():
     json.dump(kmer_data, fh)
   print_string_as_info('Writing multinomial model to disk at: {}'.format(model_path))
 
-def parse_arguments(): 
-  parser = argparse.ArgumentParser(description='')
-  parser.add_argument('--kmer-size', type=int, dest='kmer_size', help='')
-  parser.add_argument('--genome', type=str, help='')
-  parser.add_argument('--region', type=str, help='')
-  parser.add_argument('--number-tumors', type=int, dest='number_tumors', help='')
-  parser.add_argument('--output', type=str, help='')
-  parser.add_argument('--mutations', type=str, help='')
-  return parser.parse_args()
-
-if __name__ == '__main__': 
-  estimate_mutation_probabilities()  

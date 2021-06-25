@@ -23,7 +23,7 @@ PATH="${root}:$PATH"
 mutations="${root}/data/icgc/mutations.sorted.maf.gz"
 genome="${root}/data/reference/grch37/genome.fa.gz"
 neutral_region="22:30,000,000-31,000,000"
-kmer_size="3"
+kmer_size="5"
 
 output="${root}/tests"
 mkdir --parents ${output}
