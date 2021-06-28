@@ -51,6 +51,7 @@ def estimate_mutation_probabilities_core(kmer_data, args):
       for base in get_bases(): probabilities[base] = None
     else: 
       for alternate_base in alternate_bases(kmer):
+        # https://math.stackexchange.com/a/421838
         probabilities[alternate_base] = data['ALT_counts'][alternate_base]/data['cohort_sequence_count']
       probabilities[middle_base(kmer)] = 1.0 - np.sum(
         [probabilities[alternate_base] for alternate_base in alternate_bases(kmer)]
