@@ -1,4 +1,6 @@
-import itertools 
+import itertools
+
+from colorize import print_string_as_error 
 
 bases = ['A', 'T', 'G', 'C']
 
@@ -15,16 +17,22 @@ def compute_left_right(position, kmer_size, sequence_length):
   if right > sequence_length: raise IndexError
   return left, right
 
+def check_for_Ns(kmer): 
+  if 'N' in kmer: 
+    print_string_as_error('Please supply genomic sequences devoid of Ns')
+    raise ValueError
+  return kmer
+
 def fetch_kmer_from_sequence(sequence, position, kmer_size): 
   left, right = compute_left_right(position, kmer_size, len(sequence))  
-  return sequence[left:right]
+  return check_for_Ns(sequence[left:right].upper())
 
 def fetch_kmer_from_genome(genome, chromosome, position, kmer_size): 
   # provide the "reference" argument positionally to "get_reference_length": 
   # https://stackoverflow.com/a/24463222/6674256
   left, right = compute_left_right(position, kmer_size, genome.get_reference_length(chromosome))  
   # "fetch" API: https://pysam.readthedocs.io/en/latest/api.html?highlight=fasta#pysam.FastaFile
-  return genome.fetch(chromosome, left, right).upper()
+  return check_for_Ns(genome.fetch(chromosome, left, right).upper())
 
 def middle_index(kmer): 
   kmer_size = len(kmer)

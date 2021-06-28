@@ -16,11 +16,13 @@ def parse(region):
   start, end = map(lambda s: int(s.replace(',', '')), start_end.split('-'))
   return chromosome, start, end
 
+# using the "khmer" library might make this function a handful of times faster:
+# https://khmer.readthedocs.io/en/v0.6.1-0/ktable.html
 def compute_total_counts(genome, kmer_data, args): 
   # "fetch" API: https://pysam.readthedocs.io/en/latest/api.html?highlight=fasta#pysam.FastaFile
   # Note that fetch(region=region) does not work if the coordinates in "region" contains commas
   # Workaround is to parse "region" into "chromosome", "start", "end": 
-  neutral_region = genome.fetch(*parse(args.region)).upper()    
+  neutral_region = genome.fetch(*parse(args.region))    
 
   print_string_as_info('Iterating over neutral region and counting kmers:')
   for position in np.arange(0, len(neutral_region), 1):
