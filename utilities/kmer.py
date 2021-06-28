@@ -58,5 +58,5 @@ def initialize_kmer_data(args):
     } for kmer in compute_kmers(args.kmer_size)
   }
 
-      
-
+def get_bases():
+  return bases
