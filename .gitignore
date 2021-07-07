@@ -22,3 +22,4 @@ package-lock.json
 babel.config.js
 dist
 static
+node
