@@ -34,7 +34,7 @@ bash ${root}/utilities/info.sh "Tool arguments: ${args}\n"
 if [[ ${tool} == "train" ]]; then 
   bash ${root}/train-model/train-model.sh ${args} --root ${root} 
 elif [[ ${tool} == "visualize" ]]; then 
-  bash ${root}/web-app/app.sh ${args} --root ${root} 
+  bash ${root}/flask-app/app.sh ${args} --root ${root} 
 else
   bash ${root}/utilities/error.sh "invalid tool: ${tool}"
   exit 1

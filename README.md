@@ -6,6 +6,7 @@
 git clone https://github.com/quinlan-lab/constraint-tools
 cd constraint-tools
 bash install.sh 
+bash build-vue-app.sh
 ```
 Only installation on Linux x86_64 is currently supported.
 
@@ -17,12 +18,12 @@ Assuming one has access to the protected environment on the CHPC at University o
 bash tests/test.sh
 ```
 
-This starts a web app. Visit `localhost:8080` in your web browser to view the web app. 
+This starts a web app. Visit `localhost:5000` in your web browser to view the web app. 
 
 If the software is run on a remote machine, then you can view the web-app on a local machine by doing the following from the local machine (change username and host first):
 
 ```
-ssh -N -L localhost:8080:localhost:8080 username@host
+ssh -N -L localhost:5000:localhost:5000 username@host
 ```
 
 A plot of estimated mutation probabilities that are fed into the model can be found here: https://github.com/quinlan-lab/constraint-tools/blob/main/tests/plot_mutation_probabilities.ipynb
@@ -78,6 +79,14 @@ then sorted, block-compressed, and indexed vcf, maf, gtf and fasta files can be 
 A specification of the sequence-dependent mutation model in json format, viewable using, e.g., 
 ```
 ${root}/bin/jq . <json file> 
+```
+
+## Development 
+
+Changes to `vue-app` necessitate a rebuilding of the vue app by running 
+
+```
+bash build-vue-app.sh 
 ```
 
 ## TODO 
