@@ -65,6 +65,20 @@ Required arguments for `train` are:
       Path to a directory to store results in. 
 ```
 
+This produces a specification of the sequence-dependent mutation model in json format, viewable using, e.g., 
+```
+${root}/bin/jq . ${output}/<json file> 
+```
+
+Required arguments for `visualize` are:
+
+```
+--model STR
+      Path to the model produced by the train sub-command (in json format)
+--port INT 
+      The port to serve the web-app on
+```
+      
 ## Input 
 
 Assuming one has access to the protected environment on the CHPC at University of Utah, 
@@ -72,13 +86,6 @@ then sorted, block-compressed, and indexed vcf, maf, gtf and fasta files can be 
 
 ```
 /scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/data
-```
-
-## Output 
-
-A specification of the sequence-dependent mutation model in json format, viewable using, e.g., 
-```
-${root}/bin/jq . <json file> 
 ```
 
 ## Development 
