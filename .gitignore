@@ -21,3 +21,4 @@ node_modules
 package-lock.json
 babel.config.js
 dist
+static
