@@ -20,6 +20,6 @@ cd ${root}/vue-app
 npm install
 npm run build 
 cd ${root}
-rm --recursive ${root}/flask-app/static
+rm --force --recursive ${root}/flask-app/static
 mkdir --parents ${root}/flask-app/static
 mv ${root}/vue-app/dist/* ${root}/flask-app/static
