@@ -23,7 +23,7 @@ export NO_COLOR='\033[0m'
 root="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # https://stackoverflow.com/a/43476575/6674256
-export PYTHONPATH="${root}/utilities"
+export PYTHONPATH="${root}/utilities:${root}/predict-constraint"
 
 tool="${1}" 
 bash ${root}/utilities/info.sh "\nTool: ${tool}\n"
@@ -33,9 +33,9 @@ bash ${root}/utilities/info.sh "Tool arguments: ${args}\n"
 
 if [[ ${tool} == "train" ]]; then 
   bash ${root}/train-model/train-model.sh ${args} --root ${root} 
-elif [[ ${tool} == "predict" ]]; then 
-  bash ${root}/predict-constraint/predict-constraint.sh ${args} --root ${root} 
+elif [[ ${tool} == "visualize" ]]; then 
+  bash ${root}/web-app/app.sh ${args} --root ${root} 
 else
-  bash ${root}/utilities/error.sh "subcommand must be one of 'train' or 'predict'"
+  bash ${root}/utilities/error.sh "invalid tool: ${tool}"
   exit 1
 fi 

@@ -16,3 +16,8 @@ libexec
 __pycache__
 
 cosmic_credentials.json
+
+node_modules
+package-lock.json
+babel.config.js
+dist

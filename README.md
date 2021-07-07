@@ -17,7 +17,15 @@ Assuming one has access to the protected environment on the CHPC at University o
 bash tests/test.sh
 ```
 
-Then view https://github.com/quinlan-lab/constraint-tools/blob/main/tests/plot_mutation_probabilities.ipynb
+This starts a web app. Visit `localhost:8080` in your web browser to view the web app. 
+
+If the software is run on a remote machine, then you can view the web-app on a local machine by doing the following from the local machine (change username and host first):
+
+```
+ssh -N -L localhost:8080:localhost:8080 username@host
+```
+
+A plot of estimated mutation probabilities that are fed into the model can be found here: https://github.com/quinlan-lab/constraint-tools/blob/main/tests/plot_mutation_probabilities.ipynb
  
 ## Usage
 
@@ -33,11 +41,13 @@ Valid sub-commands are:
 ```
 train 
       estimate kmer-dependent mutation probabilities 
+visualize
+      start a web app that visualizes mutation counts as a function of genomic coordinate
 predict
-      call genomic regions predicted to be under negative selection 
+      call genomic regions predicted to be under negative selection [not yet implemented]
 ```
 
-Required arguments are:
+Required arguments for `train` are:
 
 ```
 --genome STR
@@ -75,7 +85,7 @@ ${root}/bin/jq . <json file>
 Jason will manually select a contiguous, putatively neutral region of the genome to train the model on using
 `constraint-tools train ...`. He will also find the genomic coordinates of a positive-control exon. 
 
-Peter will implement a minimal version of `constraint-tools predict ...`. 
+Peter will implement a minimal version of `constraint-tools visualize ...`. 
 
 ## Mutation Annotation Format (MAF) 
 

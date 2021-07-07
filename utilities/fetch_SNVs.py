@@ -6,7 +6,7 @@ from column_headings import fetch_column_heading_indices
 from colorize import print_json
 from kmer import fetch_kmer_from_genome, fetch_kmer_from_sequence, middle_base, middle_index
 
-def fetch_SNVs(mutations, genome, args):
+def fetch_SNVs(mutations, genome, region, meta):
   SNVs = []
   column_headings = [
     'Chromosome'.lower(), 
@@ -19,8 +19,8 @@ def fetch_SNVs(mutations, genome, args):
     'Variant_Type'.lower(), 
     'ref_context' 
   ]
-  column_heading_indices = fetch_column_heading_indices(args.mutations)
-  for row in mutations.fetch(region=args.region, parser=pysam.asTuple()):
+  column_heading_indices = fetch_column_heading_indices(meta['mutations'])
+  for row in mutations.fetch(region=region, parser=pysam.asTuple()):
     mutation = {}
     for column_heading in column_headings: 
       try: 
@@ -52,7 +52,7 @@ def fetch_SNVs(mutations, genome, args):
     except KeyError:
       pass
 
-    kmer = fetch_kmer_from_genome(genome, mutation['chromosome'], mutation['position'], args.kmer_size)
+    kmer = fetch_kmer_from_genome(genome, mutation['chromosome'], mutation['position'], meta['kmer_size'])
     mutation['kmer'] = kmer
     
     if middle_base(kmer) != mutation['reference_allele'].upper(): # sanity check
@@ -64,7 +64,7 @@ def fetch_SNVs(mutations, genome, args):
     
     try:
       ref_context = mutation['ref_context'].upper() 
-      kmer_from_maf = fetch_kmer_from_sequence(ref_context, middle_index(ref_context), args.kmer_size)        
+      kmer_from_maf = fetch_kmer_from_sequence(ref_context, middle_index(ref_context), meta['kmer_size'])        
       if kmer_from_maf != kmer: # sanity check
         print_json(mutation)
         raise ValueError('kmer from maf does not match kmer inferred from fasta') 

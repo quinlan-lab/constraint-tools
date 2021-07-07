@@ -28,12 +28,16 @@ kmer_size="5"
 output="${root}/tests"
 mkdir --parents ${output}
 
-set -o xtrace
-# ${region} should be a putatively neutral genomic interval
-constraint-tools train \
-  --genome ${genome} \
-  --region ${neutral_region} \
-  --mutations ${mutations} \
-  --kmer-size ${kmer_size} \
-  --output ${output}
+# constraint-tools train \
+#   --genome ${genome} \
+#   --region ${neutral_region} \
+#   --mutations ${mutations} \
+#   --kmer-size ${kmer_size} \
+#   --output ${output}
 
+model="${output}/model.json"
+port="5000"
+
+constraint-tools visualize \
+  --model ${model} \
+  --port ${port}

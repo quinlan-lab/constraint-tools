@@ -4,16 +4,21 @@ from colorize import print_string_as_error
 
 bases = ['A', 'T', 'G', 'C']
 
-def is_odd(kmer_size): 
-  if kmer_size % 2 == 0: 
-    raise ValueError('kmer size must be odd: {}'.format(kmer_size))
+def is_odd(filter_size): 
+  if filter_size % 2 == 0: 
+    raise ValueError('filter size must be odd: {}'.format(filter_size))
 
-def compute_left_right(position, kmer_size, sequence_length): 
-  is_odd(kmer_size)
-  flank = int((kmer_size-1)/2)
+def compute_left_right(position, filter_size, sequence_length, offset='zero_offset'): 
+  is_odd(filter_size)
+  flank = int((filter_size-1)/2)
   left = position - flank
   if left < 0: raise IndexError
-  right = position + flank + 1
+  if offset == 'zero_offset':
+    right = position + flank + 1
+  elif offset == 'unit_offset':
+    right = position + flank
+  else: 
+    raise ValueError
   if right > sequence_length: raise IndexError
   return left, right
 
@@ -49,11 +54,14 @@ def alternate_bases(kmer):
   return set(bases) - {middle_base(kmer)}
     
 def CpG(kmer): 
-    if len(kmer) == 1: return False 
-    return (
-        kmer[middle_index(kmer)] == 'C' and 
-        kmer[middle_index(kmer)+1] == 'G'
-    )
+  if len(kmer) == 1: return False 
+  return (
+      kmer[middle_index(kmer)] == 'C' and 
+      kmer[middle_index(kmer)+1] == 'G'
+  )
+
+def not_CpG(kmer): 
+  return not CpG(kmer)
 
 def initialize_kmer_data(args): 
   return {
