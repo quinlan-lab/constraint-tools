@@ -1,7 +1,7 @@
 import argparse 
 import color_traceback
 from flask import Flask, request, make_response
-from flask_cors import CORS
+# from flask_cors import CORS
 
 from compute_mutation_counts import compute_mutation_counts
 from colorize import print_string_as_info, print_json
@@ -13,29 +13,24 @@ def parse_arguments():
   return parser.parse_args()
 
 app = Flask(__name__, static_folder='static', static_url_path="/static") # WSGI app
-# app = Flask(__name__) # WSGI app
 
 # https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
 # this line of code can be removed once the vue.js app is served from the same port as the flask app: 
-CORS(app)
+# CORS(app)
 
-# @app.route('/', defaults={'path': ''})
-# @app.route('/<path:path>')
-# def catch_all(path):
-#   return app.send_static_file("index.html")
+# Notes on serving SPAs:
+# https://flask.palletsprojects.com/en/2.0.x/patterns/singlepageapplications/
+# https://github.com/petermchale/igv-grid/blob/98687612e25560caaffd3802905bd2bdcaefbb9d/launch-web-app.sh#L15
 
 @app.route('/')
-def home():
-  return app.send_static_file("index.html")
+def serve_index_static_file():
+  # https://flask.palletsprojects.com/en/2.0.x/api/#flask.Flask.send_static_file
+  return app.send_static_file('index.html')
 
 @app.route('/<path:path>')
-def other(path):
+def serve_other_static_file(path):
+  # https://flask.palletsprojects.com/en/2.0.x/api/#flask.Flask.send_static_file
   return app.send_static_file(path)
-
-# @app.route('/')
-# def serve_vuejs_app():
-#   # https://flask.palletsprojects.com/en/2.0.x/api/#flask.Flask.send_static_file
-#   return app.send_static_file('index.html')
 
 @app.route('/api', methods=['POST'])
 def serve_api():

@@ -79,7 +79,7 @@ Required arguments for `visualize` are:
       The port to serve the web-app on
 ```
       
-## Input 
+## Input Data
 
 Assuming one has access to the protected environment on the CHPC at University of Utah, 
 then sorted, block-compressed, and indexed vcf, maf, gtf and fasta files can be found at: 
@@ -90,7 +90,7 @@ then sorted, block-compressed, and indexed vcf, maf, gtf and fasta files can be 
 
 ## Development 
 
-Changes to `vue-app` necessitate a rebuilding of the vue app by running 
+Changes to the `vue-app` directory necessitate rebuilding the vue app by running 
 
 ```
 bash build-vue-app.sh 
