@@ -92,9 +92,13 @@ def compute_mutation_counts(region, model_filename, window_size, window_stride):
     window_observed_mutation_counts = compute_window_observed_mutation_counts(mutations, genome, windows, model)
     lollipops_CpG_positive, lollipops_CpG_negative = compute_lollipops(mutations, genome, region, model)
 
+  chromosome, start, end = unpack(region)
+
   return {
     'region': region,
-    'chromosome': unpack(region)[0],
+    'chromosome': chromosome,
+    'start': start,
+    'end': end,
     'windowPositions': [window['position'] for window in windows], 
     'windowRegions': [window['region'] for window in windows], 
     'windowExpectedMutationCounts': window_expected_mutation_counts, 

@@ -24,6 +24,8 @@ export const store = new Vuex.Store({
       api(config).then(response => {
         commit('setMutationCounts', response.data)
         commit('setFetchingData', false)
+        console.log('data fetched from API:')
+        console.log(response.data)
       }).catch(error => {
         alert('getMutationCounts action: ' + error)
       })

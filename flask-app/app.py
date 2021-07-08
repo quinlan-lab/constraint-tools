@@ -1,7 +1,7 @@
 import argparse 
 import color_traceback
 from flask import Flask, request, make_response
-# from flask_cors import CORS
+from flask_cors import CORS # required for development of vue app
 
 from compute_mutation_counts import compute_mutation_counts
 from colorize import print_string_as_info, print_json
@@ -16,7 +16,7 @@ app = Flask(__name__, static_folder='static', static_url_path="/static") # WSGI 
 
 # https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
 # this line of code can be removed once the vue.js app is served from the same port as the flask app: 
-# CORS(app)
+CORS(app) # required for development of vue app
 
 # Notes on serving SPAs:
 # https://flask.palletsprojects.com/en/2.0.x/patterns/singlepageapplications/

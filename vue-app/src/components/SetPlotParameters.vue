@@ -1,7 +1,7 @@
 <!-- Based upon: https://vuematerial.io/components/form -->
 <!-- sliders would be better for some inputs here, but the slider component is not yet implemented in this library -->
 <!-- https://github.com/vuematerial/vue-material/blob/dev/ROADMAP.md -->
-<!-- TODO: add form validation as per the website above -->
+
 <template> 
   <md-card 
     style="margin: 10px auto; " 
@@ -43,6 +43,22 @@
       </md-button>      
     </md-card-actions>
 
+    <md-snackbar 
+      md-position="center" 
+      :md-active.sync="showSnackbar" 
+    >
+      <span>Please correct the following error(s):</span>
+      <ul>
+        <li v-for="error in errors" :key="error">{{ error }}</li>
+      </ul>    
+      <md-button 
+        class="md-primary" 
+        @click="showSnackbar=false"
+      >
+        <md-icon>close</md-icon>
+      </md-button>
+    </md-snackbar>
+
   </md-card>
 </template> 
 
@@ -54,12 +70,44 @@ export default {
   name: 'SetPlotParameters',
   data () {
     return {
+      errors: [],
+      showSnackbar: false,
       config: config,
     }
   }, 
-  methods: {
+  methods:{
+    isEven (number) {
+      return number % 2 == 0
+    },
+    validateParameters () {
+      this.errors = []
+
+      if (!this.config.region) {
+        this.errors.push('Region required.')
+      }
+      if (!this.config.windowSize) {
+        this.errors.push('Window size required.')
+      }
+      if (!this.config.windowStride) {
+        this.errors.push('Window stride required.')
+      }
+      
+      if (this.isEven(this.config.windowSize)) {
+        this.errors.push('Window size must be odd.')
+      }
+
+      if (this.errors.length > 0) {
+        return false
+      } else { 
+        return true
+      }
+    },
     fetchData () {
-      this.$store.dispatch('getMutationCounts', this.config)
+      if ( this.validateParameters() ) {
+        this.$store.dispatch('getMutationCounts', this.config)
+      } else { 
+        this.showSnackbar = true
+      }
     },
   },
   computed: {

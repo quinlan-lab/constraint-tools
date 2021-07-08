@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="padding: 10px;">
     <set-plot-parameters/>
     <plot-mutation-counts/>
   </div>
