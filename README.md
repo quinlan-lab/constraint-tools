@@ -96,13 +96,6 @@ Changes to the `vue-app` directory necessitate rebuilding the vue app by running
 bash build-vue-app.sh 
 ```
 
-## TODO 
-
-Jason will manually select a contiguous, putatively neutral region of the genome to train the model on using
-`constraint-tools train ...`. He will also find the genomic coordinates of a positive-control exon. 
-
-Peter will implement a minimal version of `constraint-tools visualize ...`. 
-
 ## Mutation Annotation Format (MAF) 
 
 1. specification: https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/
