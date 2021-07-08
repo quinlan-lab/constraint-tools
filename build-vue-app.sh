@@ -20,6 +20,8 @@ root=$PWD
 # no need to export PATH since it is already in the environment: https://unix.stackexchange.com/a/26059/406037
 PATH="${root}/node/bin:$PATH"
 
+bash ${root}/utilities/info.sh "npm version is: $(npm --version)"
+
 cd ${root}/vue-app
 npm install
 npm run build 

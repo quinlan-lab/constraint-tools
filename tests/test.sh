@@ -28,12 +28,12 @@ kmer_size="5"
 output="${root}/tests"
 mkdir --parents ${output}
 
-# constraint-tools train \
-#   --genome ${genome} \
-#   --region ${neutral_region} \
-#   --mutations ${mutations} \
-#   --kmer-size ${kmer_size} \
-#   --output ${output}
+constraint-tools train \
+  --genome ${genome} \
+  --region ${neutral_region} \
+  --mutations ${mutations} \
+  --kmer-size ${kmer_size} \
+  --output ${output}
 
 model="${output}/model.json"
 port="5000"
