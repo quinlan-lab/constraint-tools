@@ -18,13 +18,7 @@ Assuming one has access to the protected environment on the CHPC at University o
 bash tests/test.sh
 ```
 
-This starts a web app. Visit `localhost:5000` in your web browser to view the web app. 
-
-If the software is run on a remote machine, then you can view the web-app on a local machine by doing the following from the local machine (change username and host first):
-
-```
-ssh -N -L localhost:5000:localhost:5000 username@host
-```
+Follow the instructions at the command line to view a web app that visualizes mutation counts as a function of genomic coordinate.  
 
 A plot of estimated mutation probabilities that are fed into the model can be found here: https://github.com/quinlan-lab/constraint-tools/blob/main/tests/plot_mutation_probabilities.ipynb
  

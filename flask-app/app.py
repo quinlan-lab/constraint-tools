@@ -51,16 +51,24 @@ def serve_api():
   )
 
 def print_app_info(): 
+  # print_string_as_info(
+  #   f'if index.html is located in the directory:\n'
+  #   f'{app.static_folder}\n' 
+  #   f'then it is available at the url:\n'
+  #   f'{app.static_url_path}/index.html'
+  # )
   print_string_as_info(
-    f'if index.html is located in the directory:\n'
-    f'{app.static_folder}\n' 
-    f'then it is available at the url:\n'
-    f'{app.static_url_path}/index.html'
+    f'Visit http://localhost:{parse_arguments().port} in your web browser to view the web app.\n\n'
+    f'If the software is run on a remote machine,\n'
+    f'then to view the web-app on a local machine,\n'
+    f'you may need to do the following on your local machine\n'
+    f'(change username and host first):\n\n'
+    f'ssh -N -L localhost:{parse_arguments().port}:localhost:{parse_arguments().port} username@host\n\n'
   )
 
 def run_app():
-  # `debug=True` is passed to enable the debugger and reloader:
-  app.run(debug=True, port=parse_arguments().port) # WSGI server
+  # pass `debug=True` to enable the debugger and reloader:
+  app.run(debug=False, port=parse_arguments().port) # WSGI server
 
 if __name__ == "__main__":
   print_app_info() 

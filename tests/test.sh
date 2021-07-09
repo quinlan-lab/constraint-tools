@@ -16,17 +16,16 @@ export RED='\033[0;31m'
 export CYAN='\033[0;36m'
 export NO_COLOR='\033[0m'
 
-root="/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools"
+data_root="/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools"
+mutations="${data_root}/data/icgc/mutations.sorted.maf.gz"
+genome="${data_root}/data/reference/grch37/genome.fa.gz"
 
-PATH="${root}:$PATH"
-
-mutations="${root}/data/icgc/mutations.sorted.maf.gz"
-genome="${root}/data/reference/grch37/genome.fa.gz"
 neutral_region="22:30,000,000-31,000,000"
 kmer_size="5"
 
-output="${root}/tests"
-mkdir --parents ${output}
+output="$PWD/tests" # assumes that this script is run from user's constraint-tools directory
+
+PATH="$PWD:$PATH" # assumes that this script is run from user's constraint-tools directory
 
 constraint-tools train \
   --genome ${genome} \
