@@ -21,9 +21,9 @@ export NO_COLOR='\033[0m'
 # gap file contains telomere and centromere information
 
 
-url = "ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/gap.txt.gz"
-root = "/scratch/ucgd/lustre-work/quinlan/u1240855/constraint-tools"
-path = "${root}/data/gap"
+url="ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/gap.txt.gz"
+root="/scratch/ucgd/lustre-work/quinlan/u1240855/constraint-tools"
+path="${root}/data/gap"
 
 mkdir --parents ${path}
 
@@ -33,7 +33,7 @@ download_file () {
 }
 
 echo -e "${CYAN}Downloading UCSC gap file...${NO_COLOR}\n"
-download_file ${gap_url}
+download_file ${url}
 
 echo -e "${CYAN}Decompressing UCSC gap file...${NO_COLOR}\n"
 set +o errexit
