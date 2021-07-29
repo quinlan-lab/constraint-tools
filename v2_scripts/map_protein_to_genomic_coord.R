@@ -17,6 +17,7 @@ edb <- EnsDb.Hsapiens.v86
 ###############################################
 ##### Define the gene and interval region #####
 ###############################################
+## Using cBioPortal example for HSP90: https://www.cbioportal.org/results/mutations?tab_index=tab_visualize&Action=Submit&session_id=60f64961e4b015b63e9f61f5&plots_horz_selection=%7B%7D&plots_vert_selection=%7B%7D&plots_coloring_selection=%7B%7D
 
 gene <- "HSP90AA1"
 p_start <- 253
