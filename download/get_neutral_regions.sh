@@ -20,6 +20,7 @@ root="/scratch/ucgd/lustre-work/quinlan/u1240855/constraint-tools"
 path="${root}/data/neutral_region"
 gtf="${root}/data/genes/Homo_sapiens.GRCh37.74.sorted.gtf.gz"
 gap="${root}/data/gap/gap.txt"
+encode="${root}/data/encode/encode_blacklist.bed"
 
 mkdir --parents ${path}
 
@@ -43,8 +44,14 @@ for chr in {1..22} X Y; do grep -w "chr${chr}" $path/Homo_sapiens.GRCh37.74.sort
 echo -e "${CYAN}Sorting gap bed file...${NO_COLOR}\n"
 cat $gap | cut -f 2-4,8 | sort -k1,1 -k2,2n > $path/gap_sorted.bed
 
-echo -e "${CYAN}Generate bed file of regions putatively under neutral selection...${NO_COLOR}\n"
-bedtools complement -i $path/Homo_sapiens.GRCh37.74.chr.sorted.bed -g $path/hg19.chrom.sizes.chr.sorted | bedtools intersect -a - -b $path/gap_sorted.bed -v > $path/putative_neutral_regions.bed
+echo -e "${CYAN}Sorting ENCODE Blacklist bed file...${NO_COLOR}\n"
+cat $encode | cut -f 1-3 | sort -k1,1 -k2,2n > $path/encode_blacklist.bed
 
-rm $$path/Homo_sapiens.GRCh37.74.sorted.bed
+echo -e "${CYAN}Generate bed file of regions putatively under neutral selection...${NO_COLOR}\n"
+bedtools complement -i $path/Homo_sapiens.GRCh37.74.chr.sorted.bed -g $path/hg19.chrom.sizes.chr.sorted | bedtools intersect -a - -b $path/gap_sorted.bed -v | bedtools intersect -a - -b $path/encode_blacklist.bed > $path/putative_neutral_regions.bed
+
+echo -e "${CYAN}Removing chr prefix and coverting sex chromosomes to numeric...${NO_COLOR}\n"
+cat $path/putative_neutral_regions.bed | sed 's/^chr//g' | sed 's/Y/24/g' | sed 's/X/23/g' > $path/putative_neutral_regions_noprefix_numchr.bed
+
+rm $path/Homo_sapiens.GRCh37.74.sorted.bed
 rm $path/hg19.chrom.sizes
