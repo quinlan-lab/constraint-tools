@@ -1,0 +1,5 @@
+/uufs/redwood.bridges/sys/var/slurm/slurmd.spool/rw153//job3974552/slurm_script: line 11: cd: root: No such file or directory
+/scratch/ucgd/lustre-work/quinlan/u1240855/constraint-tools
+usage: calculate_purifying_probabilities.py [-h] [--kmer-size KMER_SIZE] [--genome GENOME] [--chromosome CHROMOSOME] [--start START] [--end END] [--model MODEL]
+                                            [--number-tumors NUMBER_TUMORS] [--output OUTPUT] [--mutations MUTATIONS]
+calculate_purifying_probabilities.py: error: argument --number-tumors: invalid int value: 'tumors'

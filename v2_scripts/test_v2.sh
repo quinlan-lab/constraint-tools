@@ -21,17 +21,19 @@ root="/scratch/ucgd/lustre-work/quinlan/u1240855/constraint-tools"
 genome_file="${root}/data/reference/grch37/genome.fa.gz"
 mutation_file="${root}/data/icgc/mutations.sorted.maf.gz"
 neutral_regions="${root}/data/neutral_region/putative_neutral_regions_noprefix_numchr.bed"
-#neutral_region="1:18379-24734"
+model="${root}/v2_scripts/output/model.json"
 kmer_size="3"
 output="/scratch/ucgd/lustre-work/quinlan/u1240855/constraint-tools/v2_scripts/output"
+chromosome="14"
+start="102084858"
+end="102084905"
 
 echo ${root}
 
-bash ${root}/v2_scripts/train-model.sh --mutations ${mutation_file} --genome ${genome_file} --neutral_regions ${neutral_regions} --kmer-size ${kmer_size} --output ${output} --root ${root}
+#bash ${root}/v2_scripts/train-model.sh --mutations ${mutation_file} --genome ${genome_file} --neutral_regions ${neutral_regions} --kmer-size ${kmer_size} --output ${output} --root ${root}
 
-
-
-
+bash ${root}/v2_scripts/predict-model.sh --kmer-size ${kmer_size} --chromosome ${chromosome} --start ${start} --end ${end} \
+--genome ${genome_file} --model ${model} --mutations ${mutation_file} --output ${output} --root ${root}
 
 
 

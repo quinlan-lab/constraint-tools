@@ -1,16 +1,17 @@
 # pysam API: 
 # https://github.com/pysam-developers/pysam/blob/b82cbcae22c088e64fdb58f8acaf1e9773c7b088/pysam/libctabix.pyx
-import pysam
 
+#%%
+import pysam
 import numpy as np
 import json
 import argparse 
-
 from kmer import initialize_kmer_data, fetch_kmer_from_sequence, alternate_bases, middle_base, get_bases
 from colorize import print_json, print_string_as_info, print_string_as_info_dim
 import color_traceback 
 from fetch_SNVs import fetch_SNVs 
 from pack_unpack import unpack 
+#%%
 
 # using the "khmer" library might make this function a handful of times faster:
 # https://khmer.readthedocs.io/en/v0.6.1-0/ktable.html

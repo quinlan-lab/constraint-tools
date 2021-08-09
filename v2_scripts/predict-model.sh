@@ -4,10 +4,14 @@
 # put option-fetching before "set -o nounset" so that we can detect flags without arguments
 while [[ "$1" =~ ^- ]]; do 
   case $1 in
-    --mutations ) shift; [[ ! $1 =~ ^- ]] && mutations=$1;;
-    --genome ) shift; [[ ! $1 =~ ^- ]] && genome=$1;;
-    --neutral_regions ) shift; [[ ! $1 =~ ^- ]] && neutral_regions=$1;;
     --kmer-size ) shift; [[ ! $1 =~ ^- ]] && kmer_size=$1;;
+    --chromosome ) shift; [[ ! $1 =~ ^- ]] && chromosome=$1;;
+    --start ) shift; [[ ! $1 =~ ^- ]] && start=$1;;
+    --end ) shift; [[ ! $1 =~ ^- ]] && end=$1;;
+    --genome ) shift; [[ ! $1 =~ ^- ]] && genome=$1;;
+    --model ) shift; [[ ! $1 =~ ^- ]] && model=$1;;
+    --number-tumors ) shift; [[ ! $1 =~ ^- ]] && number_tumors=$1;;
+    --mutations ) shift; [[ ! $1 =~ ^- ]] && mutations=$1;;
     --output ) shift; [[ ! $1 =~ ^- ]] && output=$1;;
     --root ) shift; [[ ! $1 =~ ^- ]] && root=$1;;
     *) echo -e "${RED}$0: $1 is an invalid flag${NO_COLOR}" >&2; exit 1;;
@@ -30,32 +34,19 @@ set -o nounset
 # https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html
 PS4='+ (${BASH_SOURCE[0]##*/} @ ${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 
-# create and store a list of unique tumor barcodes, if such does not exist
-column_heading="Tumor_Sample_Barcode"
-if [[ ! -f ${mutations%.maf.gz}.${column_heading}.txt ]]; then 
-  bash ${root}/utilities/info.sh "Creating a list of unique values for the maf column: ${column_heading}"
-  column_heading_index=$(python ${root}/utilities/fetch_column_heading_index.py ${mutations} ${column_heading})
-  set +o errexit
-  zcat ${mutations} |
-    tail -n +2 | # lob off column headings
-    cut -f ${column_heading_index} | # pull out column of interest 
-    # head -10000 | # debug 
-    sort | # required for uniq to work as expected
-    uniq \
-    > ${mutations%.maf.gz}.${column_heading}.txt
-  set -o errexit
-fi 
-
+## Count the number of tumors available as done in train-model.sh
 number_tumors=$(cat ${mutations%.maf.gz}.${column_heading}.txt | wc -l)
 bash ${root}/utilities/info.sh "Number tumors: ${number_tumors}\n"
-
-python ${root}/v2_scripts/estimate_mutation_probabilities_v2.py \
+  
+python ${root}/v2_scripts/calculate_purifying_probabilities.py \
   --kmer-size ${kmer_size} \
+  --chromosome ${chromosome} \
+  --start ${start} \
+  --end ${end} \
   --genome ${genome} \
-  --neutral_regions ${neutral_regions} \
-  --number-tumors ${number_tumors} \
-  --output ${output} \
-  --mutations ${mutations} 
-
+  --model ${model} \
+  --number-tumors ${number-tumors} \
+  --mutations ${mutations} \
+  --output ${output}
 
 
