@@ -15,11 +15,15 @@ libexec
 *.pyc
 __pycache__
 
-cosmic_credentials.json
+cosmic-credentials.json
+model.json 
+wget-log
 
 node_modules
 package-lock.json
 babel.config.js
-dist
+vue-app/dist
 static
 node
+
+slurm-*.out

@@ -23,8 +23,12 @@ def compute_left_right(position, filter_size, sequence_length, offset='zero_offs
   return left, right
 
 def check_for_Ns(kmer): 
-  if 'N' in kmer: 
-    print_string_as_error('Please supply genomic sequences devoid of Ns')
+  # https://www.qmul.ac.uk/sbcs/iubmb/misc/naseq.html
+  if {'N', 'M', 'R'} & set(kmer):
+    print_string_as_error(
+      f'kmer is: {kmer}\n'
+      f'Please supply genomic sequences devoid of Incompletely Specified Bases'
+    )
     raise ValueError
   return kmer
 

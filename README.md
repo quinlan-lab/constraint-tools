@@ -15,29 +15,30 @@ Only installation on Linux x86_64 is currently supported.
 Assuming one has access to the protected environment on the CHPC at University of Utah: 
 
 ```
-bash tests/test.sh
+[sbatch | bash] tests/train.sh $PWD
 ```
 
-Follow the instructions at the command line to view a web app that visualizes mutation counts as a function of genomic coordinate.  
+Once training is complete, do: 
+```
+bash tests/visualize.sh $PWD
+```
+Follow the instructions at the command line to view a web app that visualizes observed mutation counts, and those expected under a null model of sequence-dependent mutation (see `model-definition` folder), as a function of genomic coordinate.  
 
-A plot of estimated mutation probabilities that are fed into the model can be found here: https://github.com/quinlan-lab/constraint-tools/blob/main/tests/plot_mutation_probabilities.ipynb
+A plot of estimated mutation probabilities of the neutral model can be found here: https://github.com/quinlan-lab/constraint-tools/blob/main/tests/plot_mutation_probabilities.ipynb
  
 ## Usage
 
-Assuming that the path to the `constraint-tools` directory on your filesystem is `${root}`, usage is:
-
 ```
-PATH="${root}:$PATH"
-constraint-tools [SUB_COMMAND] REQUIRED_ARGUMENTS
+./constraint-tools [SUB_COMMAND] REQUIRED_ARGUMENTS
 ```
 
-Valid sub-commands are: 
+Valid values for `SUB_COMMAND` are: 
 
 ```
 train 
-      estimate kmer-dependent mutation probabilities 
+      estimate kmer-dependent mutation probabilities (see the model defined in the "model-definition" folder)
 visualize
-      start a web app that visualizes mutation counts as a function of genomic coordinate
+      start a web app that visualizes observed and expected mutation counts as a function of genomic coordinate
 predict
       call genomic regions predicted to be under negative selection [not yet implemented]
 ```
@@ -48,8 +49,6 @@ Required arguments for `train` are:
 --genome STR
       Path to the reference fasta. 
       A "samtools faidx" index is expected to be present at the same path. 
---region STR 
-      Samtools-style specification of a genomic interval (see examples in tests directory).
 --mutations STR 
       Path to a set of mutations specified in Mutation Annotation Format.
       A "tabix" index is expected to be present at the same path.
@@ -59,16 +58,23 @@ Required arguments for `train` are:
       Path to a directory to store results in. 
 ```
 
-This produces a specification of the sequence-dependent mutation model in json format, viewable using, e.g., 
+By default the `train` subcommand uses a pre-computed set of putatively neutral regions from the GRCH37 reference. Optionally, the user may change this by specifying the `--regions` argument: 
+
 ```
-${root}/bin/jq . ${output}/<json file> 
+--regions STR 
+      Bed-format file containing a list of genomic intervals on which the model is trained.
+```
+
+This produces a specification of the sequence-dependent neutral mutation model in json format, viewable using, e.g., 
+```
+${CONSTRAINT_TOOLS}/bin/jq . ${output}/<json file> 
 ```
 
 Required arguments for `visualize` are:
 
 ```
 --model STR
-      Path to the model produced by the train sub-command (in json format)
+      Path to the neutral model produced by the train sub-command (in json format). This model is used to compute the expected mutation counts in the visualization. 
 --port INT 
       The port to serve the web-app on
 ```
@@ -90,7 +96,8 @@ Changes to the `vue-app` directory necessitate rebuilding the vue app by running
 bash build-vue-app.sh 
 ```
 
-## Mutation Annotation Format (MAF) 
+## Resources 
+### Mutation Annotation Format (MAF) 
 
 1. specification: https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/
 2. minimal example: https://github.com/mskcc/vcf2maf/blob/main/data/minimalist_test_maf.tsv
@@ -99,4 +106,5 @@ bash build-vue-app.sh
     2. [vcf2maf](https://github.com/mskcc/vcf2maf): can convert maf to vcf, but reliance on vep makes tool effectively unusable
 4. gotchas: https://www.biostars.org/p/69222/
 
-
+### On k-mer counting 
+https://bioinfologics.github.io/post/2018/09/17/k-mer-counting-part-i-introduction/

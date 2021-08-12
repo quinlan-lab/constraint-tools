@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+red='\033[0;31m'
+no_color='\033[0m'
+
+echo -e "${red}${1}${no_color}" >&2

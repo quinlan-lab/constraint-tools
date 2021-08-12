@@ -1,0 +1,190 @@
+#!/usr/bin/env python
+
+# pysam API: 
+# https://github.com/pysam-developers/pysam/blob/b82cbcae22c088e64fdb58f8acaf1e9773c7b088/pysam/libctabix.pyx
+import pysam
+
+import numpy as np
+import json
+import argparse 
+import gzip 
+import concurrent.futures
+import functools
+import copy
+import os, subprocess, multiprocessing
+
+from kmer import initialize_kmer_data, fetch_kmer_from_sequence, alternate_bases, middle_base, get_bases
+from colorize import print_json, print_string_as_info, print_string_as_info_dim, print_unbuffered
+import color_traceback 
+from fetch_SNVs import fetch_SNVs 
+from pack_unpack import unpack, bed_to_sam_string
+from timer import timer 
+
+# using the "khmer" library might make this function a handful of times faster:
+# https://khmer.readthedocs.io/en/v0.6.1-0/ktable.html
+def compute_total_counts_region(genome, kmer_data, region, args): 
+  # "fetch" API: https://pysam.readthedocs.io/en/latest/api.html?highlight=fasta#pysam.FastaFile
+  # Note that fetch(region=region) does not work if the coordinates in "region" contains commas
+  # Workaround is to parse "region" into "chromosome", "start", "end": 
+  neutral_region = genome.fetch(*unpack(region))    
+
+  print_string_as_info('Iterating over neutral region {} and counting kmers:'.format(region))
+  for position in np.arange(0, len(neutral_region), 1):
+    try: 
+      kmer = fetch_kmer_from_sequence(neutral_region, position, args.kmer_size)
+      kmer_data[kmer]['cohort_sequence_count'] += args.number_tumors 
+      kmer_data[kmer]['sequence_count'] += 1
+    except IndexError:
+      print_string_as_info_dim('IndexError at position: {}'.format(position))
+      pass 
+  print_unbuffered('')
+
+  return kmer_data
+
+def compute_snv_counts_region(mutations, genome, kmer_data, region, args):
+  print_string_as_info('Fetching SNVs in region {} and incrementing corresponding kmer counts\n'.format(region))
+  SNVs = fetch_SNVs(mutations, genome, region, args.__dict__)
+  for SNV in SNVs: 
+    kmer_data[SNV['kmer']]['ALT_counts'][SNV['ALT']] += 1
+  return kmer_data
+
+def get_hostname_process_cpu(): 
+  hostname = os.uname()[1]
+  pid = os.getpid()
+  cpu = subprocess.run(
+    ["ps", "-o", "psr=", "-p", f"{pid}"], 
+    capture_output=True
+  ).stdout.decode("utf-8").strip()
+  return {
+    'hostname': hostname,
+    'process': pid, 
+    'cpu': f'{cpu}/{multiprocessing.cpu_count()}'
+    }
+
+# https://github.com/pysam-developers/pysam/issues/397#issuecomment-328451288
+def compute_counts_region(region):  
+  print_json({'region': region, **get_hostname_process_cpu()})
+
+  args = parse_arguments()
+
+  kmer_data = initialize_kmer_data(args) 
+
+  # pysam.FastaFile uses the index produced by "samtools faidx": 
+  # https://pysam.readthedocs.io/en/latest/api.html?highlight=fasta#pysam.FastaFile
+  with pysam.TabixFile(args.mutations) as mutations, pysam.FastaFile(args.genome) as genome: 
+    kmer_data = compute_total_counts_region(genome, kmer_data, region, args) 
+    kmer_data = compute_snv_counts_region(mutations, genome, kmer_data, region, args)
+
+  return kmer_data 
+
+def parse_arguments(): 
+  parser = argparse.ArgumentParser(description='')
+  parser.add_argument('--kmer-size', type=int, dest='kmer_size', help='')
+  parser.add_argument('--genome', type=str, help='')
+  parser.add_argument('--regions', type=str, help='')
+  parser.add_argument('--number-tumors', type=int, dest='number_tumors', help='')
+  parser.add_argument('--output', type=str, help='')
+  parser.add_argument('--mutations', type=str, help='')
+  parser.add_argument('--training-mode', type=str, dest='training_mode', help='')
+  return parser.parse_args()
+
+# https://realpython.com/primer-on-python-decorators/
+def diagnostics(func):
+  @functools.wraps(func)
+  def wrapper(*args, **kwargs):
+    print_unbuffered(f'diagnostics: function: {func.__name__}\n')
+    regions, counts = func(*args, **kwargs)
+    for region, count in zip(regions, counts): 
+      kmer = 'AAAAA'
+      print_unbuffered(f'\ndiagnostics: region: {region}') 
+      print_unbuffered(f'diagnostics: counts for {kmer}:')
+      print_json(count[kmer])
+    return regions, counts
+  return wrapper
+
+def get_regions_from_bed_file(regions_filename): 
+  with gzip.open(regions_filename, mode='rt') as regions:
+    return [bed_to_sam_string(region) for region in regions]
+
+# @diagnostics
+@timer
+def compute_counts_serial():
+  regions = get_regions_from_bed_file(parse_arguments().regions)
+  return regions, [compute_counts_region(region) for region in regions] 
+  
+# @diagnostics
+@timer
+def compute_counts_concurrent():
+  # https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ProcessPoolExecutor
+  with concurrent.futures.ProcessPoolExecutor() as executor: 
+    regions = get_regions_from_bed_file(parse_arguments().regions)
+    return regions, list(executor.map(compute_counts_region, regions))
+
+def estimate_mutation_probabilities_core(kmer_data):
+  print_string_as_info('Estimating mutation probabilities\n')
+  for kmer, data in kmer_data.items():
+    probabilities = {}
+    if data['sequence_count'] == 0: 
+      for base in get_bases(): probabilities[base] = None
+    else: 
+      mutation_probability = 0.0
+      for alternate_base in alternate_bases(kmer):
+        # estimate probabilities for multinomial distribution: https://math.stackexchange.com/a/421838
+        probabilities[alternate_base] = data['ALT_counts'][alternate_base]/data['cohort_sequence_count']
+        mutation_probability += probabilities[alternate_base]
+      probabilities[middle_base(kmer)] = 1.0 - mutation_probability
+    data['estimated_mutation_probabilities'] = probabilities
+    data['mutation_probability'] = mutation_probability
+  return kmer_data
+
+def combine_counts(x, y):
+  result = copy.deepcopy(x)
+  for kmer in result.keys(): 
+    data_result, data_x, data_y = result[kmer], x[kmer], y[kmer]
+    data_result['cohort_sequence_count'] = data_x['cohort_sequence_count'] + data_y['cohort_sequence_count']
+    data_result['sequence_count'] = data_x['sequence_count'] + data_y['sequence_count']
+    ALT_counts_result,  ALT_counts_x, ALT_counts_y = data_result['ALT_counts'], data_x['ALT_counts'], data_y['ALT_counts']
+    for alternate_base in ALT_counts_result.keys(): 
+        ALT_counts_result[alternate_base] = ALT_counts_x[alternate_base] + ALT_counts_y[alternate_base]
+  return result
+
+def compute_neutral_sequence_length(regions): 
+  neutral_sequence_length = 0
+  for region in regions:
+    _, start, end = unpack(region)
+    neutral_sequence_length += end - start
+  return neutral_sequence_length
+
+def compute_counts(): 
+  args = parse_arguments()
+  print_string_as_info(f'Computing kmer counts over all neutral regions in {args.training_mode} mode\n')
+
+  if args.training_mode == 'concurrent': 
+    return compute_counts_concurrent()
+  elif args.training_mode == 'serial': 
+    return compute_counts_serial()
+  else: 
+    raise ValueError
+
+def estimate_mutation_probabilities(): 
+  regions, kmer_data = compute_counts()
+  kmer_data = functools.reduce(combine_counts, kmer_data)
+  kmer_data = estimate_mutation_probabilities_core(kmer_data) 
+
+  args = parse_arguments()
+  model_path = args.output + '/model.json'
+  with open(model_path, 'w') as fh:
+    json.dump({
+      'mutations': args.mutations,
+      'genome': args.genome,
+      'kmer_size': args.kmer_size,
+      'neutral_regions': args.regions,
+      'neutral_sequence_length': compute_neutral_sequence_length(regions),
+      'number_tumors': args.number_tumors,
+      'kmer_data': kmer_data
+    }, fh, indent=2)
+  print_string_as_info('Writing multinomial model to disk at: {}'.format(model_path))
+
+if __name__ == '__main__':
+  estimate_mutation_probabilities()  
+

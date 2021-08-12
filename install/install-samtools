@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
+# set -o xtrace
+
+# No need to export PATH since it is already in the environment: 
+# `printenv | grep -w PATH` returns non-zero output 
+PATH="${CONSTRAINT_TOOLS}/bin:$PATH" 
+
+report_version () { 
+  info "samtools version is:"
+  samtools --version
+}
+
+mkdir --parents ${CONSTRAINT_TOOLS}/library
+cd ${CONSTRAINT_TOOLS}/library 
+
+version="1.13"
+tool="samtools"
+
+if [[ ! -d "${tool}-${version}" ]]; then
+  wget https://github.com/samtools/samtools/releases/download/${version}/${tool}-${version}.tar.bz2
+  bzip2 -d ${tool}-${version}.tar.bz2
+  tar -xvf ${tool}-${version}.tar
+  rm ${tool}-${version}.tar
+  cd ${tool}-${version}/
+  ./configure --prefix=${CONSTRAINT_TOOLS}
+  make
+  make install
+  report_version
+else 
+  report_version
+  info "skipping installation of ${tool}"
+fi 

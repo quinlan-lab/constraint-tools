@@ -1,21 +1,32 @@
+#!/usr/bin/env bash
+
 set -o errexit
 set -o pipefail
 set -o nounset
 set -o xtrace
-PS4='+ (${BASH_SOURCE[0]##*/} @ ${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 
-export RED='\033[0;31m'
-export CYAN='\033[0;36m'
-export NO_COLOR='\033[0m'
+# This sets the path to modern versions of npm AND node.
+# No need to export PATH since it is already in the environment: 
+# `printenv | grep -w PATH` returns non-zero output 
+PATH="${CONSTRAINT_TOOLS}/node/bin:$PATH" 
 
-root=$1
+report_versions () { 
+  info "npm version is: $(npm --version)"
+  info "node version is: $(node --version)"
+}
+
+if [[ -d ${CONSTRAINT_TOOLS}/node/bin ]]; then
+  report_versions 
+  info "skipping installation of npm and node"
+  exit 0 
+fi 
 
 kernel=$(uname --kernel-name)
 machine=$(uname --machine)
 
-bash ${root}/utilities/info.sh "downloading node (and npm)"
+info "downloading node (and npm)"
 
-rm -rf "${root}/node"
+rm -rf "${CONSTRAINT_TOOLS}/node"
 node_version="v16.4.2"
 
 if [[ ${machine} == 'x86_64' ]]; then
@@ -23,12 +34,12 @@ if [[ ${machine} == 'x86_64' ]]; then
     curl --remote-name "https://nodejs.org/dist/${node_version}/node-${node_version}-darwin-x64.tar.gz"
     tar -xf "node-${node_version}-darwin-x64.tar.gz"
 		rm "node-${node_version}-darwin-x64.tar.gz"
-		mv "node-${node_version}-darwin-x64" "${root}/node"
+		mv "node-${node_version}-darwin-x64" "${CONSTRAINT_TOOLS}/node"
   elif [[ ${kernel} == 'Linux'* ]]; then
     curl --remote-name "https://nodejs.org/dist/${node_version}/node-${node_version}-linux-x64.tar.xz"
     tar -xf "node-${node_version}-linux-x64.tar.xz"
     rm "node-${node_version}-linux-x64.tar.xz"
-    mv "node-${node_version}-linux-x64" "${root}/node"
+    mv "node-${node_version}-linux-x64" "${CONSTRAINT_TOOLS}/node"
   else
     echo 'neither Darwin nor Linux'
     exit 1
@@ -38,12 +49,8 @@ else
   exit 1
 fi
 
-# no need to export PATH since it is already in the environment: https://unix.stackexchange.com/a/26059/406037
-# this sets the path for modern versions of npm AND node
-PATH="${root}/node/bin:$PATH"
+report_versions
 
-bash ${root}/utilities/info.sh "npm version is: $(npm --version)"
-bash ${root}/utilities/info.sh "node version is: $(node --version)"
 
 
 

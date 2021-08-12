@@ -1,3 +1,6 @@
+def bed_to_sam_string(region): 
+  return pack(*region.strip().split('\t'))
+
 def unpack(region): 
   chromosome, start_end = region.split(':')
   start, end = map(lambda s: int(s.replace(',', '')), start_end.split('-'))

@@ -6,36 +6,37 @@ set -o noclobber
 set -o nounset
 
 # set -o xtrace
-# Must use single quote to prevent variable expansion.
-# For example, if double quotes were used, ${LINENO} would take on the value of the current line,
-# instead of its value when PS4 is used later in the script
-# https://stackoverflow.com/a/6697845/6674256
-# ${FOO:+val}    val if $FOO is set
-# ${FOO[0]}   element #0 of the FOO array
-# https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html
-PS4='+ (${BASH_SOURCE[0]##*/} @ ${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 
-export RED='\033[0;31m'
-export CYAN='\033[0;36m'
-export NO_COLOR='\033[0m'
+source set-environment-variables.sh 
 
-# https://stackoverflow.com/a/246128/6674256
-root="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+#######################################
+
+# https://www.digitalocean.com/community/tutorials/how-to-read-and-set-environmental-and-shell-variables-on-linux
 
 # https://stackoverflow.com/a/43476575/6674256
-export PYTHONPATH="${root}/utilities:${root}/predict-constraint"
+# need to export PYTHONPATH since it is not already in the environment: 
+# `printenv | grep -w PYTHONPATH` returns zero output
+export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities:${CONSTRAINT_TOOLS}/predict-constraint"
 
-tool="${1}" 
-bash ${root}/utilities/info.sh "\nTool: ${tool}\n"
+# no need to export PATH since it is already in the environment: 
+# `printenv | grep -w PATH` returns non-zero output 
+PATH="${CONSTRAINT_TOOLS}/bin:$PATH" 
+PATH="${CONSTRAINT_TOOLS}/train-model:$PATH" 
+PATH="${CONSTRAINT_TOOLS}/flask-app:${PATH}"
+
+#######################################
+
+tool="${1}"
+info "\nTool: ${tool}\n"
 shift
 args="${@}"
-bash ${root}/utilities/info.sh "Tool arguments: ${args}\n"
+info "Tool arguments: ${args}\n"
 
 if [[ ${tool} == "train" ]]; then 
-  bash ${root}/train-model/train-model.sh ${args} --root ${root} 
+  train-model ${args}
 elif [[ ${tool} == "visualize" ]]; then 
-  bash ${root}/flask-app/app.sh ${args} --root ${root} 
+  flask-app ${args} 
 else
-  bash ${root}/utilities/error.sh "invalid tool: ${tool}"
+  error "invalid tool: ${tool}"
   exit 1
 fi 

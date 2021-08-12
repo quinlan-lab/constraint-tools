@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
+set -o xtrace
+
+# No need to export PATH since it is already in the environment: 
+# `printenv | grep -w PATH` returns non-zero output 
+PATH="${CONSTRAINT_TOOLS}/bin:$PATH" 
+
+report_versions () { 
+  info "bgzip version is:"
+  bgzip --version
+
+  info "tabix version is:"
+  tabix --version
+}
+
+mkdir --parents ${CONSTRAINT_TOOLS}/library
+cd ${CONSTRAINT_TOOLS}/library 
+
+version="1.13"
+
+if [[ ! -d "htslib-${version}" ]]; then
+  wget https://github.com/samtools/htslib/releases/download/${version}/htslib-${version}.tar.bz2
+  bzip2 -d htslib-${version}.tar.bz2
+  tar -xvf htslib-${version}.tar
+  rm htslib-${version}.tar
+  cd htslib-${version}/
+  ./configure --prefix=${CONSTRAINT_TOOLS}
+  make
+  make install
+  report_versions
+else 
+  report_versions
+  info "skipping installation of htslib"
+fi 

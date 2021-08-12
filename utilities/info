@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+cyan='\033[0;36m'
+no_color='\033[0m'
+
+echo -e "${cyan}${1}${no_color}" >&2

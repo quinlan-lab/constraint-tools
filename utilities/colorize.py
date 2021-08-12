@@ -1,5 +1,8 @@
 import json
 
+def print_unbuffered(string): 
+  print(string, flush=True)
+
 def print_json(data):
   formatted_json = json.dumps(data, indent=2)
   # https://stackoverflow.com/a/32166163/6674256
@@ -7,7 +10,7 @@ def print_json(data):
   # from pygments.styles import get_all_styles
   # print(list(get_all_styles()))
   colorful_json = highlight(formatted_json, lexers.JsonLexer(), formatters.Terminal256Formatter(style='monokai'))
-  print(colorful_json)
+  print_unbuffered(colorful_json)
 
 from colorama import init as colorama_init
 from colorama import Fore, Style
