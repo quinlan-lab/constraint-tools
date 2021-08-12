@@ -16,7 +16,7 @@ libexec
 __pycache__
 
 cosmic-credentials.json
-model.json 
+model.json
 wget-log
 
 node_modules
