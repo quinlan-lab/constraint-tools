@@ -27,3 +27,4 @@ static
 node
 
 slurm-*.out
+.github_personal_access_token.txt
