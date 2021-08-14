@@ -13,8 +13,8 @@ import functools
 import copy
 import os, subprocess, multiprocessing
 
-from kmer import initialize_kmer_data, fetch_kmer_from_sequence, alternate_bases, middle_base, get_bases
-from colorize import print_json, print_string_as_info, print_string_as_info_dim, print_unbuffered
+from kmer import check_for_Ns, initialize_kmer_data, fetch_kmer_from_sequence, alternate_bases, middle_base, get_bases, contains_unspecified_bases
+from colorize import print_json, print_string_as_error, print_string_as_info, print_string_as_info_dim, print_unbuffered
 import color_traceback 
 from fetch_SNVs import fetch_SNVs 
 from pack_unpack import unpack, bed_to_sam_string
@@ -29,14 +29,22 @@ def compute_total_counts_region(genome, kmer_data, region, args):
   neutral_region = genome.fetch(*unpack(region))    
 
   print_string_as_info('Iterating over neutral region {} and counting kmers:'.format(region))
+  number_of_kmers_containing_unspecified_bases = 0
   for position in np.arange(0, len(neutral_region), 1):
     try: 
       kmer = fetch_kmer_from_sequence(neutral_region, position, args.kmer_size)
-      kmer_data[kmer]['cohort_sequence_count'] += args.number_tumors 
-      kmer_data[kmer]['sequence_count'] += 1
     except IndexError:
       print_string_as_info_dim('IndexError at position: {}'.format(position))
-      pass 
+      continue
+    if contains_unspecified_bases(kmer): 
+      number_of_kmers_containing_unspecified_bases += 1 
+      continue 
+    kmer_data[kmer]['cohort_sequence_count'] += args.number_tumors 
+    kmer_data[kmer]['sequence_count'] += 1
+
+  print_string_as_info_dim(
+    f'Number of kmers containing unspecified bases: {number_of_kmers_containing_unspecified_bases}'
+  )
   print_unbuffered('')
 
   return kmer_data
@@ -124,6 +132,7 @@ def estimate_mutation_probabilities_core(kmer_data):
   print_string_as_info('Estimating mutation probabilities\n')
   for kmer, data in kmer_data.items():
     probabilities = {}
+    check_for_Ns(kmer) # sanity check 
     if data['sequence_count'] == 0: 
       for base in get_bases(): probabilities[base] = None
     else: 
@@ -147,13 +156,6 @@ def combine_counts(x, y):
     for alternate_base in ALT_counts_result.keys(): 
         ALT_counts_result[alternate_base] = ALT_counts_x[alternate_base] + ALT_counts_y[alternate_base]
   return result
-
-def compute_neutral_sequence_length(regions): 
-  neutral_sequence_length = 0
-  for region in regions:
-    _, start, end = unpack(region)
-    neutral_sequence_length += end - start
-  return neutral_sequence_length
 
 def compute_counts(): 
   args = parse_arguments()
@@ -179,7 +181,6 @@ def estimate_mutation_probabilities():
       'genome': args.genome,
       'kmer_size': args.kmer_size,
       'neutral_regions': args.regions,
-      'neutral_sequence_length': compute_neutral_sequence_length(regions),
       'number_tumors': args.number_tumors,
       'kmer_data': kmer_data
     }, fh, indent=2)

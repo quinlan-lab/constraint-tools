@@ -1,7 +1,7 @@
 set -o errexit
 set -o pipefail
 # set -o noclobber
-
+set -o nounset 
 # set -o xtrace
 
 # https://stackoverflow.com/a/246128/6674256

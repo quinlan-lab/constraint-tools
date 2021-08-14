@@ -2,6 +2,7 @@ set -o errexit
 set -o pipefail
 # set -o noclobber
 # set -o xtrace
+set -o nounset
 
 CONSTRAINT_TOOLS=$1
 

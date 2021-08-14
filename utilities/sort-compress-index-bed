@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+# https://devhints.io/bash#miscellaneous
+# put option-fetching before "set -o nounset" so that we can detect flags without arguments
+while [[ "$1" =~ ^- ]]; do 
+  case $1 in
+    --name ) shift; [[ ! $1 =~ ^- ]] && name=$1;;
+    *) error "$0: $1 is an invalid flag"; exit 1;;
+  esac 
+  shift
+done
+
+set -o errexit
+set -o nounset
+set -o xtrace 
+
+sort --version-sort -k1,1 -k2,2 /dev/stdin \
+  | bgzip --force --stdout > ${name}.bed.gz
+tabix --force --preset bed ${name}.bed.gz

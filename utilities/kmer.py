@@ -22,19 +22,18 @@ def compute_left_right(position, filter_size, sequence_length, offset='zero_offs
   if right > sequence_length: raise IndexError
   return left, right
 
+def contains_unspecified_bases(kmer): 
+  return {'N', 'M', 'R'} & set(kmer)
+
 def check_for_Ns(kmer): 
   # https://www.qmul.ac.uk/sbcs/iubmb/misc/naseq.html
-  if {'N', 'M', 'R'} & set(kmer):
-    print_string_as_error(
-      f'kmer is: {kmer}\n'
-      f'Please supply genomic sequences devoid of Incompletely Specified Bases'
-    )
-    raise ValueError
+  if contains_unspecified_bases(kmer):
+    raise ValueError(f'kmer is: {kmer}\n') 
   return kmer
 
 def fetch_kmer_from_sequence(sequence, position, kmer_size): 
   left, right = compute_left_right(position, kmer_size, len(sequence))  
-  return check_for_Ns(sequence[left:right].upper())
+  return sequence[left:right].upper()
 
 def fetch_kmer_from_genome(genome, chromosome, position, kmer_size): 
   # provide the "reference" argument positionally to "get_reference_length": 
