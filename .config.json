@@ -1,6 +1,6 @@
 {
   "train": {
-    "default_neutral_regions": "dist/neutral-regions.bed.gz",
+    "default_neutral_regions": "dist/neutral-regions-test.bed.gz",
     "training_mode": "concurrent"
   }
 }

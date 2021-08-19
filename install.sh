@@ -27,11 +27,25 @@ if ! which conda; then
 fi 
 
 conda_environment="constraint-tools"
-if [[ $CONDA_DEFAULT_ENV != ${conda_environment} ]]; then 
-  error "conda environment ${conda_environment} does not exist or is not activated"
+
+instruct_to_create_conda_environment_and_activate () {
   error "please issue the following commands:" 
   info "conda create --name ${conda_environment} python=3.9" 
   info "conda activate ${conda_environment}" 
+}
+
+# https://stackoverflow.com/a/13864829/6674256
+if [[ -z ${CONDA_DEFAULT_ENV+x} ]]; then 
+  error "CONDA_DEFAULT_ENV is unset"
+  instruct_to_create_conda_environment_and_activate
+  exit 1 
+else 
+  info "CONDA_DEFAULT_ENV is set to '$CONDA_DEFAULT_ENV'"
+fi
+
+if [[ $CONDA_DEFAULT_ENV != ${conda_environment} ]]; then 
+  error "conda environment ${conda_environment} does not exist or is not activated"
+  instruct_to_create_conda_environment_and_activate
   exit 1 
 fi 
 
