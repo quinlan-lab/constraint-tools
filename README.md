@@ -8,7 +8,8 @@ cd constraint-tools
 bash install.sh 
 bash build-vue-app.sh
 ```
-Only installation on Linux x86_64 is currently supported.
+Only installation on Linux x86_64 is currently supported. 
+Tested in the Protected Environment of the Center for High Performance Computing (CHPC) at University of Utah. 
 
 ## Quick Start 
 

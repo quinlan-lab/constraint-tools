@@ -30,6 +30,7 @@ conda_environment="constraint-tools"
 
 instruct_to_create_conda_environment_and_activate () {
   error "please issue the following commands:" 
+  info "\t[ module load anaconda ]"
   info "\tconda create --name ${conda_environment} python=3.9" 
   info "\tconda activate ${conda_environment}" 
   error "... and re-run this script"
@@ -49,7 +50,7 @@ if [[ $CONDA_DEFAULT_ENV != ${conda_environment} ]]; then
   instruct_to_create_conda_environment_and_activate
 fi 
 
-pip install --requirement ${CONSTRAINT_TOOLS}/install/requirements.txt 
+pip install --no-cache-dir --requirement ${CONSTRAINT_TOOLS}/install/requirements.txt 
 
 ########################## 
 
