@@ -14,7 +14,7 @@ import copy
 import os, subprocess, multiprocessing
 
 from kmer import check_for_Ns, initialize_kmer_data, fetch_kmer_from_sequence, alternate_bases, middle_base, get_bases, contains_unspecified_bases
-from colorize import print_json, print_string_as_error, print_string_as_info, print_string_as_info_dim, print_unbuffered
+from colorize import print_json, print_string_as_info, print_string_as_info_dim, print_unbuffered
 import color_traceback 
 from fetch_SNVs import fetch_SNVs 
 from pack_unpack import unpack, bed_to_sam_string
@@ -67,9 +67,10 @@ def get_hostname_process_cpu():
     'hostname': hostname,
     'process': pid, 
     'cpu': f'{cpu}/{multiprocessing.cpu_count()}'
-    }
+  }
 
 # https://github.com/pysam-developers/pysam/issues/397#issuecomment-328451288
+@timer 
 def compute_counts_region(region):  
   print_json({'region': region, **get_hostname_process_cpu()})
 
@@ -91,7 +92,7 @@ def parse_arguments():
   parser.add_argument('--genome', type=str, help='')
   parser.add_argument('--regions', type=str, help='')
   parser.add_argument('--number-tumors', type=int, dest='number_tumors', help='')
-  parser.add_argument('--output', type=str, help='')
+  parser.add_argument('--model', type=str, help='')
   parser.add_argument('--mutations', type=str, help='')
   parser.add_argument('--training-mode', type=str, dest='training_mode', help='')
   return parser.parse_args()
@@ -174,7 +175,7 @@ def estimate_mutation_probabilities():
   kmer_data = estimate_mutation_probabilities_core(kmer_data) 
 
   args = parse_arguments()
-  model_path = args.output + '/model.json'
+  model_path = args.model + '/model.json'
   with open(model_path, 'w') as fh:
     json.dump({
       'mutations': args.mutations,

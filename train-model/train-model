@@ -10,11 +10,14 @@ while [[ "$1" =~ ^- ]]; do
     --genome ) shift; [[ ! $1 =~ ^- ]] && genome=$1;;
     --regions ) shift; [[ ! $1 =~ ^- ]] && regions=$1;;
     --kmer-size ) shift; [[ ! $1 =~ ^- ]] && kmer_size=$1;;
-    --output ) shift; [[ ! $1 =~ ^- ]] && output=$1;;
+    --model ) shift; [[ ! $1 =~ ^- ]] && model=$1;;
     *) error "$0: $1 is an invalid flag"; exit 1;;
   esac 
   shift
 done
+
+info "training on regions:"
+info "${regions}\n"
 
 set -o errexit
 set -o pipefail
@@ -47,7 +50,7 @@ estimate_mutation_probabilities \
   --genome ${genome} \
   --regions ${regions} \
   --number-tumors ${number_tumors} \
-  --output ${output} \
+  --model ${model} \
   --mutations ${mutations} \
   --training-mode $(read-config train training_mode)
 

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+model="${CONSTRAINT_TOOLS}/$(read-config train default_model)"
+
 # https://devhints.io/bash#miscellaneous
 # put option-fetching before "set -o nounset" so that we can detect flags without arguments
 while [[ "$1" =~ ^- ]]; do 
@@ -10,6 +12,9 @@ while [[ "$1" =~ ^- ]]; do
   esac 
   shift
 done
+
+info "using the model specified at:"
+info "${model}\n"
 
 set -o errexit
 set -o pipefail

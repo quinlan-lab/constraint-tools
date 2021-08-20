@@ -6,11 +6,11 @@ set -o nounset
 
 CONSTRAINT_TOOLS=$1
 
-output="${CONSTRAINT_TOOLS}/tests" 
-model="${output}/model.json"
+model="${CONSTRAINT_TOOLS}/tests/model.json" 
 port="5000"
 
 ${CONSTRAINT_TOOLS}/constraint-tools visualize \
   --model ${model} \
   --port ${port}
 
+  
