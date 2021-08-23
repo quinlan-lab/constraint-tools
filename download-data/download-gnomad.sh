@@ -5,6 +5,7 @@
 #SBATCH --ntasks=16
 #SBATCH --account=quinlan-rw
 #SBATCH --partition=quinlan-shared-rw
+#SBATCH -o download-gnomad.out
 
 set -o errexit
 set -o pipefail
