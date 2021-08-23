@@ -5,7 +5,7 @@
 #SBATCH --ntasks=16
 #SBATCH --account=quinlan-rw
 #SBATCH --partition=quinlan-shared-rw
-#SBATCH -o download-gnomad.out
+#SBATCH -o logs/download-gnomad-v3.out
 
 set -o errexit
 set -o pipefail
@@ -25,59 +25,61 @@ do
 	esac
 done
 
+info "Specifying depth cutoff to use for coverage filtering..."
+
 ## Determine column used for coverage filters
-if [ $column == 5 ]
+if [ ${column} == 5 ]
 then
 	column_name="over_1"
 fi
 
-if [ $column == 6 ]
+if [ ${column} == 6 ]
 then
 	column_name="over_5"
 fi
 
-if [ $column == 7 ]
+if [ ${column} == 7 ]
 then
         column_name="over_10"
 fi
 
-if [ $column == 8 ]
+if [ ${column} == 8 ]
 then
         column_name="over_15"
 fi
 
-if [ $column == 9 ]
+if [ ${column} == 9 ]
 then
         column_name="over_20"
 fi
 
-if [ $column == 10 ]
+if [ ${column} == 10 ]
 then
         column_name="over_25"
 fi
 
-if [ $column == 11 ]
+if [ ${column} == 11 ]
 then
         column_name="over_30"
 fi
 
-if [ $column == 12 ]
+if [ ${column} == 12 ]
 then
         column_name="over_50"
 fi
 
-if [ $column == 13 ]
+if [ ${column} == 13 ]
 then
         column_name="over_100"
 fi
 
-if [ $column <= 4 | $column >= 14 ]
+if [ ${column} <= 4 | ${column} >= 14 ]
 then
 	echo "INVALID COLUMN NUMBER... PLEASE SPECIFY COLUMN VALUE BETWEEN 6 AND 13..."
 fi
 
 ## State coverage filter parameters
-info "Filtering gnomad v3 coverage file to select for positions in which ${threshold}% of samples have a mean depth of value: ${column_name}X"
+info "Filtering gnomad v3 coverage file to select for positions in which (${threshold} * 100)% of samples have a mean depth of value: ${column_name}X"
 
 ## Define files to download
 gnomad_url="https://storage.googleapis.com/gcp-public-data--gnomad/release/3.1.1/vcf/genomes/gnomad.genomes.v3.1.1.sites.chr22.vcf.bgz"
@@ -94,7 +96,7 @@ gnomad_variant="gnomad_v3_chr22.vcf.bgz"
 gnomad_tbi="gnomad_v3_chr22.vcf.bgz.tbi"
 gnomad_variant_filtered="gnomad_v3_chr22_filtered.vcf.bgz"
 gnomad_coverage="gnomad_v3_coverage.summary.tsv.bgz"
-gnomad_coverage_filtered="gnomad_v3_coverage_col${column}_${threshold}.bed"
+gnomad_coverage_filtered="gnomad_v3_coverage_${column_name}_${threshold}.bed"
 
 info "Downloading gnomad's variant VCF file..."
 wget ${gnomad_url} --output-document=${gnomad_path}/${gnomad_variant}
