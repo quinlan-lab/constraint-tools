@@ -24,6 +24,9 @@ do
 	esac
 done
 
+## State coverage filter parameters
+info "Filtering gnomad v3 coverage file to select for positions in which ${threshold}% of samples have a mean depth greater than the value specified by column number ${column}"
+
 ## Define files to download
 gnomad_url="https://storage.googleapis.com/gcp-public-data--gnomad/release/3.1.1/vcf/genomes/gnomad.genomes.v3.1.1.sites.chr22.vcf.bgz"
 gnomad_tbi_url="https://storage.googleapis.com/gcp-public-data--gnomad/release/3.1.1/vcf/genomes/gnomad.genomes.v3.1.1.sites.chr22.vcf.bgz.tbi"
@@ -32,12 +35,13 @@ gnomad_coverage_v3="https://storage.googleapis.com/gcp-public-data--gnomad/relea
 ## Define directory to download files into 
 gnomad_path="${CONSTRAINT_TOOLS}/data/gnomad/v3"
 
+mkdir --parents ${gnomad_path}
+
 ## Define output names 
 gnomad_variant="gnomad_v3_chr22.vcf.bgz"
 gnomad_tbi="gnomad_v3_chr22.vcf.bgz.tbi"
 gnomad_coverage="gnomad_v3_coverage.summary.tsv.bgz"
-
-mkdir --parents ${gnomad_path}
+gnomad_coverage_filtered="gnomad_v3_coverage_${threshold}.bed"
 
 info "Downloading gnomad's variant VCF file..."
 #wget ${gnomad_url} --output-document=${gnomad_path}/${gnomad_variant}
@@ -49,10 +53,6 @@ info "Downloading gnomad v3 coverage file..."
 #wget ${gnomad_coverage_v3} --output-document=${gnomad_path}/${gnomad_coverage}
 
 info "Filtering gnomad v3 coverage file..."
-## Define coverage threshold
-gnomad_coverage_filtered="gnomad_v3_coverage_${threshold}.bed"
-
-## Filter coverage file 
 zcat ${gnomad_path}/${gnomad_coverage} --force | tail -n+2 | awk -v c=${column} -v t=${threshold} '$c>t {print $1}' | sed 's/:/\t/g' | awk '{print $1"\t"($2-1)"\t"$2}' | bedtools merge > ${gnomad_path}/${gnomad_coverage_filtered}
 
 
