@@ -96,7 +96,7 @@ gnomad_variant="gnomad_v3_chr22.vcf.bgz"
 gnomad_tbi="gnomad_v3_chr22.vcf.bgz.tbi"
 gnomad_variant_filtered="gnomad_v3_chr22_filtered.vcf.bgz"
 gnomad_coverage="gnomad_v3_coverage.summary.tsv.bgz"
-gnomad_coverage_filtered="gnomad_v3_coverage_${column_name}_${threshold}.bed"
+gnomad_coverage_filtered="gnomad_v3_coverage_${column_name}X_${threshold}.bed"
 
 info "Downloading gnomad's variant VCF file..."
 wget ${gnomad_url} --output-document=${gnomad_path}/${gnomad_variant}
