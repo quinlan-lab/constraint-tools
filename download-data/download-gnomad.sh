@@ -41,8 +41,9 @@ mkdir --parents ${gnomad_path}
 ## Define output names 
 gnomad_variant="gnomad_v3_chr22.vcf.bgz"
 gnomad_tbi="gnomad_v3_chr22.vcf.bgz.tbi"
+gnomad_variant_filtered="gnomad_v3_chr22_filtered.vcf.bgz"
 gnomad_coverage="gnomad_v3_coverage.summary.tsv.bgz"
-gnomad_coverage_filtered="gnomad_v3_coverage_${threshold}.bed"
+gnomad_coverage_filtered="gnomad_v3_coverage_col${column}_${threshold}.bed"
 
 info "Downloading gnomad's variant VCF file..."
 #wget ${gnomad_url} --output-document=${gnomad_path}/${gnomad_variant}
@@ -54,6 +55,8 @@ info "Downloading gnomad v3 coverage file..."
 #wget ${gnomad_coverage_v3} --output-document=${gnomad_path}/${gnomad_coverage}
 
 info "Filtering gnomad v3 coverage file..."
-zcat ${gnomad_path}/${gnomad_coverage} --force | tail -n+2 | awk -v c=${column} -v t=${threshold} '$c>t {print $1}' | sed 's/:/\t/g' | awk '{print $1"\t"($2-1)"\t"$2}' | bedtools merge > ${gnomad_path}/${gnomad_coverage_filtered}
+#zcat ${gnomad_path}/${gnomad_coverage} --force | tail -n+2 | awk -v c=${column} -v t=${threshold} '$c>t {print $1}' | sed 's/:/\t/g' | awk '{print $1"\t"($2-1)"\t"$2}' | bedtools merge > ${gnomad_path}/${gnomad_coverage_filtered}
+
+
 
 
