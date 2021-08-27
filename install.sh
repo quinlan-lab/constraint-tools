@@ -30,12 +30,11 @@ conda_environment="constraint-tools"
 
 instruct_to_create_conda_environment_and_activate () {
   error "please issue the following commands:" 
-  info "\t[ module load anaconda ]"
-  info "\tconda config --add channels defaults"
-  info "\tconda config --add channels bioconda"
-  info "\tconda config --add channels conda-forge"
-  info "\tconda create --name ${conda_environment} python=3.9" 
-  info "\tconda activate ${conda_environment}"
+  info "\t$ conda config --add channels defaults"
+  info "\t$ conda config --add channels bioconda"
+  info "\t$ conda config --add channels conda-forge"
+  info "\t$ conda create --name ${conda_environment} python=3.9" 
+  info "\t$ conda activate ${conda_environment}"
   error "... and re-run this script"
   exit 1
 }
