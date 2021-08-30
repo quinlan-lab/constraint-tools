@@ -1,10 +1,4 @@
 #!/bin/bash
-#SBATCH --time=3:00:00
-#SBATCH --nodes=2
-#SBATCH --ntasks=16
-#SBATCH --account=quinlan-rw
-#SBATCH --partition=quinlan-shared-rw
-#SBATCH -o logs/test-constraint-tools.out
 
 set -o errexit
 set -o pipefail
