@@ -67,9 +67,10 @@ def get_hostname_process_cpu():
     'hostname': hostname,
     'process': pid, 
     'cpu': f'{cpu}/{multiprocessing.cpu_count()}'
-    }
+  }
 
 # https://github.com/pysam-developers/pysam/issues/397#issuecomment-328451288
+@timer 
 def compute_counts_region(region):  
   print_json({'region': region, **get_hostname_process_cpu()})
 
@@ -90,8 +91,13 @@ def parse_arguments():
   parser.add_argument('--kmer-size', type=int, dest='kmer_size', help='')
   parser.add_argument('--genome', type=str, help='')
   parser.add_argument('--regions', type=str, help='')
+<<<<<<< HEAD
   parser.add_argument('--number-samples', type=int, dest='number_samples', help='')
   parser.add_argument('--output', type=str, help='')
+=======
+  parser.add_argument('--number-tumors', type=int, dest='number_tumors', help='')
+  parser.add_argument('--model', type=str, help='')
+>>>>>>> upstream/main
   parser.add_argument('--mutations', type=str, help='')
   parser.add_argument('--model', type=str, help='')
   parser.add_argument('--training-mode', type=str, dest='training_mode', help='')

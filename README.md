@@ -9,20 +9,21 @@ bash install.sh
 bash build-vue-app.sh
 ```
 Only installation on Linux x86_64 is currently supported. 
-Tested in the Protected Environment of the Center for High Performance Computing (CHPC) at University of Utah. 
+Tested in the Protected Environment computer cluster of the Center for High Performance Computing (CHPC) at University of Utah. 
 
 ## Quick Start 
 
 Assuming one has access to the protected environment on the CHPC at University of Utah: 
 
 ```
-[sbatch | bash] tests/train.sh $PWD
+bash tests/train.sh $PWD
 ```
 
 Once training is complete, do: 
 ```
 bash tests/visualize.sh $PWD
 ```
+
 Follow the instructions at the command line to view a web app that visualizes observed mutation counts, and those expected under a null model of sequence-dependent mutation (see `model-definition` folder), as a function of genomic coordinate.  
 
 A plot of estimated mutation probabilities of the neutral model can be found here: https://github.com/quinlan-lab/constraint-tools/blob/main/tests/plot_mutation_probabilities.ipynb
@@ -48,38 +49,44 @@ Required arguments for `train` are:
 
 ```
 --genome STR
-      Path to the reference fasta. 
+      Path to a reference fasta. 
       A "samtools faidx" index is expected to be present at the same path. 
 --mutations STR 
       Path to a set of mutations specified in Mutation Annotation Format.
       A "tabix" index is expected to be present at the same path.
 --kmer-size INT
-      Size of kmer to use in model. 
---output STR 
-      Path to a directory to store results in. 
+      Size of kmer of model to be trained. 
+--model STR 
+      Path to a directory to store trained model in. 
 ```
 
 By default the `train` subcommand uses a pre-computed set of putatively neutral regions from the GRCH37 reference. Optionally, the user may change this by specifying the `--regions` argument: 
 
 ```
---regions STR 
-      Bed-format file containing a list of genomic intervals on which the model is trained.
+--regions STR
+      Bed-format file containing a list of genomic intervals on which the model is to be trained.
 ```
 
 This produces a specification of the sequence-dependent neutral mutation model in json format, viewable using, e.g., 
 ```
-${CONSTRAINT_TOOLS}/bin/jq . ${output}/<json file> 
+${CONSTRAINT_TOOLS}/bin/jq . ${model}/<json file> 
 ```
 
 Required arguments for `visualize` are:
 
 ```
---model STR
-      Path to the neutral model produced by the train sub-command (in json format). This model is used to compute the expected mutation counts in the visualization. 
 --port INT 
       The port to serve the web-app on
 ```
-      
+
+By default the `visualize` subcommand uses a pre-computed model. 
+Optionally, the user may change this by specifying the `--model` argument: 
+
+```
+--model STR
+      Path to a neutral model produced by the train sub-command (in json format). This model is used to compute the expected mutation counts in the visualization. 
+```
+
 ## Input Data
 
 Assuming one has access to the protected environment on the CHPC at University of Utah, 
@@ -88,6 +95,12 @@ then sorted, block-compressed, and indexed vcf, maf, gtf and fasta files can be 
 ```
 /scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/data
 ```
+
+## Production model 
+
+In the `/dist` directory, we distribute a model 
+that was trained on a genome-wide set of putatively neutral regions
+(also located in the `/dist` directory).
 
 ## Development 
 
