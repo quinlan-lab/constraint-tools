@@ -10,7 +10,8 @@ while [[ "$1" =~ ^- ]]; do
     --genome ) shift; [[ ! $1 =~ ^- ]] && genome=$1;;
     --regions ) shift; [[ ! $1 =~ ^- ]] && regions=$1;;
     --kmer-size ) shift; [[ ! $1 =~ ^- ]] && kmer_size=$1;;
-    --output ) shift; [[ ! $1 =~ ^- ]] && output=$1;;
+    --model ) shift; [[ ! $1 =~ ^- ]] && model=$1;;
+    --cell-type ) shift; [[ ! $1 =~ ^- ]] && cell_type=$1;;
     *) error "$0: $1 is an invalid flag"; exit 1;;
   esac 
   shift
@@ -23,31 +24,42 @@ set -o nounset
 
 # set -o xtrace
 
-# create and store a list of unique tumor barcodes, if such does not exist
-column_heading="Tumor_Sample_Barcode"
-if [[ ! -f ${mutations%.maf.gz}.${column_heading}.txt ]]; then 
-  info "Creating a list of unique values for the maf column: ${column_heading}"
-  column_heading_index=$(fetch_column_heading_index ${mutations} ${column_heading})
-  set +o errexit
-  zcat ${mutations} |
-    tail -n +2 | # lob off column headings
-    cut -f ${column_heading_index} | # pull out column of interest 
-    # head -10000 | # debug 
-    sort | # required for uniq to work as expected
-    uniq \
-    > ${mutations%.maf.gz}.${column_heading}.txt
-  set -o errexit
-fi 
+## Get tumor sample information if the cell type of interest is "somatic"
+if [ ${cell_type} == "somatic" ]; then
+ 
+  # create and store a list of unique tumor barcodes, if such does not exist
+  column_heading="Tumor_Sample_Barcode"
+  if [[ ! -f ${mutations%.maf.gz}.${column_heading}.txt ]]; then 
+    info "Creating a list of unique values for the maf column: ${column_heading}"
+    column_heading_index=$(fetch_column_heading_index ${mutations} ${column_heading})
+    set +o errexit
+    zcat ${mutations} |
+      tail -n +2 | # lob off column headings
+      cut -f ${column_heading_index} | # pull out column of interest 
+      # head -10000 | # debug 
+      sort | # required for uniq to work as expected
+      uniq \
+      > ${mutations%.maf.gz}.${column_heading}.txt
+    set -o errexit
+  fi 
 
-number_tumors=$(cat ${mutations%.maf.gz}.${column_heading}.txt | wc -l)
-info "Number tumors: ${number_tumors}\n"
+  number_samples=$(cat ${mutations%.maf.gz}.${column_heading}.txt | wc -l)
+  info "Number tumors: ${number_tumors}\n"
+fi
+
+## Get the gnomad/topmed sample iformation if the cell type of interest is "germline"
+if [ ${cell_type} == "germline" ]; then
+  number_samples="76156" ## gnomad v3 WGS
+  info "Number germline samples: ${number_samples}"
+fi
+
 
 estimate_mutation_probabilities \
   --kmer-size ${kmer_size} \
   --genome ${genome} \
   --regions ${regions} \
-  --number-tumors ${number_tumors} \
-  --output ${output} \
+  --number-samples ${number_samples} \
+  --model ${model} \
   --mutations ${mutations} \
   --training-mode $(read-config train training_mode)
 

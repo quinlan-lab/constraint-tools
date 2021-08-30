@@ -39,7 +39,7 @@ def compute_total_counts_region(genome, kmer_data, region, args):
     if contains_unspecified_bases(kmer): 
       number_of_kmers_containing_unspecified_bases += 1 
       continue 
-    kmer_data[kmer]['cohort_sequence_count'] += args.number_tumors 
+    kmer_data[kmer]['cohort_sequence_count'] += args.number_samples 
     kmer_data[kmer]['sequence_count'] += 1
 
   print_string_as_info_dim(
@@ -90,9 +90,10 @@ def parse_arguments():
   parser.add_argument('--kmer-size', type=int, dest='kmer_size', help='')
   parser.add_argument('--genome', type=str, help='')
   parser.add_argument('--regions', type=str, help='')
-  parser.add_argument('--number-tumors', type=int, dest='number_tumors', help='')
+  parser.add_argument('--number-samples', type=int, dest='number_samples', help='')
   parser.add_argument('--output', type=str, help='')
   parser.add_argument('--mutations', type=str, help='')
+  parser.add_argument('--model', type=str, help='')
   parser.add_argument('--training-mode', type=str, dest='training_mode', help='')
   return parser.parse_args()
 
@@ -174,14 +175,14 @@ def estimate_mutation_probabilities():
   kmer_data = estimate_mutation_probabilities_core(kmer_data) 
 
   args = parse_arguments()
-  model_path = args.output + '/model.json'
+  model_path = args.model + '/model.json'
   with open(model_path, 'w') as fh:
     json.dump({
       'mutations': args.mutations,
       'genome': args.genome,
       'kmer_size': args.kmer_size,
       'neutral_regions': args.regions,
-      'number_tumors': args.number_tumors,
+      'number_samples': args.number_samples,
       'kmer_data': kmer_data
     }, fh, indent=2)
   print_string_as_info('Writing multinomial model to disk at: {}'.format(model_path))

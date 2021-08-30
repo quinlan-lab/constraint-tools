@@ -6,8 +6,11 @@ set -o xtrace
 
 source download-data/set-environment-variables.sh 
 
-chromosome_sizes_url="ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips"
-chromosome_sizes="hg19.chrom.sizes"
+#chromosome_sizes_url="ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips"
+#chromosome_sizes="hg19.chrom.sizes"
+
+chromosome_sizes_url="https://hgdownload-test.gi.ucsc.edu/goldenPath/hg38/bigZips"
+chromosome_sizes="hg38.chrom.sizes"
 
 chromosome_sizes_path="${CONSTRAINT_TOOLS}/data/chromosome-sizes"
 

@@ -9,6 +9,7 @@ click==8.0.1
 colorama==0.4.4
 colored-traceback==0.3.0
 cycler==0.10.0
+cyvcf2
 decorator==5.0.9
 defusedxml==0.7.1
 entrypoints==0.3
