@@ -148,6 +148,7 @@ def get_variant_information(interval):
                 
                 
                 ## Append to the final, full variant list 
+                print(var_dict)
                 gnomad_v3_var.append([variant_dict])
     
         return gnomad_v3_var    
@@ -224,12 +225,13 @@ def process_gnomad_v3_variants():
     my_list = []
     
     for var in annotated_vars: 
+        print(var)
         my_list.append(var)
 
     ## Convert list of dictionaries to json file
     variant_path = args.var_path + '/gnomad_v3_variants.json'
     with open(variant_path, 'w') as fh:
-        json.dump(annotated_vars, fh, indent=2)
+        json.dump(my_list, fh, indent=2)
     
 #%%
 

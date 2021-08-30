@@ -163,14 +163,14 @@ info "Identifying vep annotations for gnomad v3..."
 #bcftools view -h ${gnomad_path}/${gnomad_variant} | grep "ID=vep" | grep "ID=vep" | tr ": " "\n" | grep Allele | sed 's/">//' | tr "|" "\n" > ${gnomad_path}/${gnomad_vep_annotations}
 
 info "Segmenting chromosome sizes (hg38) for processing of gnomad v3 variant file..."
-python ${gnomad_scripts}/get_gnomad_v3_intervals.py --chr-sizes-file ${chr_sizes} --bin-num 100000 --output ${chr_sizes_output}  
-cat ${chr_sizes_output} | tail -n +2 > ${chr_sizes_output}.noheader
+#python ${gnomad_scripts}/get_gnomad_v3_intervals.py --chr-sizes-file ${chr_sizes} --bin-num 100000 --output ${chr_sizes_output}  
+#cat ${chr_sizes_output} | tail -n +2 > ${chr_sizes_output}.noheader
 
 info "Processing gnomad v3 variant file..."
 python ${gnomad_scripts}/process_gnomad_v3_variants.py --intervals ${gnomad_intervals} --gnomad_variant_file ${gnomad_path}/${gnomad_variant} --vep_annotation_file ${gnomad_path}/${gnomad_vep_annotations} --var_path ${gnomad_path}
 
 info "Converting VCF variants to appropriate MAF format... Sorting and gzipping..."
-#python ${gnomad_scripts}/vcf_to_maf.py --vcf ${gnomad_path}/gnomad_v3_variants.json --no-filter-status --filter-AC 0 --filter-AN 0 --filter-AF 0 --genome ${reference_genome} --kmer-size 3 --output ${gnomad_path}/${gnomad_maf}
+#python ${gnomad_scripts}/vcf_to_maf.py --vcf ${gnomad_path}/gnomad_v3_variants.json --genome ${reference_genome} --kmer-size 3 --output ${gnomad_path}/${gnomad_maf}
 
 info "Indexing gnomad v3 mutations..."
 #cat ${gnomad_path}/${gnomad_maf} | bgzip > ${gnomad_path}/${gnomad_maf}.gz

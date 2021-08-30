@@ -104,20 +104,24 @@ def parse_arguments():
 #%%
 def vcf_to_maf(vcf_variant):
     args = parse_arguments()
+    
+    if vcf_variant: 
         
-    ## Filter variants from VCF
-    filtered_var = get_maf_values(vcf_variant[0])
-    
-    ## Get the reference kmer for the vcf variant \
-    ## Read in the reference genome 
-    genome = pysam.FastaFile(args.genome)
-    
-    ## Get the reference kmer and add it to the dictionary
-    maf_var = get_kmer(filtered_var, genome, args.kmer_size) 
-    #maf_var['Chromosome'] =  maf_var['Chromosome'].split('chr')[1]
-    print(maf_var)
-    
-    return maf_var
+        print(vcf_variant)
+            
+        ## Filter variants from VCF
+        filtered_var = get_maf_values(vcf_variant[0])
+        
+        ## Get the reference kmer for the vcf variant \
+        ## Read in the reference genome 
+        genome = pysam.FastaFile(args.genome)
+        
+        ## Get the reference kmer and add it to the dictionary
+        maf_var = get_kmer(filtered_var, genome, args.kmer_size) 
+        #maf_var['Chromosome'] =  maf_var['Chromosome'].split('chr')[1]
+        print(maf_var)
+        
+        return maf_var
 #%%
 
 #%%
