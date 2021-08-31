@@ -44,11 +44,11 @@ def get_maf_values(vcf_variant):
     
     ## Verify that the ref/alt alleles are ACTG
     if ref_allele[0] not in ['A', 'C', 'T', 'G']: 
-        print("Sanity check failed: ref allele (", ref_allele, ") not an appropriate nucleotide... Removing variant...", sep="")
+        print("Sanity check failed: ref allele (", ref_allele, ") not a valid nucleotide... Removing variant...", sep="")
         return {}
     
     if alt_allele[0] not in ['A', 'C', 'T', 'G']: 
-        print("Sanity check failed: ref allele (", alt_allele, ") not an appropriate nucleotide... Removing variant...", sep="")
+        print("Sanity check failed: ref allele (", alt_allele, ") not a valid nucleotide... Removing variant...", sep="")
         return {}
         
     ## Check to see that the ref and alt alleles are different
@@ -58,7 +58,7 @@ def get_maf_values(vcf_variant):
     
     ## Check to see if the start/stop coordinates are 1 apart
     if (maf_variant['end'] - maf_variant['start']) != 1:
-        print("Sanity check failed: start and stop coordinates do not equal 1... Removing variant...")
+        print("Sanity check failed: start and stop coordinate separation does not equal 1... Removing variant...")
         return {}
     
     #####################################################################################    
