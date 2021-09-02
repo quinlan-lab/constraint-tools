@@ -5,17 +5,21 @@ import argparse
 import json
 import concurrent.futures
 import numpy as np
+import itertools
+import pandas as pd
+import pyranges
 
 #%%
 def parse_arguments():
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('--intervals', type=str, help='')
-    parser.add_argument('--vep_annotation_file', type=str, help='')
+    parser.add_argument('--vep-annotation-file', type=str, dest='vep_annotation_file', help='')
     parser.add_argument('--filter-AC', default=0, type=int, dest='filter_AC', help='')
     parser.add_argument('--filter-AN', default=0, type=int, dest='filter_AN', help='')
     parser.add_argument('--filter-AF', default=0, type=int, dest='filter_AF', help='')    
-    parser.add_argument('--gnomad_variant_file', type=str, help='')
-    parser.add_argument('--var_path', type=str, help='')
+    parser.add_argument('--gnomad-variant-file', type=str, dest='gnomad_variant_file', help='')
+    parser.add_argument('--coverage-file', type=str, dest='coverage_file', help='')
+    parser.add_argument('--var-path', type=str, dest='var_path', help='')
 
     return parser.parse_args()
 #%%
@@ -56,6 +60,10 @@ def get_variant_information(interval):
     
     ## Get all the arguments
     args = parse_arguments()
+    
+    ## Read in coverage file 
+    coverage = pd.read_csv(args.coverage_file, sep="\t", header=0)
+    coverage.columns = "chrom start end".split()
     
     ## Get vep_annotation names
     vep_annotations = read_variant_info(args.vep_annotation_file)
@@ -100,7 +108,7 @@ def get_variant_information(interval):
         ref, alt = variant.REF, variant.ALT
         
         ## Apply filters to determine if the variant should be kept or not
-        keep_variant = filter_variants(variant, args.filter_AC, args.filter_AN, args.filter_AF)
+        keep_variant = filter_variants(variant, args.filter_AC, args.filter_AN, args.filter_AF, coverage)
         
         if keep_variant == True: 
         
@@ -146,7 +154,11 @@ def get_variant_information(interval):
 #%%
 
 #%%
-def filter_variants(variant, filter_AC, filter_AN, filter_AF):   
+def filter_variants(variant, filter_AC, filter_AN, filter_AF, coverage):   
+
+    ####################################################    
+    ##### Perform filters on basic vcf info values #####
+    ####################################################
     
     ## Remove variants whose filter value is not PASS
     ## https://brentp.github.io/cyvcf2/docstrings.html
@@ -221,12 +233,33 @@ def filter_variants(variant, filter_AC, filter_AN, filter_AF):
         print('Sanity check failed: variant start and end coordinates does not equal 1... Removing...')
         return False
     
+    ############################################################
+    ##### Remove variants within regions of lower coverage #####
+    ############################################################
+    ## Create pandas df from the variant coordinate
+    chrom, start, end = variant.CHROM, variant.start, variant.end
+    var = {'chrom': chrom, 'start': start, 'end': end}
+    var = pd.DataFrame.from_dict(var)
+    
+    ## Create pyranges object from the pandas df
+    cov, var = pyranges.pyRanges(coverage), pyranges.pyRanges(var)
+    
+    ## Perform intersection
+    intersection = cov.intersect(var)
+    print(var)
+    print(intersection)
+    
+    ## See if there is an intersection
+    if len(intersection) > 0: 
+        print('Variant within insufficiently covered region.. Removing...')
+        return False
+    
+    
     ## Print message saying the variant met all filtering criteria
     print("Variant met all filtering criteria...")
     return True
 
 #%%
-
 
 #%%
 def process_gnomad_v3_variants():

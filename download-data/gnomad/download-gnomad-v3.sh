@@ -1,7 +1,7 @@
 #!/bin/sh
 #!/bin/bash
 #SBATCH --time=3:00:00
-#SBATCH --nodes=3
+#SBATCH --nodes=4
 #SBATCH --ntasks=16
 #SBATCH --account=quinlan-rw
 #SBATCH --partition=quinlan-shared-rw
@@ -79,17 +79,4 @@ info "Segmenting chromosome sizes (hg38) for processing of gnomad v3 variant fil
 #cat ${chr_intervals} | tail -n +2 > ${chr_intervals}.noheader
 
 info "Processing gnomad v3 variant file..."
-python ${gnomad_scripts}/process_gnomad_v3_variants.py --intervals ${chr_intervals}.noheader.chr22 --gnomad_variant_file ${var_path}/vcf/${gnomad_variant} --vep_annotation_file ${var_path}/vcf/${gnomad_vep_annotations} --var_path ${var_path}
-
-info "Converting VCF variants to appropriate MAF format... Sorting..."
-python ${gnomad_scripts}/vcf_to_maf.py --vcf ${var_path}/gnomad_v3_variants.json --genome ${reference_genome} --kmer-size 3 --output ${var_path}/maf/${gnomad_maf}
-
-info "Bgzipping and indexing gnomad v3 mutations..."
-cat ${var_path}/maf/${gnomad_maf} | bgzip > ${var_path}/maf/${gnomad_maf}.gz
-tabix \
-	--skip-lines 1 \
-	--sequence 1 \
-	--begin 2 \
-	--end 3 \
-	--force \
-	${var_path}/maf/${gnomad_maf}.gz
+python ${gnomad_scripts}/process_gnomad_v3_variants.py --intervals ${chr_intervals}.noheader.chr22 --gnomad-variant-file ${var_path}/vcf/${gnomad_variant} --vep-annotation-file ${var_path}/vcf/${gnomad_vep_annotations} --coverage-file ${var_path}/coverage/gnomad_v3_coverage.filtered.bed --var-path ${var_path}
