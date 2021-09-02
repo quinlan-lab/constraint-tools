@@ -165,11 +165,61 @@ def filter_variants(variant, filter_AC, filter_AN, filter_AF):
         if int(variant.INFO.get('AN')) < filter_AN: 
             print('Sanity check failed: variant allele number (AN) below required threshold... Removing...')
             return False
-        
+    
+    ## Filter variant based on alterante allele fraction
     if filter_AF > 0: 
         if int(variant.INFO.get('AF')) < filter_AF:
             print('Sanity check failed: variant allele frequency (AF) below required threshold... Removing...')
             return False
+        
+    #################################
+    ##### PERFORM SANITY CHECKS #####
+    #################################
+    
+    ## Remove non-SNVs
+    if str(variant.INFO.get('VARIANT_CLASS')) != 'SNV': 
+        print('Sanity check failed: variant is not SNV... Removing...')
+        return False
+    
+    ## Verify reference and alternate allele is of length 1
+    alt_allele = variant.ALT
+    ref_allele = variant.REF
+    
+    if isinstance(alt_allele, list): 
+        alt_allele = ''.join(map(str, alt_allele))
+        
+    if isinstance(ref_allele, list): 
+        ref_allele = ''.join(map(str, ref_allele))
+        
+    alt_allele = list(itertools.chain(alt_allele))
+    ref_allele = list(itertools.chain(ref_allele))
+    
+    if len(ref_allele) > 1: 
+        print('Sanity check failed: variant reference allele is of length > 1... Removing...')
+        return False
+    
+    if len(alt_allele) > 1: 
+        print('Sanity check failed: variant alternate allele is of length > 1... Removing...')
+        return False
+    
+    ## Verify ref/alt alleles are AGCT
+    if ref_allele[0] not in ['A', 'C', 'T', 'G']: 
+        print('Sanity check failed: ref allele not a valid nucleotide... Removing...')
+        return False
+    
+    if alt_allele[0] not in ['A', 'C', 'T', 'G']: 
+        print('Sanity check failed: alt allele not a valid nucleotide... Removing...')
+        return False
+    
+    ## Verify that the ref and alt alleles are different
+    if ref_allele[0] == alt_allele[0]: 
+        print('Sanity check failed: ref and alt alleles are the same... Removing variant...')
+        return False 
+    
+    ## Verify that the start/end coordinates of the SNV are 1 apart
+    if (variant.end - variant.start) != 1: 
+        print('Sanity check failed: variant start and end coordinates does not equal 1... Removing...')
+        return False
     
     ## Print message saying the variant met all filtering criteria
     print("Variant met all filtering criteria...")
@@ -197,9 +247,11 @@ def process_gnomad_v3_variants():
     ## Combine data
     my_list = []
     
-    for var in annotated_vars: 
-        if var:  ## Remove null values due to the lack of variants within soecfied intervals 
-            my_list.append(var)
+    for var_list in annotated_vars: 
+        if var_list: ## Remove null values due to the lack of variants within soecfied intervals 
+            print(var_list)
+            for var in var_list: 
+                my_list.append(var)
 
     ## Convert list of dictionaries to json file
     variant_path = args.var_path + '/gnomad_v3_variants.json'

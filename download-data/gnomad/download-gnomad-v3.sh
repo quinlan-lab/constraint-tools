@@ -40,7 +40,7 @@ gnomad_url="https://storage.googleapis.com/gcp-public-data--gnomad/release/3.1.1
 gnomad_tbi_url="https://storage.googleapis.com/gcp-public-data--gnomad/release/3.1.1/vcf/genomes/gnomad.genomes.v3.1.1.sites.chr22.vcf.bgz.tbi"
 
 ## Define directory to download files into 
-gnomad_path="${CONSTRAINT_TOOLS}/data/gnomad/v3"
+var_path="${CONSTRAINT_TOOLS}/data/gnomad/v3"
 
 ## Define reference genome
 reference_genome="${CONSTRAINT_TOOLS}/data/reference/grch38/hg38.analysisSet.fa.gz"
@@ -51,13 +51,12 @@ gnomad_scripts="${CONSTRAINT_TOOLS}/download-data/gnomad"
 ## Define chr sizes input
 chr_sizes="${CONSTRAINT_TOOLS}/data/chromosome-sizes/hg38.chrom.sizes.sorted"
 
-mkdir --parents ${gnomad_path}
+mkdir --parents ${var_path}
 
 #######################################
 
 ## Define output names 
 gnomad_variant="gnomad_v3_chr22.vcf.bgz"
-gnomad_tbi="gnomad_v3_chr22.vcf.bgz.tbi"
 gnomad_vep_annotations="vep_annotations.gnomad_v3.txt"
 gnomad_maf="gnomad_v3_chr22.maf"
 chr_intervals="${CONSTRAINT_TOOLS}/data/gnomad/v3/intervals/hg38.chrom.intervals"
@@ -65,32 +64,32 @@ chr_intervals="${CONSTRAINT_TOOLS}/data/gnomad/v3/intervals/hg38.chrom.intervals
 #######################################
 
 info "Downloading gnomad's variant VCF file..."
-#wget ${gnomad_url} --output-document=${gnomad_path}/${gnomad_variant}
+#wget ${gnomad_url} --output-document=${var_path}/vcf/${gnomad_variant}
 
 info "Downloading gnomad's tbi file..."
-#wget ${gnomad_tbi_url} --output-document=${gnomad_path}/${gnomad_tbi}
+#wget ${gnomad_tbi_url} --output-document=${var_path}/vcf/${gnomad_variant}.tbi
 
 #######################################
 
 info "Identifying vep annotations for gnomad v3..."
-#bcftools view -h ${gnomad_path}/${gnomad_variant} | grep "ID=vep" | grep "ID=vep" | tr ": " "\n" | grep Allele | sed 's/">//' | tr "|" "\n" > ${gnomad_path}/${gnomad_vep_annotations}
+#bcftools view -h ${var_path}/${gnomad_variant} | grep "ID=vep" | tr ": " "\n" | grep Allele | sed 's/">//' | tr "|" "\n" > ${var_path}/vcf/${gnomad_vep_annotations}
 
 info "Segmenting chromosome sizes (hg38) for processing of gnomad v3 variant file..."
 #python ${gnomad_scripts}/get_gnomad_v3_intervals.py --chr-sizes-file ${chr_sizes} --bin-num 100000 --output ${chr_intervals}  
 #cat ${chr_intervals} | tail -n +2 > ${chr_intervals}.noheader
 
 info "Processing gnomad v3 variant file..."
-python ${gnomad_scripts}/process_gnomad_v3_variants.py --intervals ${chr_intervals}.noheader.chr22 --gnomad_variant_file ${gnomad_path}/${gnomad_variant} --vep_annotation_file ${gnomad_path}/${gnomad_vep_annotations} --var_path ${gnomad_path}
+python ${gnomad_scripts}/process_gnomad_v3_variants.py --intervals ${chr_intervals}.noheader.chr22 --gnomad_variant_file ${var_path}/vcf/${gnomad_variant} --vep_annotation_file ${var_path}/vcf/${gnomad_vep_annotations} --var_path ${var_path}
 
-info "Converting VCF variants to appropriate MAF format... Sorting and gzipping..."
-#python ${gnomad_scripts}/vcf_to_maf.py --vcf ${gnomad_path}/gnomad_v3_variants.json --genome ${reference_genome} --kmer-size 3 --output ${gnomad_path}/${gnomad_maf}
+info "Converting VCF variants to appropriate MAF format... Sorting..."
+python ${gnomad_scripts}/vcf_to_maf.py --vcf ${var_path}/gnomad_v3_variants.json --genome ${reference_genome} --kmer-size 3 --output ${var_path}/maf/${gnomad_maf}
 
-info "Indexing gnomad v3 mutations..."
-#cat ${gnomad_path}/${gnomad_maf} | bgzip > ${gnomad_path}/${gnomad_maf}.gz
-#tabix \
+info "Bgzipping and indexing gnomad v3 mutations..."
+cat ${var_path}/maf/${gnomad_maf} | bgzip > ${var_path}/maf/${gnomad_maf}.gz
+tabix \
 	--skip-lines 1 \
 	--sequence 1 \
 	--begin 2 \
 	--end 3 \
 	--force \
-	${gnomad_path}/${gnomad_maf}.gz
+	${var_path}/maf/${gnomad_maf}.gz
