@@ -26,8 +26,6 @@ else
 	info "PLEASE SUPPLY \"germline\" OR \"somatic\" as input for the cell_type variable..."
 fi
 =======
-mutations="/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/data/icgc/mutations.sorted.maf.gz"
-genome="/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/data/reference/grch37/genome.fa.gz"
 kmer_size="3"
 regions="${CONSTRAINT_TOOLS}/tests/neutral-regions.bed.gz"
 model="${CONSTRAINT_TOOLS}/tests" # path to directory to store model in
