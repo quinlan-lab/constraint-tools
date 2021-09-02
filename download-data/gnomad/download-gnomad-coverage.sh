@@ -26,9 +26,9 @@ set -o nounset
 source download-data/set-environment-variables.sh 
 
 ## Define directory to download files into 
-gnomad_path="${CONSTRAINT_TOOLS}/data/gnomad/v3/coverage"
+coverage_path="${CONSTRAINT_TOOLS}/data/gnomad/v3/coverage"
 
-mkdir --parents ${gnomad_path}
+mkdir --parents ${coverage_path}
  
 echo "Threshold: ${threshold}"
  
@@ -86,14 +86,19 @@ info "Filtering gnomad v3 coverage file to select for positions in which (${thre
 
 ## Download gnomad coverage data (v3)
 url="https://storage.googleapis.com/gcp-public-data--gnomad/release/3.0.1/coverage/genomes/gnomad.genomes.r3.0.1.coverage.summary.tsv.bgz"
-gnomad_coverage="gnomad_v3_coverage.summary.tsv.bgz"
-gnomad_coverage_filtered="gnomad_v3_coverage_${coverage}X_${threshold}"
+gnomad_coverage_file="gnomad_v3_coverage.summary.tsv.bgz"
+gnomad_coverage_filtered="gnomad_v3_coverage.filtered"
 
 info "Downloading gnomad v3 coverage file"
-wget ${url} --output-document=${gnomad_path}/${gnomad_coverage}
+#wget ${url} --output-document=${coverage_path}/${gnomad_coverage_file}
 
 info "Performing the above filter..."
-zcat ${gnomad_path}/${gnomad_coverage} --force | tail -n+2 | awk -v c=${coverage} -v t=${threshold} '$c>t {print $1}' | sed 's/:/\t/g' | awk '{print $1"\t"($2-1)"\t"$2}' | bedtools merge > ${gnomad_path}/${gnomad_coverage_filtered}.bed
+#zless ${coverage_path}/${gnomad_coverage_file} | tail -n+2 | awk -v c=${column} -v t=${threshold} '$c>t {print $1}' | sed 's/:/\t/g' | awk '{print $1"\t"($2-1)"\t"$2}' | bedtools merge > ${coverage_path}/${gnomad_coverage_filtered}.bed
+
+#info "Removing chromosome prefix..."
+#cat ${coverage_path}/${gnomad_coverage_filtered}.bed | sed 's/chr//g' > ${coverage_path}/${gnomad_coverage_filtered}.nochr.bed
 
 info "Sorting and compressing coverage bed file..."
-cat ${gnomad_coverage_filtered} | sort-compress-index-bed --name ${gnomad_coverage_filtered}.sorted.bed.gz
+cat ${coverage_path}/${gnomad_coverage_filtered}.bed \
+  | get-regular-chromosomes \
+  | sort-compress-index-bed --name ${coverage_path}/${gnomad_coverage_filtered}.sorted
