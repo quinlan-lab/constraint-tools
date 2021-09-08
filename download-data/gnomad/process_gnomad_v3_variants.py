@@ -63,7 +63,7 @@ def get_variant_information(interval):
     
     ## Read in coverage file 
     coverage = pd.read_csv(args.coverage_file, sep="\t", header=0)
-    coverage.columns = "chrom start end".split()
+    coverage.columns = "Chromosome Start End".split()
     
     ## Get vep_annotation names
     vep_annotations = read_variant_info(args.vep_annotation_file)
@@ -132,14 +132,15 @@ def get_variant_information(interval):
                 variant_dict = initialize_variant_dict(vep_annotations)
                 
                 ## Fill in dictionary with variant coordinates and ref/alt alleles
-                variant_dict['chrom'], variant_dict['start'], variant_dict['end'], variant_dict['ref'], variant_dict['alt'] = chrom, start, end, ref, alt
+                variant_dict['chrom'], variant_dict['start'], variant_dict['end'] = chrom, start, end
+                variant_dict['ref'], variant_dict['alt'] = list(itertools.chain(ref))[0], list(itertools.chain(alt))[0]
                 variant_dict['status'], variant_dict['AC'], variant_dict['AN'], variant_dict['AF'] = status, ac, an, af
                 
                 ## Iterate through each isoform and add vep annotations to variant dictionary
                 for annotation_num in range(0, len(vep_annotations)):
+
                     ## Define the vep annotation 
                     vep_annotation = vep_annotations[annotation_num]
-                    #print("Getting the variant's VEP annotation: ", vep_annotation, "...", sep="")
                                     
                     ## Get the vep annotation value 
                     vep_value = vep_isoform[annotation_num]
@@ -148,7 +149,7 @@ def get_variant_information(interval):
                     variant_dict[vep_annotation] = vep_value
                                
                 ## Append to the final, full variant list 
-                gnomad_v3_var.append([variant_dict])
+                gnomad_v3_var.append(variant_dict)
     
         return gnomad_v3_var    
 #%%
@@ -188,9 +189,9 @@ def filter_variants(variant, filter_AC, filter_AN, filter_AF, coverage):
     ##### PERFORM SANITY CHECKS #####
     #################################
     
-    ## Remove non-SNVs
-    if str(variant.INFO.get('VARIANT_CLASS')) != 'SNV': 
-        print('Sanity check failed: variant is not SNV... Removing...')
+    ## Verify the variant is an SNV
+    if variant.INFO.get('variant_type') == 'snv': 
+        print('Sanity check failed: variant is not an SNV... Removing...')
         return False
     
     ## Verify reference and alternate allele is of length 1
@@ -207,10 +208,16 @@ def filter_variants(variant, filter_AC, filter_AN, filter_AF, coverage):
     ref_allele = list(itertools.chain(ref_allele))
     
     if len(ref_allele) > 1: 
+        print(variant.INFO.get('variant_type'))
+        print(alt_allele)
+        print(ref_allele)
         print('Sanity check failed: variant reference allele is of length > 1... Removing...')
         return False
     
     if len(alt_allele) > 1: 
+        print(variant.INFO.get('variant_type'))
+        print(alt_allele)
+        print(ref_allele)
         print('Sanity check failed: variant alternate allele is of length > 1... Removing...')
         return False
     
@@ -238,11 +245,11 @@ def filter_variants(variant, filter_AC, filter_AN, filter_AF, coverage):
     ############################################################
     ## Create pandas df from the variant coordinate
     chrom, start, end = variant.CHROM, variant.start, variant.end
-    var = {'chrom': chrom, 'start': start, 'end': end}
+    var = {'Chromosome': [chrom], 'Start': [start], 'End': [end]}
     var = pd.DataFrame.from_dict(var)
     
     ## Create pyranges object from the pandas df
-    cov, var = pyranges.pyRanges(coverage), pyranges.pyRanges(var)
+    cov, var = pyranges.PyRanges(coverage), pyranges.PyRanges(var)
     
     ## Perform intersection
     intersection = cov.intersect(var)
@@ -285,11 +292,19 @@ def process_gnomad_v3_variants():
             print(var_list)
             for var in var_list: 
                 my_list.append(var)
+                
+    ## Convert list of dictionaries to dataframe
+    df = pd.DataFrame(my_list)
+    
+    ## Select for necessary columns
+    df = df[['chrom', 'start', 'end', 'ref', 'alt', 'AC', 'SYMBOL', 'Gene', 'Consequence', 'Feature_type', 'Feature', 'Amino_acids']]
+    df.columns = ['chrom', 'start', 'end', 'ref', 'alt', 'allele_count', 'gene_name', 'gene_id', 'consequence', 'feature_type', 'transcript_id', 'amino_acids']
 
     ## Convert list of dictionaries to json file
-    variant_path = args.var_path + '/gnomad_v3_variants.json'
-    with open(variant_path, 'w') as fh:
-        json.dump(my_list, fh, indent=2)
+    variant_path = args.var_path + '/gnomad_v3_variants.bed'
+    df.to_csv(variant_path, index=False, sep="\t")
+    # with open(variant_path, 'w') as fh:
+    #     json.dump(my_list, fh, indent=2)
     
 #%%
 
