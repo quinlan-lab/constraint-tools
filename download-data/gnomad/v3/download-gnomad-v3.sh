@@ -20,6 +20,8 @@ source download-data/set-environment-variables.sh
 #######################################
 
 module load bcftools 
+module load bgzip
+module load tabix
 
 #######################################
 
@@ -36,8 +38,8 @@ PATH="${CONSTRAINT_TOOLS}/bin:$PATH"
 #######################################
 
 ## Define files to download
-gnomad_url="https://storage.googleapis.com/gcp-public-data--gnomad/release/3.1.1/vcf/genomes/gnomad.genomes.v3.1.1.sites.chr22.vcf.bgz"
-gnomad_tbi_url="https://storage.googleapis.com/gcp-public-data--gnomad/release/3.1.1/vcf/genomes/gnomad.genomes.v3.1.1.sites.chr22.vcf.bgz.tbi"
+gnomad_url="https://storage.googleapis.com/gcp-public-data--gnomad/release/3.1.1/vcf/genomes/gnomad.genomes.v3.1.1.sites.chr20.vcf.bgz"
+gnomad_tbi_url="https://storage.googleapis.com/gcp-public-data--gnomad/release/3.1.1/vcf/genomes/gnomad.genomes.v3.1.1.sites.chr20.vcf.bgz.tbi"
 
 ## Define directory to download files into 
 var_path="${CONSTRAINT_TOOLS}/data/gnomad/v3"
@@ -46,7 +48,7 @@ var_path="${CONSTRAINT_TOOLS}/data/gnomad/v3"
 reference_genome="${CONSTRAINT_TOOLS}/data/reference/grch38/hg38.analysisSet.fa.gz"
 
 ## Define python script location to process gnomad files post-download
-gnomad_scripts="${CONSTRAINT_TOOLS}/download-data/gnomad"
+gnomad_scripts="${CONSTRAINT_TOOLS}/download-data/gnomad/v3"
 
 ## Define chr sizes input
 chr_sizes="${CONSTRAINT_TOOLS}/data/chromosome-sizes/hg38.chrom.sizes.sorted"
@@ -56,9 +58,8 @@ mkdir --parents ${var_path}
 #######################################
 
 ## Define output names 
-gnomad_variant="gnomad_v3_chr22.vcf.bgz"
+gnomad_variant="gnomad_v3_chr20.vcf.bgz"
 gnomad_vep_annotations="vep_annotations.gnomad_v3.txt"
-gnomad_maf="gnomad_v3_chr22.maf"
 chr_intervals="${CONSTRAINT_TOOLS}/data/gnomad/v3/intervals/hg38.chrom.intervals"
 
 #######################################
@@ -72,11 +73,32 @@ info "Downloading gnomad's tbi file..."
 #######################################
 
 info "Identifying vep annotations for gnomad v3..."
-#bcftools view -h ${var_path}/${gnomad_variant} | grep "ID=vep" | tr ": " "\n" | grep Allele | sed 's/">//' | tr "|" "\n" > ${var_path}/vcf/${gnomad_vep_annotations}
+bcftools view -h ${var_path}/vcf/${gnomad_variant} | grep "ID=vep" | tr ": " "\n" | grep Allele | sed 's/">//' | tr "|" "\n" > ${var_path}/vcf/${gnomad_vep_annotations}
 
 info "Segmenting chromosome sizes (hg38) for processing of gnomad v3 variant file..."
-#python ${gnomad_scripts}/get_gnomad_v3_intervals.py --chr-sizes-file ${chr_sizes} --bin-num 100000 --output ${chr_intervals}  
-#cat ${chr_intervals} | tail -n +2 > ${chr_intervals}.noheader
+python ${gnomad_scripts}/get_gnomad_v3_intervals.py --chr-sizes-file ${chr_sizes} --bin-num 1000000 --output ${chr_intervals}  
+cat ${chr_intervals} | tail -n +2 | bgzip > ${chr_intervals}.noheader.gz
 
 info "Processing gnomad v3 variant file..."
-python ${gnomad_scripts}/process_gnomad_v3_variants.py --intervals ${chr_intervals}.noheader.chr22 --gnomad-variant-file ${var_path}/vcf/${gnomad_variant} --vep-annotation-file ${var_path}/vcf/${gnomad_vep_annotations} --coverage-file ${var_path}/coverage/gnomad_v3_coverage.filtered.bed --var-path ${var_path}
+python ${gnomad_scripts}/process_gnomad_v3_variants.py --intervals ${chr_intervals}.noheader.gz --gnomad-variant-file ${var_path}/vcf/${gnomad_variant} --vep-annotation-file ${var_path}/vcf/${gnomad_vep_annotations} --coverage-file ${var_path}/coverage/gnomad_v3_coverage.filtered.bed --var-path ${var_path}
+
+info "Sorting and compressing gnomad v3 variants..."
+cat ${var_path}/gnomad_v3_variants.bed | tail -n +2 | sort -k1,1 -k2,2n > ${var_path}/gnomad_v3_variants.sorted.bed
+
+info "Storing header of v3 variants..."
+head -n 1 ${var_path}/gnomad_v3_variants.bed > ${var_path}/header
+
+info "Concatenating header to sorted variants..." 
+cat ${var_path}/header ${var_path}/gnomad_v3_variants.sorted.bed | bgzip > ${var_path}/gnomad_v3_variants.sorted.bed.gz
+
+info "Removing header file..."
+rm ${var_path}/header
+
+info "Indexing gnomad v3 variants..."
+tabix \
+	--skip-lines 1 \
+	--sequence 1 \
+	--begin 2 \
+	--end 3 \
+	--force \
+	${var_path}/gnomad_v3_variants.sorted.bed.gz
