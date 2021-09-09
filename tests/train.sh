@@ -16,7 +16,7 @@ set -o nounset
 CONSTRAINT_TOOLS=$1 
 
 kmer_size="3"
-regions="${CONSTRAINT_TOOLS}/dist/neutral-regions-test.bed.gz" 
+regions="${CONSTRAINT_TOOLS}/dist/neutral-regions.bed.gz" 
 cell_type="germline"
 model="${CONSTRAINT_TOOLS}/tests" # path to directory to store model in
 
@@ -31,10 +31,6 @@ elif [ ${cell_type} == "germline" ]; then
 else 
 	info "PLEASE SUPPLY \"germline\" OR \"somatic\" as input for the cell_type variable..."
 fi
-
-kmer_size="3"
-regions="${CONSTRAINT_TOOLS}/tests/neutral-regions.bed.gz"
-model="${CONSTRAINT_TOOLS}/tests" # path to directory to store model in
 
 ${CONSTRAINT_TOOLS}/constraint-tools train \
   --genome ${genome} \
