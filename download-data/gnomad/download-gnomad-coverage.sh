@@ -84,20 +84,21 @@ info "Filtering gnomad-${version} ${sequencing} coverage file to select for posi
 
 #######################################
 
-if [ ${sequencing} == "wgs"] && [ ${version} == "v3" ]; then
+if [ ${version} == "v3" ] && [ ${sequencing} == "wgs" ]; then
 	url="https://storage.googleapis.com/gcp-public-data--gnomad/release/3.0.1/coverage/genomes/gnomad.genomes.r3.0.1.coverage.summary.tsv.bgz"
 	gnomad_coverage_file="gnomad_v3_coverage.summary.tsv.bgz"
 	gnomad_coverage_filtered="gnomad_v3_coverage.filtered"
 
 	## Define directory to download files into 
 	coverage_path="${CONSTRAINT_TOOLS}/data/gnomad/v3/coverage"
+	mkdir --parents ${coverage_path}	
 
 	info "Downloading gnomad v3 wgs coverage file"
 	wget ${url} --output-document=${coverage_path}/${gnomad_coverage_file}
-	mkdir --parents ${coverage_path}
+	tail ${coverage_path}/${gnomad_coverage_file}	
 
 	info "Performing the above filter..."
-	zless ${coverage_path}/${gnomad_coverage_file} | tail -n+2 | awk -v c=${column} -v t=${threshold} '$c>t {print $1}' | sed 's/:/\t/g' | awk '{print $1"\t"($2-1)"\t"$2}' | bedtools merge > ${coverage_path}/${gnomad_coverage_filtered}.bed
+	zless ${coverage_path}/${gnomad_coverage_file} | tail -n +2 | awk -v c=${column} -v t=${threshold} '{ if ($c>$t) {print $1} }' | sed 's/:/\t/g' | awk '{print $1"\t"($2-1)"\t"$2}' | bedtools merge > ${coverage_path}/${gnomad_coverage_filtered}.bed.hg38
 
 ## Download gnomad coverage data (v2)
 elif [ ${sequencing} == "wgs" ] && [ ${version} == "v2" ]; then

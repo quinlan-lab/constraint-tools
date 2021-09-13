@@ -1,6 +1,6 @@
 #!/bin/sh
 #!/bin/bash
-#SBATCH --time=3:00:00
+#SBATCH --time=12:00:00
 #SBATCH --nodes=4
 #SBATCH --ntasks=16
 #SBATCH --account=quinlan-rw
@@ -38,8 +38,8 @@ PATH="${CONSTRAINT_TOOLS}/bin:$PATH"
 #######################################
 
 ## Define files to download
-gnomad_url="https://storage.googleapis.com/gcp-public-data--gnomad/release/3.1.1/vcf/genomes/gnomad.genomes.v3.1.1.sites.chr20.vcf.bgz"
-gnomad_tbi_url="https://storage.googleapis.com/gcp-public-data--gnomad/release/3.1.1/vcf/genomes/gnomad.genomes.v3.1.1.sites.chr20.vcf.bgz.tbi"
+gnomad_url="https://storage.googleapis.com/gcp-public-data--gnomad/release/3.1.1/vcf/genomes/gnomad.genomes.v3.1.1.sites.chr1.vcf.bgz"
+gnomad_tbi_url="https://storage.googleapis.com/gcp-public-data--gnomad/release/3.1.1/vcf/genomes/gnomad.genomes.v3.1.1.sites.chr1.vcf.bgz.tbi"
 
 ## Define directory to download files into 
 var_path="${CONSTRAINT_TOOLS}/data/gnomad/v3"
@@ -58,22 +58,22 @@ mkdir --parents ${var_path}
 #######################################
 
 ## Define output names 
-gnomad_variant="gnomad_v3_chr20.vcf.bgz"
+gnomad_variant="gnomad_v3_chr1.vcf.bgz"
 gnomad_vep_annotations="vep_annotations.gnomad_v3.txt"
 chr_intervals="${CONSTRAINT_TOOLS}/data/gnomad/v3/intervals/hg38.chrom.intervals"
 
 #######################################
 
 info "Downloading gnomad's variant VCF file..."
-#wget ${gnomad_url} --output-document=${var_path}/vcf/${gnomad_variant}
+wget ${gnomad_url} --output-document=${var_path}/vcf/${gnomad_variant}
 
 info "Downloading gnomad's tbi file..."
-#wget ${gnomad_tbi_url} --output-document=${var_path}/vcf/${gnomad_variant}.tbi
+wget ${gnomad_tbi_url} --output-document=${var_path}/vcf/${gnomad_variant}.tbi
 
 #######################################
 
 info "Identifying vep annotations for gnomad v3..."
-bcftools view -h ${var_path}/vcf/${gnomad_variant} | grep "ID=vep" | tr ": " "\n" | grep Allele | sed 's/">//' | tr "|" "\n" > ${var_path}/vcf/${gnomad_vep_annotations}
+bcftools view -h ${var_path}/vcf/${gnomad_variant} | grep "ID=vep" | tr ": " "\n" | grep -i Allele | sed 's/">//' | tr "|" "\n" > ${var_path}/vcf/${gnomad_vep_annotations}
 
 info "Segmenting chromosome sizes (hg38) for processing of gnomad v3 variant file..."
 python ${gnomad_scripts}/get_gnomad_v3_intervals.py --chr-sizes-file ${chr_sizes} --bin-num 1000000 --output ${chr_intervals}  
