@@ -42,6 +42,7 @@ def split_chr_sizes(chr_sizes_dict, args):
 
         ## Define segment length to interval the chrom sizes into user defined bins
         segment = int(chrom_size/int(args.bin_num))
+        print("Bin number is: ", args.bin_num)
         
         ## Get the initial start/end to iteratively add to
         chromosome.append(chrom)

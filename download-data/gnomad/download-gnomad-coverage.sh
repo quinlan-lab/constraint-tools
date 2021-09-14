@@ -1,8 +1,6 @@
 #!/bin/sh
 #!/bin/bash
 #SBATCH --time=3:00:00
-#SBATCH --nodes=4
-#SBATCH --ntasks=16
 #SBATCH --account=quinlan-rw
 #SBATCH --partition=quinlan-shared-rw
 #SBATCH -o logs/download-gnomad-coverage.out

@@ -3,7 +3,6 @@
 from cyvcf2 import VCF
 import argparse
 import json
-import concurrent.futures
 import itertools
 import pandas as pd
 import pyranges
@@ -14,22 +13,16 @@ from pack_unpack import unpack, bed_to_sam_string
 #%%
 def parse_arguments():
     parser = argparse.ArgumentParser(description='')
-    parser.add_argument('--intervals', type=str, help='')
     parser.add_argument('--vep-annotation-file', type=str, dest='vep_annotation_file', help='')
     parser.add_argument('--filter-AC', default=0, type=int, dest='filter_AC', help='')
     parser.add_argument('--filter-AN', default=0, type=int, dest='filter_AN', help='')
     parser.add_argument('--filter-AF', default=0, type=int, dest='filter_AF', help='')    
     parser.add_argument('--gnomad-variant-file', type=str, dest='gnomad_variant_file', help='')
-    parser.add_argument('--coverage-file', type=str, dest='coverage_file', help='')
+    #parser.add_argument('--coverage-file', type=str, dest='coverage_file', help='')
+    parser.add_argument('--interval', type=str, dest='interval')
     parser.add_argument('--var-path', type=str, dest='var_path', help='')
 
     return parser.parse_args()
-#%%
-
-#%%
-def get_regions_from_bed_file(filename): 
-  with gzip.open(filename, mode='rt') as regions:
-    return [bed_to_sam_string(region) for region in regions]
 #%%
 
 #%%
@@ -69,9 +62,9 @@ def get_variant_information(interval):
     ## Get all the arguments
     args = parse_arguments()
     
-    ## Read in coverage file 
-    coverage = pd.read_csv(args.coverage_file, sep="\t", header=0)
-    coverage.columns = "Chromosome Start End".split()
+    # ## Read in coverage file 
+    # coverage = pd.read_csv(args.coverage_file, sep="\t", header=0)
+    # coverage.columns = "Chromosome Start End".split()
     
     ## Get vep_annotation names
     vep_annotations = read_variant_info(args.vep_annotation_file)
@@ -82,13 +75,16 @@ def get_variant_information(interval):
     ## Initialize list with full variant coordinate, allele, and vep information
     gnomad_v3_var = []
     
-    for variant in vcf(interval): 
+    #interval = "chr1:10100-10200"
+    
+    for variant in vcf(interval):
+                
         ## Check to see if variants are present in the interval
         chrom = ''
         
         ## Get variant coordinates
         chrom, start, end = variant.CHROM, variant.start, variant.end
-        #print(chrom, ":", start, "-", end, sep="")
+        # print(chrom, ":", start, "-", end, sep="")
         
         if len(chrom) == 0: 
             break
@@ -97,7 +93,7 @@ def get_variant_information(interval):
         ref, alt = variant.REF, variant.ALT
         
         ## Apply filters to determine if the variant should be kept or not
-        keep_variant = filter_variants(variant, args.filter_AC, args.filter_AN, args.filter_AF, coverage)
+        keep_variant = filter_variants(variant, args.filter_AC, args.filter_AN, args.filter_AF)
         
         if keep_variant == True: 
         
@@ -140,11 +136,11 @@ def get_variant_information(interval):
                 ## Append to the final, full variant list 
                 gnomad_v3_var.append(variant_dict)
     
-        return gnomad_v3_var    
+    return gnomad_v3_var 
 #%%
 
 #%%
-def filter_variants(variant, filter_AC, filter_AN, filter_AF, coverage):   
+def filter_variants(variant, filter_AC, filter_AN, filter_AF):   
 
     ####################################################    
     ##### Perform filters on basic vcf info values #####
@@ -201,14 +197,14 @@ def filter_variants(variant, filter_AC, filter_AN, filter_AF, coverage):
         print(alt_allele)
         print(ref_allele)
         print('Sanity check failed: variant reference allele is of length > 1... Removing...')
-        return False
+        #return False
     
     if len(alt_allele) > 1: 
         print(variant.INFO.get('variant_type'))
         print(alt_allele)
         print(ref_allele)
         print('Sanity check failed: variant alternate allele is of length > 1... Removing...')
-        return False
+        #return False
     
     ## Verify ref/alt alleles are AGCT
     if ref_allele[0] not in ['A', 'C', 'T', 'G']: 
@@ -233,22 +229,22 @@ def filter_variants(variant, filter_AC, filter_AN, filter_AF, coverage):
     ##### Remove variants within regions of lower coverage #####
     ############################################################
     ## Create pandas df from the variant coordinate
-    chrom, start, end = variant.CHROM, variant.start, variant.end
-    var = {'Chromosome': [chrom], 'Start': [start], 'End': [end]}
-    var = pd.DataFrame.from_dict(var)
+    # chrom, start, end = variant.CHROM, variant.start, variant.end
+    # var = {'Chromosome': [chrom], 'Start': [start], 'End': [end]}
+    # var = pd.DataFrame.from_dict(var)
     
-    ## Create pyranges object from the pandas df
-    cov, var = pyranges.PyRanges(coverage), pyranges.PyRanges(var)
+    # ## Create pyranges object from the pandas df
+    # cov, var = pyranges.PyRanges(coverage), pyranges.PyRanges(var)
     
-    ## Perform intersection
-    intersection = cov.intersect(var)
-    print(var)
-    print(intersection)
+    # ## Perform intersection
+    # intersection = cov.intersect(var)
+    # print(var)
+    # print(intersection)
     
-    ## See if there is an intersection
-    if len(intersection) > 0: 
-        print('Variant within insufficiently covered region.. Removing...')
-        return False
+    # ## See if there is an intersection
+    # if len(intersection) > 0: 
+    #     print('Variant within insufficiently covered region.. Removing...')
+    #     return False
     
     
     ## Print message saying the variant met all filtering criteria
@@ -266,34 +262,35 @@ def process_gnomad_v3_variants():
     ## Perform checks on input arguemnts
     ## TODO
         
-    ## Get the intervals to split gnomad variants
-    intervals = get_regions_from_bed_file(args.intervals)
-    
-    ## Execute multiprocessing over all the intervals
-    with concurrent.futures.ProcessPoolExecutor() as executor: 
-        annotated_vars = executor.map(get_variant_information, intervals)
-    
-    ## Combine data
-    my_list = []
-    
-    for var_list in annotated_vars: 
-        if var_list: ## Remove null values due to the lack of variants within soecfied intervals 
-            print(var_list)
-            for var in var_list: 
-                my_list.append(var)
-                
-    ## Convert list of dictionaries to dataframe
-    df = pd.DataFrame(my_list)
-    
-    ## Select for necessary columns
-    df = df[['chrom', 'start', 'end', 'ref', 'alt', 'AC', 'SYMBOL', 'Gene', 'Consequence', 'Feature_type', 'Feature', 'Amino_acids']]
-    df.columns = ['chrom', 'start', 'end', 'ref', 'alt', 'allele_count', 'gene_name', 'gene_id', 'consequence', 'feature_type', 'transcript_id', 'amino_acids']
-
-    ## Convert list of dictionaries to json file
-    variant_path = args.var_path + '/gnomad_v3_variants.bed'
-    df.to_csv(variant_path, index=False, sep="\t")
-    # with open(variant_path, 'w') as fh:
-    #     json.dump(my_list, fh, indent=2)
+    annotated_vars = get_variant_information(args.interval)
+        
+    if annotated_vars: ## See if mutations were found within the interval
+        if len(annotated_vars) > 0: ## See if any mutations met filtering criteria
+            print(annotated_vars)
+            
+            ## Convert list of dictionaries to dataframe
+            df = pd.DataFrame(annotated_vars)
+            
+            ## Select for necessary columns
+            header = ['chrom', 'start', 'end', 'ref', 'alt', 'allele_count', 'gene_name', 'gene_id', 'consequence', 'feature_type', 'transcript_id', 'amino_acids']
+            df = df[['chrom', 'start', 'end', 'ref', 'alt', 'AC', 'SYMBOL', 'Gene', 'Consequence', 'Feature_type', 'Feature', 'Amino_acids']]
+            df.columns = header
+        
+            ## Convert list of dictionaries to json file
+            variant_path = args.var_path \
+                + '/intermediate_files/{}/'.format(str(df['chrom'].iloc[0])) \
+                + 'gnomad_v3_variants_{}.bed'.format(args.interval)
+            
+            df.to_csv(variant_path, index=False, sep="\t", header=None)
+            
+            ## Write the header
+            header = df.loc[[1]]
+            
+            header_path = args.var_path + '/header_{}'.format(str(df['chrom'].iloc[0]))
+            header.to_csv(header_path, index=False, sep="\t")
+            
+            
+    print("Job successfully ran for the interval: {}... Ready to merge...".format(args.interval))
     
 #%%
 
