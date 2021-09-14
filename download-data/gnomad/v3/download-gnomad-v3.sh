@@ -107,7 +107,15 @@ info "Executing jobs (n=many) to extract vcf info fields from variants belonging
 bash ${gnomad_scripts}/job_scripts/main.${chromosome}.sh
 
 info "Waiting for all jobs to complete before proceeding..."
-wait
+running_jobs=($(squeue -u u1240855 | wc -l)-1)
+running_jobs=$(echo ${running_jobs} | bc -l)
+
+until [ ${running_jobs} -eq 0 ]
+do
+	info "All jobs for ${chromosome} are not complete..."
+	running_jobs=($(squeue -u u1240855 | wc -l)-1)
+	running_jobs=$(echo $running_jobs | bc -l)
+done
 
 info "Determining how many jobs were submitted..."
 job_num=($(cat ${gnomad_scripts}/job_scripts/main.${chromosome}.sh | wc -l))
@@ -136,12 +144,13 @@ else
 fi
 
 info "Adding header to concatenated variant file..."
-cat ${var_path}/header_${chromosome} | head -n 1 > ${var_path}/header_${chromosome}
-cat ${var_path}/header_${chromosome} ${var_path}/intermediate_files/gnomad_v3_variants.${chromosome}.bed > ${var_path}/intermediate_files/gnomad_v3_variants.${chromosome}.header.bed
+cat ${var_path}/header_${chromosome} | head -n 1 > ${var_path}/header
+cat ${var_path}/header ${var_path}/intermediate_files/gnomad_v3_variants.${chromosome}.bed > ${var_path}/intermediate_files/gnomad_v3_variants.${chromosome}.header.bed
 
 info "Sorting and compressing gnomad v3 variants..."
 cat ${var_path}/intermediate_files/gnomad_v3_variants.${chromosome}.header.bed | tail -n +2 | sort -k1,1 -k2,2n | bgzip > ${var_path}/intermediate_files/gnomad_v3_variants.${chromosome}.sorted.bed.gz
 
+rm ${var_path}/header_${chromosome}
 rm ${var_path}/intermediate_files/gnomad_v3_variants.${chromosome}.header.bed
 
 info "Indexing gnomad v3 variants..."
