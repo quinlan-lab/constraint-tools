@@ -34,7 +34,7 @@ info "Tool arguments: ${args}\n"
 
 if [[ ${tool} == "train" ]]; then 
   train-model ${args}
-elif [[ ${tool} == "visualize" ]]; then 
+elif [[ ${tool} == "dashboard" ]]; then 
   flask-app ${args} 
 else
   error "invalid tool: ${tool}"

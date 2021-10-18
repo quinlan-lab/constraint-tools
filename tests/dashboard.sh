@@ -9,7 +9,7 @@ CONSTRAINT_TOOLS=$1
 model="${CONSTRAINT_TOOLS}/tests/model.json" 
 port="5000"
 
-${CONSTRAINT_TOOLS}/constraint-tools visualize \
+${CONSTRAINT_TOOLS}/constraint-tools dashboard \
   --model ${model} \
   --port ${port}
 

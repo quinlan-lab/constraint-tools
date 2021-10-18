@@ -21,7 +21,7 @@ bash tests/train.sh $PWD
 
 Once training is complete, do: 
 ```
-bash tests/visualize.sh $PWD
+bash tests/dashboard.sh $PWD
 ```
 
 Follow the instructions at the command line to view a web app that visualizes observed mutation counts, and those expected under a null model of sequence-dependent mutation (see `model-definition` folder), as a function of genomic coordinate.  
@@ -39,7 +39,7 @@ Valid values for `SUB_COMMAND` are:
 ```
 train 
       estimate kmer-dependent mutation probabilities (see the model defined in the "model-definition" folder)
-visualize
+dashboard
       start a web app that visualizes observed and expected mutation counts as a function of genomic coordinate
 predict
       call genomic regions predicted to be under negative selection [not yet implemented]
@@ -72,14 +72,14 @@ This produces a specification of the sequence-dependent neutral mutation model i
 ${CONSTRAINT_TOOLS}/bin/jq . ${model}/<json file> 
 ```
 
-Required arguments for `visualize` are:
+Required arguments for `dashboard` are:
 
 ```
 --port INT 
       The port to serve the web-app on
 ```
 
-By default the `visualize` subcommand uses a pre-computed model. 
+By default the `dashboard` subcommand uses a pre-computed model. 
 Optionally, the user may change this by specifying the `--model` argument: 
 
 ```
@@ -96,13 +96,13 @@ then sorted, block-compressed, and indexed vcf, maf, gtf and fasta files can be 
 /scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/data
 ```
 
-## Production model 
+## Production model
 
 In the `/dist` directory, we distribute a model 
 that was trained on a genome-wide set of putatively neutral regions
 (also located in the `/dist` directory).
 
-## Development 
+## Development note
 
 Changes to the `vue-app` directory necessitate rebuilding the vue app by running 
 
