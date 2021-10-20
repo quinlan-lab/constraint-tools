@@ -49,7 +49,7 @@ estimate_mutation_probabilities \
   --kmer-size ${kmer_size} \
   --genome ${genome} \
   --regions ${regions} \
-  --number-tumors ${number_tumors} \
+  --number-samples ${number_tumors} \
   --model ${model} \
   --mutations ${mutations} \
   --training-mode $(read-config train training_mode)

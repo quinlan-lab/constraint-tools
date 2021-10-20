@@ -37,7 +37,7 @@ def create_windows(window_size, window_stride, region, genome):
 
 def compute_expected_mutation_count(kmer, model): 
   return binom.stats(
-    model['number_tumors'], 
+    model['number_samples'], 
     model['kmer_data'][kmer]['mutation_probability'], 
     moments = 'm'
   )
