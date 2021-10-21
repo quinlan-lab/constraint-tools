@@ -96,6 +96,16 @@ then sorted, block-compressed, and indexed vcf, maf, gtf and fasta files can be 
 /scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/data
 ```
 
+Pre-processed variants in the universal bed format can be found at: 
+```
+/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/
+```
+
+Neutral regions to compute mutation probabilities from can be found here: 
+```
+/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/neutral-regions.filtered.bed
+```
+
 ## Production model
 
 In the `/dist` directory, we distribute a model 
