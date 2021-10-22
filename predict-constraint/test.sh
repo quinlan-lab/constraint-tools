@@ -7,3 +7,4 @@ CONSTRAINT_TOOLS=$1
 export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities:${CONSTRAINT_TOOLS}/predict-constraint"
 
 python predict-constraint/compute_mutation_counts.py 
+
