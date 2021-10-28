@@ -1,3 +1,4 @@
+from process_gene_gff import gff_to_db, get_gene_feature, get_transcript_dict
 from get_coords import get_variants,get_line,get_track
 from map_coords import map_line
 from colors import color_boxes, color_variants
@@ -5,7 +6,6 @@ from axes import add_user_axis,add_variant_axis
 from glyphs import add_intron_glyph, add_exon_glyph, add_variant_glyph, add_UTR_glyph, add_track_glyph, add_multi_line_glyph
 from widget_callbacks import add_checkbox,add_user_tracks_checkbox,add_user_lines_checkbox,add_smoothing_slider,add_legend,add_linear_log_scale,add_exon_zoom
 import project_coords
-import gffutils
 import numpy as np
 import argparse
 from bokeh.plotting import figure, output_file, save
@@ -14,66 +14,6 @@ from bokeh.models import ColumnDataSource, Range1d, HoverTool, LabelSet
 #import tabix
 import yaml
 from yaml.loader import SafeLoader
-
-def get_gene_feature(gff_db, gene_name):
-    #get ID from name
-    for f in gff_db.all_features(featuretype='gene'):
-        try:
-            if gene_name in f['Name'][0]: return f
-        except: continue
-    raise ValueError('No gene with name {}'.format(gene_name))
-    
-def get_transcript_dict(plot_params, gff_db, gene_feature, transcript_IDs):
-    chr_num = gene_feature.seqid
-    print(chr_num)
-    transcript_dict = {}
-
-    #get all exons and flatten
-    if 'flattened-exons' in transcript_IDs or transcript_IDs=='all':
-        exons_all = gff_db.children(gene_feature, featuretype='exon')
-        exons_all = [{'start': e.start, 'end': e.end} for e in exons_all]
-        exons_all = project_coords.flatten_exons(exons_all)
-        transcript_dict['flattened-exons'] = dict(ID='flattened_exons', chr_num=chr_num, exons=exons_all,
-                                                  direction='', UTRs=[])    
-        
-    def get_UTRs(transcript):
-        if not plot_params['plot_UTRs']: return []
-        UTRs = []
-        for f in ['five_prime_UTR', 'three_prime_UTR']:
-            try:
-                UTR = list(gff_db.children(transcript, featuretype=f))
-                if len(UTR) > 1: 
-                    print('Warning: transcript {} has {} {} annotations; using first annotation.'.format(tname, len(UTR), featuretype))
-                UTR_dict = {'featuretype': f, 'start': UTR[0].start, 'end': UTR[0].end}
-                UTRs.append(UTR_dict)
-            except: continue 
-        return UTRs
-                
-    #indiv mRNAs
-    transcripts = list(gff_db.children(gene_feature, featuretype='mRNA'))
-    if transcript_IDs != 'all':
-        for ID in transcript_IDs:
-            if ID not in [t['Name'][0] for t in transcripts]: print('No such transcript {}; skipping'.format(ID))
-        transcripts = [t for t in transcripts if t['Name'][0] in transcript_IDs]
-        #print([t['ID'] for t in transcripts])
-
-    for t in transcripts:
-        exons = list(gff_db.children(t, featuretype='exon'))
-        exon_coords = [{'start': e.start, 'end': e.end, 'compact_start': -1, 'compact_end': -1} for e in exons]
-        direction = t.strand if plot_params['plot_direction'] else ''
-        tname = t['Name'][0]
-        UTRs = get_UTRs(t)
-        transcript_dict[tname] = dict(ID=t['ID'], chr_num=chr_num, exons=exon_coords, direction=direction, 
-                                UTRs=UTRs)
-    return transcript_dict
-
-def gff_to_db(gff_path,output_name):
-    try:
-        db = gffutils.FeatureDB(gff_path, keep_order=True)
-    except:
-        gffutils.create_db(gff_path, dbfn=output_name, force=True, keep_order=True, merge_strategy='merge', sort_attribute_values=True)
-        db = gffutils.FeatureDB(gff_path, keep_order=True)
-    return db
 
 def constraint_view_plot(plot_params, variant_params, user_line_params, transcript_dict, glyph_dict, axes, variant_ls, user_tracks, user_track_glyphs, user_lines, user_line_glyphs, title=''):
     project_coords.adjust_coordinates(transcript_dict['exons'], intron_size=plot_params['intron_size'])
@@ -215,6 +155,7 @@ def constraint_view():
     gff_db = gff_to_db(plot_params['gff_path'],plot_params['gff_path']+'test.db')
     
     gene_feature = get_gene_feature(gff_db, plot_params['gene_name'])
+    #print(gene_feature.start)
 
     if transcript_IDs == 'transcript_names':
         transcripts = get_transcript_dict(plot_params, gff_db, gene_feature, 'all')
