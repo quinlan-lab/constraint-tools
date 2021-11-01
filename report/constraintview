@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+###args: gff_path, model_path, gene_name, seqid (create)
+#config file, transcripts, outputfile (opt)
+
+config_file="constraintview.yaml"
+#transcripts="all"
+output="plot.html"
+
+while [[ "$1" =~ ^- ]]; do 
+  case $1 in
+    --config_file ) shift; [[ ! $1 =~ ^- ]] && config_file=$1;;
+    --transcripts ) shift; [[ ! $1 =~ ^- ]] && transcripts=$1;;
+    --output ) shift; [[ ! $1 =~ ^- ]] && output=$1;;
+    *) error "$0: $1 is an invalid flag"; exit 1;;
+  esac 
+  shift
+done
+
+echo ${transcripts}
+
+cd ${CONSTRAINT_TOOLS}/report
+python create_constraint_txt.py constraintview.yaml
+python constraintview.py ${config_file} ${transcripts} -o ${output}

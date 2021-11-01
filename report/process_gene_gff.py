@@ -1,4 +1,5 @@
 import gffutils
+import project_coords
 
 def gff_to_db(gff_path,output_name):
     try:
@@ -18,7 +19,6 @@ def get_gene_feature(gff_db, gene_name):
 
 def get_transcript_dict(plot_params, gff_db, gene_feature, transcript_IDs):
     chr_num = gene_feature.seqid
-    print(chr_num)
     transcript_dict = {}
 
     #get all exons and flatten

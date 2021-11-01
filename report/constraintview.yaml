@@ -8,9 +8,10 @@
 gff_path: '/scratch/ucgd/lustre-work/quinlan/u6038618/constraint-tools/data/Homo_sapiens.GRCh38.104.gff3.db'
 variant_path: '/scratch/ucgd/lustre-work/quinlan/u6038618/constraint-tools/data/gnomAD_v3.1.1_ENSG00000075043_2021_09_16_16_02_28.csv'
 #variant_path: '/scratch/ucgd/lustre-work/quinlan/u6038618/constraint-tools/data/gnomad.exomes.r2.1.1.sites.20.vcf.bgz'
-model_path : '/uufs/chpc.utah.edu/common/HIPAA/u6038618/constraint-tools/test-model/model-new-modified.json'
+model_path: '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/model.ptm.json' 
 ####Plot params
 gene_name: 'KCNQ2'
+seqid: chr20
 
 plot_height: 200
 plot_width: 1500

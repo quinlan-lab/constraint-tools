@@ -108,6 +108,7 @@ def parse_args():
 
     ###CONFIG###
     config_file = args.config_file
+    print(config_file)
     # TODO what to do if config file doesn't have required params?
     if config_file[-5:] != '.yaml': raise ValueError('configuration file must be .yaml')
     with open(config_file) as f:
