@@ -16,8 +16,6 @@ while [[ "$1" =~ ^- ]]; do
   shift
 done
 
-echo ${transcripts}
-
 cd ${CONSTRAINT_TOOLS}/report
 python create_constraint_txt.py constraintview.yaml
 python constraintview.py ${config_file} ${transcripts} -o ${output}

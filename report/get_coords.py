@@ -12,13 +12,12 @@ def variant_type(annotation):
     #print('No classification for variant type {}; classified as "other"'.format(annotation))
     return 'MODIFIER'
 
-def get_variants(filepath):
-    
+def get_variants(filepath, start, end, seqid):
     def get_variants_vcf(vcf_path):
         variant_ls = []
         import tabix #putting import here for now because it doesn't work on local machine
         tb = tabix.open(vcf_path)
-        for idx,r in enumerate(tb.query('20',62037947,62137947)): #TODO don't hardcode params
+        for idx,r in enumerate(tb.query(seqid,start-1400000,end-1400000)): #TODO don't hardcode params
             variant_ls.append(dict(pos=int(r[1])+1400000, compact_pos=-1, ref=r[3], alt=r[4], #adding 1.4m bc this vcf is on old build
                               annotation=r[7].split(';')[-1].split('|')[1], severity=r[7].split(';')[-1].split('|')[2],
                               allele_count=int(r[7].split(';')[0].split('=')[1]),
@@ -40,15 +39,18 @@ def get_variants(filepath):
         return variant_ls
 
     def get_variants_bed(bed_path):
-        #variant_ls = []
-        #f = open(bed_path, 'r')
-        #with open(bed_path) as bedfile:
-            #print('a')
-            #print(bedfile.readlines()[:10])
-        #  #x = bedfile.readlines()
-
-
-        return []
+        import tabix #putting import here for now because it doesn't work on local machine
+        variant_ls = []
+        tb = tabix.open(bed_path)
+        #for idx,r in enumerate(tb.query('chr20',62037947,62137947)): #TODO don't hardcode params
+        #TODO cast seqid in parse_args
+        for idx,r in enumerate(tb.query(str(seqid),start-1400000,end-1400000)): #TODO don't hardcode params
+            variant_ls.append(dict(pos=int(r[1])+1400000, compact_pos=-1, ref=r[3], alt=r[4], #adding 1.4m bc this bed is on old build
+                             annotation=r[8], severity=variant_type(r[8]),
+                             allele_count=-1,
+                             allele_number=-1,
+                             allele_frequency=-1))
+        return variant_ls
     
     if filepath.split('.')[-2] == 'vcf':
         variant_ls = get_variants_vcf(filepath)
@@ -56,7 +58,8 @@ def get_variants(filepath):
     elif filepath.split('.')[-1] == 'csv':
         variant_ls = get_variants_csv(filepath)
 
-    elif filepath.split('.')[-1] == 'bed': #universal format
+    #TODO what to do about tabix'd vs non tabix'd?
+    elif '.bed' in filepath:
         variant_ls = get_variants_bed(filepath)
         
     else: raise ValueError('Invalid filepath: {}'.format(filepath))

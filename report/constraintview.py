@@ -25,7 +25,7 @@ def constraint_view_plot(plot_params, variant_params, user_line_params, transcri
     plot.toolbar.active_drag = None
     plot.yaxis[0].visible = False
     
-    ###VARIANTS###
+    ### VARIANTS ###
     if variant_ls:
         project_coords.map_point(variant_ls, transcript_dict['exons'])
         ray_glyph,circle_glyph,allele_counts,allele_frequencies = add_variant_glyph(plot_params, variant_params, plot, variant_ls)
@@ -36,31 +36,32 @@ def constraint_view_plot(plot_params, variant_params, user_line_params, transcri
             plot.add_tools(HoverTool(tooltips=tooltips_variations, renderers=[circle_glyph,ray_glyph], point_policy='follow_mouse', attachment='below'))
         glyph_dict['Variant'].extend([ray_glyph,circle_glyph])
         
-        axes['count'].append(add_variant_axis(plot_params, variant_params, plot, 'Allele count', allele_counts, visible=True))
-        axes['allele_frequency'].append(add_variant_axis(plot_params, variant_params, plot, 'Allele frequency',allele_frequencies, visible=False))
+        if variant_params['add_variant_axis']:
+            axes['count'].append(add_variant_axis(plot_params, variant_params, plot, 'Allele count', allele_counts, visible=True))
+            axes['allele_frequency'].append(add_variant_axis(plot_params, variant_params, plot, 'Allele frequency',allele_frequencies, visible=False))
 
     tooltips_features = [('Type','@feat_type'), ('Start (compact)', '@adj_start'), ('End (compact)', '@adj_end'), 
                       ('Start (chr)', '@true_start'), ('End (chr)', '@true_end'), ('Length', '@true_len')]
 
-    ###INTRONS###
+    ### INTRONS ###
     introns = project_coords.get_introns_from_exons(transcript_dict['exons'])
     introns_glyph = add_intron_glyph(plot_params, plot, introns)
     plot.add_tools(HoverTool(tooltips=tooltips_features, renderers=[introns_glyph], point_policy='follow_mouse', attachment='below'))    
     
-    ###EXONS###
+    ### EXONS ###
     exons_glyph,arrow_glyph = add_exon_glyph(plot_params, plot, transcript_dict['exons'], transcript_dict['direction'])
     plot.add_tools(HoverTool(tooltips=tooltips_features, renderers=[exons_glyph], point_policy='follow_mouse', attachment='below'))
     
     glyph_dict['Direction'].append(arrow_glyph)
     glyph_dict['exon'].append(exons_glyph)
 
-    ###UTRs###
+    ### UTRs ###
     project_coords.map_box(transcript_dict['UTRs'], transcript_dict['exons'])
     UTR_glyph = add_UTR_glyph(plot_params, plot, transcript_dict['UTRs'])
     plot.add_tools(HoverTool(tooltips=tooltips_features, renderers=[UTR_glyph], point_policy='follow_mouse', attachment='below'))    
     glyph_dict['UTRs'].append(UTR_glyph)
 
-    ###USER TRACKS###
+    ### USER TRACKS ###
     h = plot_params['track_height']
 
     for idx,track_name in enumerate(user_tracks):
@@ -79,7 +80,7 @@ def constraint_view_plot(plot_params, variant_params, user_line_params, transcri
         plot.add_layout(label)
         user_track_glyphs[track_name].append(label)
         
-    ###user lines###
+    ### USER LINES ###
     for idx,axis_name in enumerate(user_line_params):
         all_xs = []
         all_ys = []
@@ -106,7 +107,7 @@ def parse_args():
     parser.add_argument('-o', '--output', required=False, help='output filepath')
     args = parser.parse_args()
 
-    ###CONFIG###
+    ### CONFIG ###
     config_file = args.config_file
     print(config_file)
     # TODO what to do if config file doesn't have required params?
@@ -120,16 +121,16 @@ def parse_args():
         plot_params['transcript_height'] = 20 + len(user_track_params) * plot_params['track_height'] * 1.5
         plot_params['y0'] = plot_params['transcript_height'] + plot_params['exon_height'] / 2  # "0" for line plots
 
-    ###COLORS###
+    ### COLORS ###
     with open('named_colors.yaml') as f:
         named_colors = list(yaml.load_all(f, Loader=SafeLoader))[0]
 
-    ###GLYPH COLORS###
+    ### GLYPH COLORS ###
     for glyph_type in plot_params['glyph_colors']:
         color = plot_params['glyph_colors'][glyph_type]
         if color[0] != "#": plot_params['glyph_colors'][glyph_type] = named_colors[color]
 
-    ###TRACKS###
+    ### TRACKS ###
     for track_name in user_track_params:
         track_db = gff_to_db(user_track_params[track_name]['gtf_path'], user_track_params[track_name]['gtf_path'] + '.db')
         user_track_params[track_name]['db'] = track_db
@@ -138,13 +139,13 @@ def parse_args():
     track_colors = [named_colors[c] for c in palettes[plot_params['track_palette']]]
     plot_params['track_colors'] = track_colors
 
-    ###TRANSCRIPTS###
+    ### TRANSCRIPTS ###
     transcript_IDs = args.transcripts
     if transcript_IDs != 'all':
         transcript_IDs = transcript_IDs.strip('[').strip(']').split(',')
         transcript_IDs = [t.strip('\'') for t in transcript_IDs]
 
-    ###OUTPUT###
+    ### OUTPUT ###
     if args.output: output = args.output + '.html' if args.output[-5:] != '.html' else args.output
     else: output = 'plot.html'
     return plot_params,variant_params,user_track_params,user_line_params,transcript_IDs,output
@@ -156,7 +157,6 @@ def constraint_view():
     gff_db = gff_to_db(plot_params['gff_path'],plot_params['gff_path']+'test.db')
     
     gene_feature = get_gene_feature(gff_db, plot_params['gene_name'])
-    #print(gene_feature.start)
 
     if transcript_IDs == 'transcript_names':
         transcripts = get_transcript_dict(plot_params, gff_db, gene_feature, 'all')
@@ -166,7 +166,7 @@ def constraint_view():
     transcripts = get_transcript_dict(plot_params, gff_db, gene_feature, transcript_IDs)
     transcript_IDs = list(transcripts.keys()) #if 'all', transcript_IDs will become list of transcript names; if nonexistent IDs they are removed
     
-    variant_ls = get_variants(plot_params['variant_path']) if variant_params['plot_variants'] else []
+    variant_ls = get_variants(plot_params['variant_path'], gene_feature.start, gene_feature.end, variant_params['seqid']) if variant_params['plot_variants'] else []
     color_variants(plot_params, variant_params, variant_ls)
     user_tracks = {track_name: get_track(user_track_params, track_name) for track_name in user_track_params}
     for track_name in user_tracks: color_boxes(plot_params, user_track_params, track_name, user_tracks[track_name])
@@ -210,7 +210,7 @@ def constraint_view():
         else:
             sliders.append(None)
     
-    if variant_params['plot_variants']:
+    if variant_params['plot_variants'] and variant_params['add_variant_axis']:
         grid1 = [[checkbox, user_tracks_checkbox],[div_type, div_scale],[radio_group_type, radio_group_scale]] 
     else: grid1 = [[checkbox, user_tracks_checkbox]]
     
