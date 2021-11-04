@@ -1,23 +1,63 @@
 <template>
   <div class="plot-container md-elevation-3">
-    <div class="progress-bar-container">
-      <md-progress-bar v-if="fetchingData" md-mode="indeterminate" />
+    <div v-if="fetchingAPIData" class="progress-bar-container">
+      <md-progress-bar md-mode="indeterminate" />
     </div>
-    <div ref="chart"></div>
+    <!-- 
+      Do not use "v-else" in the following element. 
+      Otherwise the watcher callback will error
+      because this element may not have yet rendered 
+      when plotly code is called. 
+      -->
+    <div ref="chart"> </div>
   </div> 
 </template>
 
 <script>
 import Plotly from 'plotly.js-dist'
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 export default {
   name: 'PlotMutationCounts',
+  methods: {
+    exonToRectangle (exon) {
+      return {
+        type: 'rect',
+        xref: 'x', 
+        yref: 'y',
+        x0: exon.start,
+        y0: 0,
+        x1: exon.end,
+        y1: this.yaxisMax,
+        fillcolor: '#d3d3d3',
+        opacity: 0.6,
+        line: {
+            width: 0
+        },
+        layer: 'below'
+      }
+    } 
+  },
   computed: {
     ...mapState([
       'mutationCounts',
-      'fetchingData'
+      'canonicalExons'
     ]),
+    ...mapGetters([
+      'fetchingAPIData'
+    ]),
+    rectangles () {
+      return this.canonicalExons.map(this.exonToRectangle) 
+    },
+    rectangleLabels () {
+      return this.canonicalExons.map(exon => exon.rank) 
+    },
+    rectangleLabelXPositions () {
+      return this.canonicalExons.map(exon => exon.start + 0.2*(exon.end - exon.start)) 
+    },
+    rectangleLabelYPositions () {
+      return Array(this.canonicalExons.length).fill(0.95*this.yaxisMax)
+    },
     yaxisMax () { 
       return Math.max(
         ...this.mutationCounts.windowExpectedMutationCounts,
@@ -26,6 +66,13 @@ export default {
     },
     traces () {
       return [
+        {
+          x: this.rectangleLabelXPositions,
+          y: this.rectangleLabelYPositions,
+          text: this.rectangleLabels,
+          mode: 'text',
+          showlegend: false
+        },      
         {
           x: this.mutationCounts.windowPositions,
           y: this.mutationCounts.windowObservedMutationCounts,
@@ -83,17 +130,24 @@ export default {
         },
         margin: { 
           t: 40 
-        } 
+        },
+        shapes: this.rectangles
       }
     }
   },
   watch: {
-    mutationCounts: {
-      handler: function () {
-        Plotly.react(this.$refs.chart, this.traces, this.layout)
+    fetchingAPIData: {
+      handler: function (newValue, oldValue) {
+        if ( newValue === true && oldValue === false) { 
+          console.log('fetching data from one or more APIs')
+        }
+        if ( newValue === false && oldValue === true ) {
+          console.log('data fetched from all APIs')
+          Plotly.react(this.$refs.chart, this.traces, this.layout)
+        }
       },
       deep: true
-    }
+    },
   },
   beforeUnmount () {
     Plotly.purge(this.$refs.chart)

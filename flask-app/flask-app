@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
-model="${CONSTRAINT_TOOLS}/$(read-config train default_model)"
+# set -o xtrace 
+
+model="${CONSTRAINT_TOOLS}/$(read-config dashboard model)"
+region=$(read-config dashboard region)
+window_size=$(read-config dashboard windowSize)
+window_stride=$(read-config dashboard windowStride)
 
 # https://devhints.io/bash#miscellaneous
 # put option-fetching before "set -o nounset" so that we can detect flags without arguments
@@ -25,6 +30,9 @@ cd ${CONSTRAINT_TOOLS}/flask-app
 FLASK_ENV="development" # https://flask.palletsprojects.com/en/2.0.x/server/#in-code
 python flask-app.py \
   --model ${model} \
-  --port ${port}
+  --port ${port} \
+  --region ${region} \
+  --window-size ${window_size} \
+  --window-stride ${window_stride}
 
 

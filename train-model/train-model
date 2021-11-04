@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-regions="${CONSTRAINT_TOOLS}/$(read-config train default_neutral_regions)"
+regions="${CONSTRAINT_TOOLS}/$(read-config train regions)"
 
 # https://devhints.io/bash#miscellaneous
 # put option-fetching before "set -o nounset" so that we can detect flags without arguments
@@ -52,6 +52,6 @@ estimate_mutation_probabilities \
   --number-samples ${number_tumors} \
   --model ${model} \
   --mutations ${mutations} \
-  --training-mode $(read-config train training_mode)
+  --training-mode $(read-config train mode)
 
 

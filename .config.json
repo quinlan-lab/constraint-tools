@@ -1,7 +1,12 @@
 {
   "train": {
-    "default_neutral_regions": "dist/neutral-regions.bed.gz",
-    "default_model": "dist/model.json",
-    "training_mode": "concurrent"
+    "regions": "dist/neutral-regions.bed.gz",
+    "mode": "concurrent"
+  },
+  "dashboard": {
+    "model": "dist/model.json",
+    "region": "chr20:63,444,000-63,447,000", 
+    "windowSize": "51",
+    "windowStride": "1"
   }
 }
