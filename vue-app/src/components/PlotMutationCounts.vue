@@ -158,8 +158,6 @@ export default {
 <style scoped>
 .plot-container { 
   margin: 10px auto; 
-  width: 1000px; 
-  height: 500px;
   background-color: white;
 }
 

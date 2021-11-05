@@ -110,6 +110,8 @@ Changes to the `vue-app` directory necessitate rebuilding the vue app by running
 bash build-vue-app.sh 
 ```
 
+TODO: automate this using a git hook 
+
 ## Resources 
 ### Mutation Annotation Format (MAF) 
 
@@ -122,5 +124,3 @@ bash build-vue-app.sh
 
 ### On k-mer counting 
 https://bioinfologics.github.io/post/2018/09/17/k-mer-counting-part-i-introduction/
-
-test

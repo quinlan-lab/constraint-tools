@@ -3,41 +3,56 @@
 <!-- https://github.com/vuematerial/vue-material/blob/dev/ROADMAP.md -->
 
 <template> 
-  <div class="md-layout md-gutter">
-    <div class="md-layout-item md-small-size-100">
-      <md-progress-bar v-if="!initialPlotParametersSet" md-mode="indeterminate" />
-      <md-card 
-        v-else
-        style="margin: 10px auto;" 
-        class="md-layout-item md-size-75 md-xsmall-size-100"
-      >
+  <div> 
+    <md-progress-bar v-if="!initialPlotParametersSet" md-mode="indeterminate" />
+    <md-card 
+      v-else
+      style="margin: 10px auto;" 
+    >
+    
+      <md-card-header v-if="canonicalTranscriptExists"> 
+        <div class="md-title">
+          Canonical Transcript: {{ canonicalTranscript.display_name }}
+        </div>
+        <div class="md-subhead">
+          Ensemble ID: 
+          <a :href="canonicalTranscriptEnsembleUI" target="_blank">
+            {{ canonicalTranscript.id }}
+          </a>  
+        </div>  
+        <div class="md-subhead">
+          Strand: {{ canonicalTranscript.strand }}
+        </div>
+      </md-card-header>
 
-        <md-card-content>
-          <div class="md-layout md-gutter">
-            <div class="md-layout-item md-small-size-100">
-              <md-field>
-                <label for="region">Region</label>
-                <md-input id="region" v-model="plotParameters.region" :disabled="fetchingAPIData" />
-              </md-field>
-            </div>    
+      <md-card-content>
+        <div class="md-layout md-gutter">
+          <div class="md-layout-item" style="min-width: 250px; max-width: 300px;">
+            <md-field>
+              <label for="region">Region</label>
+              <md-input id="region" v-model="plotParameters.region" :disabled="fetchingAPIData" />
+            </md-field>
+          </div>    
 
-            <div class="md-layout-item md-small-size-100">
-              <md-field>
-                <label for="window-size">Window size</label>
-                <md-input id="window-size" v-model="plotParameters.windowSize" :disabled="fetchingAPIData" />
-              </md-field>
-            </div>    
+          <div class="md-layout-item" style="max-width: 150px;">
+            <md-field>
+              <label for="window-size">Window size</label>
+              <md-input id="window-size" v-model="plotParameters.windowSize" :disabled="fetchingAPIData" />
+            </md-field>
+          </div>    
 
-            <div class="md-layout-item md-small-size-100">
-              <md-field>
-                <label for="window-stride">Window stride</label>
-                <md-input id="window-stride" v-model="plotParameters.windowStride" :disabled="fetchingAPIData" />
-              </md-field>
-            </div> 
-          </div>
-        </md-card-content>
+          <div class="md-layout-item" style="max-width: 150px;">
+            <md-field>
+              <label for="window-stride">Window stride</label>
+              <md-input id="window-stride" v-model="plotParameters.windowStride" :disabled="fetchingAPIData" />
+            </md-field>
+          </div> 
+        </div>
+        
+      </md-card-content>
 
-        <md-card-actions>
+      <md-card-expand>
+        <md-card-actions md-alignment="right">
           <md-button 
             v-on:click="getAPIData" 
             class="md-icon-button md-primary"
@@ -45,68 +60,39 @@
           >
             <md-icon>refresh</md-icon>
           </md-button>      
+
+          <md-card-expand-trigger v-if="canonicalTranscriptExists">
+            <md-button  class="md-icon-button">
+              <md-icon>keyboard_arrow_down</md-icon>
+            </md-button>
+          </md-card-expand-trigger>
         </md-card-actions>
 
-        <md-snackbar 
-          md-position="center" 
-          :md-active.sync="showSnackbar" 
-        >
-          <span>Please correct the following error(s):</span>
-          <ul>
-            <li v-for="error in errors" :key="error">{{ error }}</li>
-          </ul>    
-          <md-button 
-            class="md-primary" 
-            @click="showSnackbar=false"
-          >
-            <md-icon>close</md-icon>
-          </md-button>
-        </md-snackbar>
+        <md-card-expand-content>
+          <md-card-content>
+            Exons from the canonical transcript are indicated in grey in the plot below, 
+            and labeled with their rank in that transcript.          
+          </md-card-content>
+        </md-card-expand-content>
+      </md-card-expand>
 
-      </md-card>
-    </div> 
-
-    <div 
-      v-if="canonicalDataSet && Object.keys(canonicalTranscript).length !== 0"
-      class="md-layout-item md-small-size-100"
-    >
-      <md-card 
-        style="margin: 10px auto;" 
-        class="md-layout-item md-size-75 md-xsmall-size-100"
+      <md-snackbar 
+        md-position="center" 
+        :md-active.sync="showSnackbar" 
       >
-        <md-card-content>
-          <!-- https://www.creative-tim.com/vuematerial/components/table -->
-          <md-table v-if="canonicalDataSet">
-            <md-table-row>
-              <md-table-head>Canonical Transcript Property</md-table-head>
-              <md-table-head>Value</md-table-head>
-            </md-table-row>
+        <span>Please correct the following error(s):</span>
+        <ul>
+          <li v-for="error in errors" :key="error">{{ error }}</li>
+        </ul>    
+        <md-button 
+          class="md-primary" 
+          @click="showSnackbar=false"
+        >
+          <md-icon>close</md-icon>
+        </md-button>
+      </md-snackbar>
 
-            <md-table-row href="https://www.google.com" target="_blank">
-              <md-table-cell>Strand</md-table-cell>
-              <md-table-cell md-numeric>{{ canonicalTranscript.strand }}</md-table-cell>
-            </md-table-row>
-
-            <md-table-row>
-              <md-table-cell>Name</md-table-cell>
-              <md-table-cell>{{ canonicalTranscript.display_name }}</md-table-cell>
-            </md-table-row>
-
-            <md-table-row>
-              <md-table-cell>Ensemble ID</md-table-cell>
-              <md-table-cell>
-                <a :href="canonicalTranscriptEnsembleUI" target="_blank">
-                  {{ canonicalTranscript.id }}
-                </a>                        
-              </md-table-cell>
-            </md-table-row>
-          </md-table>  
-          Exons from the canonical transcript are indicated in grey in the plot below, 
-          and labeled with their rank in that transcript.
-        </md-card-content> 
-      </md-card>
-    </div> 
-    
+    </md-card>
   </div>
 </template> 
 
@@ -173,6 +159,9 @@ export default {
     ]),
     canonicalTranscriptEnsembleUI () {
       return `https://uswest.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=${this.canonicalTranscript.id}`
+    },
+    canonicalTranscriptExists () {
+      return this.canonicalDataSet && Object.keys(this.canonicalTranscript).length > 0
     }
   },
   async created () { 
