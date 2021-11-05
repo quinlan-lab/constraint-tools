@@ -1,9 +1,17 @@
 import axios from 'axios'
 
-const axiosInstance = axios.create({
-  // baseURL: 'http://localhost:5000', // toggle this; required for development of vue app
+let axiosConfig = {
   withCredentials: false,
-})
+}
+
+if (process.env.VUE_APP_API_ENDPOINT) { 
+  axiosConfig['baseURL'] = process.env.VUE_APP_API_ENDPOINT
+}
+
+console.log('axiosConfig')
+console.log(axiosConfig)
+
+const axiosInstance = axios.create(axiosConfig)
 
 export async function getInitialPlotParameters() {
   try {
