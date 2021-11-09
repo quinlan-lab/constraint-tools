@@ -4,8 +4,8 @@ let axiosConfig = {
   withCredentials: false,
 }
 
-if (process.env.VUE_APP_API_ENDPOINT) { 
-  axiosConfig['baseURL'] = process.env.VUE_APP_API_ENDPOINT
+if (process.env.VUE_APP_BASE_URL) { 
+  axiosConfig['baseURL'] = process.env.VUE_APP_BASE_URL
 }
 
 console.log('axiosConfig')
