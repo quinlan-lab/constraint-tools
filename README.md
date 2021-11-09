@@ -8,6 +8,12 @@ cd constraint-tools
 bash install.sh 
 bash build-vue-app.sh
 ```
+
+This creates a conda environment that should be activated with, e.g.,:
+```
+conda activate constraint-tools
+```
+
 Only installation on Linux x86_64 is currently supported. 
 Tested in the Protected Environment computer cluster of the Center for High Performance Computing (CHPC) at University of Utah. 
 

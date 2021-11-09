@@ -26,33 +26,18 @@ if ! which conda; then
   exit 1
 fi 
 
-conda_environment="constraint-tools"
+conda_environment_configuration="conda-environment.yml"
 
-instruct_to_create_conda_environment_and_activate () {
-  error "please issue the following commands:" 
-  info "\t$ conda config --add channels defaults"
-  info "\t$ conda config --add channels bioconda"
-  info "\t$ conda config --add channels conda-forge"
-  info "\t$ conda create --name ${conda_environment} python=3.9" 
-  info "\t$ conda activate ${conda_environment}"
-  error "... and re-run this script"
+pip install pyyaml
+conda_environment_name=$(python get_conda_environment_name.py)
+
+if conda info --envs | grep "${conda_environment_name}"; then 
+  error "conda environment with name '${conda_environment_name}' already exists!"
   exit 1
-}
-
-# https://stackoverflow.com/a/13864829/6674256
-if [[ -z ${CONDA_DEFAULT_ENV+x} ]]; then 
-  error "CONDA_DEFAULT_ENV is unset"
-  instruct_to_create_conda_environment_and_activate
-else 
-  info "CONDA_DEFAULT_ENV is set to '$CONDA_DEFAULT_ENV'"
-fi
-
-if [[ $CONDA_DEFAULT_ENV != ${conda_environment} ]]; then 
-  error "conda environment ${conda_environment} does not exist or is not activated"
-  instruct_to_create_conda_environment_and_activate
 fi 
 
-pip install --no-cache-dir --requirement ${CONSTRAINT_TOOLS}/install/requirements.txt 
+info "creating a conda environment called ${conda_environment_name} using ${conda_environment_configuration}"
+conda env create -f ${conda_environment_configuration}
 
 ########################## 
 
