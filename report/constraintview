@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
-###args: gff_path, model_path, gene_name, seqid (create)
-#config file, transcripts, outputfile (opt)
 
-config_file="constraintview.yaml"
-#transcripts="all"
+#config_file="constraintview.yaml"
+transcripts="all"
 output="plot.html"
 
 while [[ "$1" =~ ^- ]]; do 
@@ -17,5 +15,5 @@ while [[ "$1" =~ ^- ]]; do
 done
 
 cd ${CONSTRAINT_TOOLS}/report
-python create_constraint_txt.py constraintview.yaml
+python create_constraint_txt.py ${config_file}
 python constraintview.py ${config_file} ${transcripts} -o ${output}

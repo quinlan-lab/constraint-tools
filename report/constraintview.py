@@ -11,11 +11,11 @@ import argparse
 from bokeh.plotting import figure, output_file, save
 from bokeh.layouts import column, row, gridplot
 from bokeh.models import ColumnDataSource, Range1d, HoverTool, LabelSet
-#import tabix
 import yaml
 from yaml.loader import SafeLoader
 
 def constraint_view_plot(plot_params, variant_params, user_line_params, transcript_dict, glyph_dict, axes, variant_ls, user_tracks, user_track_glyphs, user_lines, user_line_glyphs, title=''):
+
     project_coords.adjust_coordinates(transcript_dict['exons'], intron_size=plot_params['intron_size'])
     plot_height = plot_params['plot_height']    
     plot = figure(title=title, plot_width=1500, tools='tap,box_zoom,xpan,reset', plot_height=plot_height,min_border=0,#, toolbar_location=None,
@@ -39,6 +39,8 @@ def constraint_view_plot(plot_params, variant_params, user_line_params, transcri
         if variant_params['add_variant_axis']:
             axes['count'].append(add_variant_axis(plot_params, variant_params, plot, 'Allele count', allele_counts, visible=True))
             axes['allele_frequency'].append(add_variant_axis(plot_params, variant_params, plot, 'Allele frequency',allele_frequencies, visible=False))
+
+    else: variant_params['add_variant_axis'] = False
 
     tooltips_features = [('Type','@feat_type'), ('Start (compact)', '@adj_start'), ('End (compact)', '@adj_end'), 
                       ('Start (chr)', '@true_start'), ('End (chr)', '@true_end'), ('Length', '@true_len')]
@@ -109,7 +111,6 @@ def parse_args():
 
     ### CONFIG ###
     config_file = args.config_file
-    print(config_file)
     # TODO what to do if config file doesn't have required params?
     if config_file[-5:] != '.yaml': raise ValueError('configuration file must be .yaml')
     with open(config_file) as f:
@@ -152,8 +153,7 @@ def parse_args():
 
 def constraint_view():
     plot_params, variant_params, user_track_params, user_line_params, transcript_IDs, output = parse_args()
-
-    # 'test.db' to make sure .db does not get overwritten during development    
+    # 'test.db' to make sure .db does not accidentally get overwritten during development    
     gff_db = gff_to_db(plot_params['gff_path'],plot_params['gff_path']+'test.db')
     
     gene_feature = get_gene_feature(gff_db, plot_params['gene_name'])

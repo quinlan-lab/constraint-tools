@@ -119,10 +119,8 @@ def compute_SNV_positions_frequencies(SNVs, filter_function):
   SNV_positions = [SNV['position'] for SNV in SNVs if filter_function(SNV['kmer'])]  
   # find frequency of each unique coordinate using Counter: 
   # https://stackoverflow.com/a/2162045/6674256  
-  #SNV_positions_frequencies = collections.Counter(SNV_positions)
-  SNV_positions_frequencies = [SNV['ac'] for SNV in SNVs if filter_function(SNV['kmer'])]
-  #return tuple(zip(*SNV_positions_frequencies.items()))
-  return (SNV_positions, SNV_positions_frequencies)
+  SNV_positions_frequencies = collections.Counter(SNV_positions)
+  return tuple(zip(*SNV_positions_frequencies.items()))
 
 def compute_lollipops(mutations, genome, region, model):
   SNVs = fetch_SNVs(mutations, genome, region, meta=model)
@@ -177,7 +175,6 @@ def parse_arguments():
 
 if __name__ == '__main__':
   args = parse_arguments() 
-
   
   print(
     json.dumps(

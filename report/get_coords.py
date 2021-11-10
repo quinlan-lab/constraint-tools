@@ -18,8 +18,10 @@ def get_variants(filepath, start, end, seqid):
         import tabix #putting import here for now because it doesn't work on local machine
         tb = tabix.open(vcf_path)
         #TODO cast seqid in parse_args
-        for idx,r in enumerate(tb.query(str(seqid),start-1400000,end-1400000)):
-            variant_ls.append(dict(pos=int(r[1])+1400000, compact_pos=-1, ref=r[3], alt=r[4], #adding 1.4m bc this vcf is on old build
+        #for idx,r in enumerate(tb.query(str(seqid),start-1400000,end-1400000)):
+        for idx,r in enumerate(tb.query(str(seqid),start,end)):
+            #variant_ls.append(dict(pos=int(r[1])+1400000, compact_pos=-1, ref=r[3], alt=r[4], #adding 1.4m bc this vcf is on old build
+            variant_ls.append(dict(pos=int(r[1]), compact_pos=-1, ref=r[3], alt=r[4],
                               annotation=r[7].split(';')[-1].split('|')[1], severity=r[7].split(';')[-1].split('|')[2],
                               allele_count=int(r[7].split(';')[0].split('=')[1]),
                               allele_number=int(r[7].split(';')[1].split('=')[1]),
@@ -45,9 +47,8 @@ def get_variants(filepath, start, end, seqid):
         tb = tabix.open(bed_path)
         #TODO cast seqid in parse_args
         #for idx,r in enumerate(tb.query(str(seqid),start-1400000,end-1400000)):
-        for idx,r in enumerate(tb.query(str(seqid),start,end)):
-            #if idx<10: print(r)
-            variant_ls.append(dict(pos=int(r[1])+1400000, compact_pos=-1, ref=r[3], alt=r[4], #adding 1.4m bc this bed is on old build
+        for r in tb.query(str(seqid),start,end):
+            variant_ls.append(dict(pos=int(r[1]), compact_pos=-1, ref=r[3], alt=r[4], #adding 1.4m bc this bed is on old build
                              annotation=r[8], severity=variant_type(r[8]),
                              allele_count=-1,
                              allele_number=-1,
