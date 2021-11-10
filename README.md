@@ -49,6 +49,8 @@ dashboard
       start a web app that visualizes observed and expected mutation counts as a function of genomic coordinate
 predict
       call genomic regions predicted to be under negative selection [not yet implemented]
+report
+      create .html plot displaying gene transcripts with introns compressed, observed and expected mutation counts, lollipops, tracks, and sequence coverage
 ```
 
 Required arguments for `train` are:
@@ -91,6 +93,23 @@ Optionally, the user may change this by specifying the `--model` argument:
 ```
 --model STR
       Path to a neutral model produced by the train sub-command (in json format). This model is used to compute the expected mutation counts in the visualization. 
+```
+
+Required arguments for `report` are:
+
+```
+--config_file STR
+      Path to .yaml configuration file (example: reports/constraintview.yaml).
+--output_file STR
+      File name of output plot.
+```
+
+By default, the `report` subcommand plots all transcripts plus flattened-exons.
+Optionally, the user may change this by specifying the `--transcripts` argument:
+
+```
+--transcripts STR
+      Specifies which transcripts to plot. Can be 'all' for all transcripts or '['<transcript_name_1>', '<transcript_name_2>', ...]' for specific transcripts.
 ```
 
 ## Input Data
