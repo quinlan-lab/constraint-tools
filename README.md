@@ -16,7 +16,7 @@ Tested in the Protected Environment computer cluster of the Center for High Perf
 Assuming one has access to the protected environment on the CHPC at University of Utah: 
 
 ```
-bash tests/train.sh $PWD
+bash tests/train.sh $PWD [temporarily broken]
 ```
 
 Once training is complete, do: 
@@ -90,10 +90,10 @@ Optionally, the user may change this by specifying the `--model` argument:
 ## Input Data
 
 Assuming one has access to the protected environment on the CHPC at University of Utah, 
-then sorted, block-compressed, and indexed vcf, maf, gtf and fasta files can be found at: 
+then data files can be found at: 
 
 ```
-/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/data
+/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools
 ```
 
 ## Production model
@@ -123,3 +123,4 @@ bash build-vue-app.sh
 ### On k-mer counting 
 https://bioinfologics.github.io/post/2018/09/17/k-mer-counting-part-i-introduction/
 
+test

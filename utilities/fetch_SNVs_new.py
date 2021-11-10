@@ -24,7 +24,10 @@ def fetch_SNVs(mutations, genome, region, meta):
     'chrom', 'start', 'end', 'ref', 'alt', 'allele_count', 'variant_type'
   ]
   column_heading_indices = fetch_column_heading_indices(meta['mutations'])
+<<<<<<< HEAD
   #print('a')
+=======
+>>>>>>> 4a84ea0234929fcd60e054e7ad01ba488fe2677b
   #print('column_heading_indices',column_heading_indices)
   for row in mutations.fetch(region=region, parser=pysam.asTuple()):
     mutation = {}
@@ -41,7 +44,11 @@ def fetch_SNVs(mutations, genome, region, meta):
     #if mutation['tumor_seq_allele2'] not in {'A', 'T', 'G', 'C'}: continue # exclude DEL
     if mutation['alt'] not in {'A', 'T', 'G', 'C'}: continue
     
+<<<<<<< HEAD
     ###I don't think we need this block???
+=======
+    ###I don't think we need this block for this file format?
+>>>>>>> 4a84ea0234929fcd60e054e7ad01ba488fe2677b
     #try: 
       #if mutation['reference_allele'] != mutation['tumor_seq_allele1']: # sanity check
     #    print_json(mutation)

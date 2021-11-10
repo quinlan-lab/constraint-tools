@@ -10,6 +10,9 @@ def parse_arguments():
   parser = argparse.ArgumentParser(description='')
   parser.add_argument('--model', type=str, help='')
   parser.add_argument('--port', type=int, help='')
+  parser.add_argument('--region', type=str, help='')
+  parser.add_argument('--window-size', type=int, help='', dest='window_size')
+  parser.add_argument('--window-stride', type=int, help='', dest='window_stride')
   return parser.parse_args()
 
 app = Flask(__name__, static_folder='static', static_url_path="/static") # WSGI app
@@ -32,8 +35,8 @@ def serve_other_static_file(path):
   # https://flask.palletsprojects.com/en/2.0.x/api/#flask.Flask.send_static_file
   return app.send_static_file(path)
 
-@app.route('/api', methods=['POST'])
-def serve_api():
+@app.route('/api/mutation-counts', methods=['POST'])
+def serve_api_mutation_counts():
   if not request.is_json: 
     response = make_response({ 
       'message': 'Please format the request payload in json format'
@@ -49,6 +52,18 @@ def serve_api():
     int(request.json['windowSize']),
     int(request.json['windowStride'])
   )
+
+@app.route('/api/initial-plot-parameters', methods=['GET'])
+def serve_api_initial_plot_parameters():
+  args = parse_arguments()
+  # returning a dictionary makes flask respond with: 
+  # "Content-Type: application/json" 
+  # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
+  return { 
+    'region': args.region,
+    'windowSize': args.window_size,
+    'windowStride': args.window_stride
+  }
 
 def print_app_info(): 
   # print_string_as_info(

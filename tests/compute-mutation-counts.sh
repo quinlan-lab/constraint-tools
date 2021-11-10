@@ -14,8 +14,8 @@ export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities:${CONSTRAINT_TOOLS}/predict-con
 # `printenv | grep -w PATH` returns non-zero output 
 PATH="${CONSTRAINT_TOOLS}/bin:$PATH" 
 
-region="chr1:100,000-100,100"
 model="/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/model.ptm.json" 
+region="chr1:100,000-100,200"
 window_size="51" 
 window_stride="25"
 
