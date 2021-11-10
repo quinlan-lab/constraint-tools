@@ -1,0 +1,11 @@
+name: constraint-tools
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python==3.9
+  - bioconda::pysam==0.16.0.1
+  - pip
+  - pip: 
+    - --requirement pip-dependencies.txt
+

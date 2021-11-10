@@ -8,6 +8,12 @@ cd constraint-tools
 bash install.sh 
 bash build-vue-app.sh
 ```
+
+This creates a conda environment that should be activated with, e.g.,:
+```
+conda activate constraint-tools
+```
+
 Only installation on Linux x86_64 is currently supported. 
 Tested in the Protected Environment computer cluster of the Center for High Performance Computing (CHPC) at University of Utah. 
 
@@ -110,6 +116,8 @@ Changes to the `vue-app` directory necessitate rebuilding the vue app by running
 bash build-vue-app.sh 
 ```
 
+TODO: automate this using a git hook 
+
 ## Resources 
 ### Mutation Annotation Format (MAF) 
 
@@ -122,5 +130,3 @@ bash build-vue-app.sh
 
 ### On k-mer counting 
 https://bioinfologics.github.io/post/2018/09/17/k-mer-counting-part-i-introduction/
-
-test

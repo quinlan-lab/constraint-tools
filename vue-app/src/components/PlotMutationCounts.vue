@@ -1,5 +1,5 @@
 <template>
-  <div class="plot-container md-elevation-3">
+  <div>
     <div v-if="fetchingAPIData" class="progress-bar-container">
       <md-progress-bar md-mode="indeterminate" />
     </div>
@@ -9,8 +9,10 @@
       because this element may not have yet rendered 
       when plotly code is called. 
       -->
-    <div ref="chart"> </div>
-  </div> 
+    <div class="plot-container md-elevation-3">
+      <div ref="plot"> </div>
+    </div> 
+  </div>
 </template>
 
 <script>
@@ -143,14 +145,14 @@ export default {
         }
         if ( newValue === false && oldValue === true ) {
           console.log('data fetched from all APIs')
-          Plotly.react(this.$refs.chart, this.traces, this.layout)
+          Plotly.react(this.$refs.plot, this.traces, this.layout)
         }
       },
       deep: true
     },
   },
   beforeUnmount () {
-    Plotly.purge(this.$refs.chart)
+    Plotly.purge(this.$refs.plot)
   }  
 }
 </script>
@@ -158,8 +160,6 @@ export default {
 <style scoped>
 .plot-container { 
   margin: 10px auto; 
-  width: 1000px; 
-  height: 500px;
   background-color: white;
 }
 
