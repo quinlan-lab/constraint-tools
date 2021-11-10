@@ -2,13 +2,13 @@
 
 #config_file="constraintview.yaml"
 transcripts="all"
-#output="plot.html"
+output="plot.html"
 
 while [[ "$1" =~ ^- ]]; do 
   case $1 in
     --config_file ) shift; [[ ! $1 =~ ^- ]] && config_file=$1;;
     --transcripts ) shift; [[ ! $1 =~ ^- ]] && transcripts=$1;;
-    --output_file ) shift; [[ ! $1 =~ ^- ]] && output=$1;;
+    --output_file ) shift; [[ ! $1 =~ ^- ]] && output_file=$1;;
     *) error "$0: $1 is an invalid flag"; exit 1;;
   esac 
   shift

@@ -89,7 +89,7 @@ Coverage:
     lines:
         Coverage:
             #line params
-            filepath: 'KCNQ2_coverage.bedgraph'
+            filepath: '/scratch/ucgd/lustre-work/quinlan/u6038618/constraint-tools/data/KCNQ2_coverage.bedgraph'
             color: '#00916E'
             alpha: 0.5
             fill_area: True
