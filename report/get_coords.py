@@ -17,7 +17,8 @@ def get_variants(filepath, start, end, seqid):
         variant_ls = []
         import tabix #putting import here for now because it doesn't work on local machine
         tb = tabix.open(vcf_path)
-        for idx,r in enumerate(tb.query(seqid,start-1400000,end-1400000)): #TODO don't hardcode params
+        #TODO cast seqid in parse_args
+        for idx,r in enumerate(tb.query(str(seqid),start-1400000,end-1400000)):
             variant_ls.append(dict(pos=int(r[1])+1400000, compact_pos=-1, ref=r[3], alt=r[4], #adding 1.4m bc this vcf is on old build
                               annotation=r[7].split(';')[-1].split('|')[1], severity=r[7].split(';')[-1].split('|')[2],
                               allele_count=int(r[7].split(';')[0].split('=')[1]),
@@ -42,9 +43,10 @@ def get_variants(filepath, start, end, seqid):
         import tabix #putting import here for now because it doesn't work on local machine
         variant_ls = []
         tb = tabix.open(bed_path)
-        #for idx,r in enumerate(tb.query('chr20',62037947,62137947)): #TODO don't hardcode params
         #TODO cast seqid in parse_args
-        for idx,r in enumerate(tb.query(str(seqid),start-1400000,end-1400000)): #TODO don't hardcode params
+        #for idx,r in enumerate(tb.query(str(seqid),start-1400000,end-1400000)):
+        for idx,r in enumerate(tb.query(str(seqid),start,end)):
+            if idx<10: print(r)
             variant_ls.append(dict(pos=int(r[1])+1400000, compact_pos=-1, ref=r[3], alt=r[4], #adding 1.4m bc this bed is on old build
                              annotation=r[8], severity=variant_type(r[8]),
                              allele_count=-1,
@@ -92,7 +94,7 @@ def get_track(user_track_params, track_name, strand='-'):
     boxes = []
     db = user_track_params[track_name]['db']
     seqid = user_track_params[track_name]['seqid']
-    for s in list(db.region(seqid=seqid, featuretype='exon', strand=strand)):  # [::-1]:
+    for s in list(db.region(seqid=seqid, featuretype='exon', strand=strand)):
         box_dict = dict(ID=s['gene_id'][0], start=s.start, end=s.end, compact_start=-1,
                         compact_end=-1)  # more than one gene name?
         boxes.append(box_dict)

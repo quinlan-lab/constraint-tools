@@ -462,7 +462,6 @@ def map_point(point_coords, exons):
                 coord['compact_pos'] = exon['compact_start'] + coord['pos'] - exon['start']
                 break
 
-
 def get_introns_from_exons(exons):
     introns = []
 
