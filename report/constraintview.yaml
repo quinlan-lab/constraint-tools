@@ -7,8 +7,8 @@
 ###REMOTE PATHS
 gff_path: '/scratch/ucgd/lustre-work/quinlan/u6038618/constraint-tools/data/Homo_sapiens.GRCh38.104.gff3.db'
 #variant_path: '/scratch/ucgd/lustre-work/quinlan/u6038618/constraint-tools/data/gnomAD_v3.1.1_ENSG00000075043_2021_09_16_16_02_28.csv'
-variant_path: /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/gnomad_v3_variants.sorted.bed.gz
-#variant_path: '/scratch/ucgd/lustre-work/quinlan/u6038618/constraint-tools/data/gnomad.exomes.r2.1.1.sites.20.vcf.bgz'
+#variant_path: /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/gnomad_v3_variants.sorted.bed.gz
+variant_path: '/scratch/ucgd/lustre-work/quinlan/u6038618/constraint-tools/data/gnomad.exomes.r2.1.1.sites.20.vcf.bgz'
 model_path: '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/model.ptm.json' 
 ####Plot params
 gene_name: 'KCNQ2'
@@ -35,8 +35,8 @@ track_palette: 'blues' #palette to draw random track colors from; can be any one
 ---
 #variants
 plot_variants: True
-#seqid: 20 #for .vcf
-seqid: chr20 #for .bed
+seqid: 20 #for .vcf
+#seqid: chr20 #for .bed
 min_lollipop_height: 15
 lollipop_radius: 5
 lollipop_line_width: 2

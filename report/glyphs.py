@@ -147,7 +147,7 @@ def add_UTR_glyph(plot_params, plot, UTRs, fill_alpha=0.4):
 def add_variant_glyph(plot_params, variant_params, plot, variant_ls, line_width=2):
     variant_ls = [v for v in variant_ls if v['compact_pos'] >= 0]
     N = len(variant_ls)
-    if N == 0: return None, None, 0, 0
+    if N == 0: return None, None, [0], [0]
     allele_counts = [v['allele_count'] for v in variant_ls]
     allele_numbers = [v['allele_number'] for v in variant_ls]
     allele_frequencies = [v['allele_frequency'] for v in variant_ls]
@@ -155,7 +155,6 @@ def add_variant_glyph(plot_params, variant_params, plot, variant_ls, line_width=
     if sum(allele_frequencies) < 0: #TODO case where freq data but not cts
         variant_params['add_variant_axis'] = False
     else: variant_params['add_variant_axis'] = True
-    print(variant_params['add_variant_axis'])
 
     x = [v['compact_pos'] for v in variant_ls]
     y0s = [plot_params['y0'] - plot_params['exon_height'] / 2] * N

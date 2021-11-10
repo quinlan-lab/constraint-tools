@@ -46,7 +46,7 @@ def get_variants(filepath, start, end, seqid):
         #TODO cast seqid in parse_args
         #for idx,r in enumerate(tb.query(str(seqid),start-1400000,end-1400000)):
         for idx,r in enumerate(tb.query(str(seqid),start,end)):
-            if idx<10: print(r)
+            #if idx<10: print(r)
             variant_ls.append(dict(pos=int(r[1])+1400000, compact_pos=-1, ref=r[3], alt=r[4], #adding 1.4m bc this bed is on old build
                              annotation=r[8], severity=variant_type(r[8]),
                              allele_count=-1,
