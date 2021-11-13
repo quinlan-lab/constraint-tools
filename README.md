@@ -30,7 +30,7 @@ Once training is complete, do:
 bash tests/dashboard.sh $PWD
 ```
 
-Follow the instructions at the command line to view a web app that visualizes observed mutation counts, and those expected under a null model of sequence-dependent mutation (see `model-definition` folder), as a function of genomic coordinate.  
+Follow the instructions at the command line to view a web app that visualizes observed mutation counts, and those expected under a null model of sequence-dependent mutation (see `define-model` folder), as a function of genomic coordinate.  
 
 A plot of estimated mutation probabilities of the neutral model can be found here: https://github.com/quinlan-lab/constraint-tools/blob/main/tests/plot_mutation_probabilities.ipynb
  
@@ -44,7 +44,7 @@ Valid values for `SUB_COMMAND` are:
 
 ```
 train 
-      estimate kmer-dependent mutation probabilities (see the model defined in the "model-definition" folder)
+      estimate kmer-dependent mutation probabilities (see the model defined in the "define-model" folder)
 dashboard
       start a web app that visualizes observed and expected mutation counts as a function of genomic coordinate
 predict
