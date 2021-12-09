@@ -12,8 +12,9 @@ source set-environment-variables.sh
 
 reference_url="http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/analysisSet"
 reference_genome="hg38.analysisSet"
-reference_path=${CONSTRAINT_TOOLS}/data/reference/grch38
 
+# data now stored at: /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38
+reference_path=${CONSTRAINT_TOOLS}/data/reference/grch38
 
 mkdir --parents ${reference_path}
 
@@ -33,7 +34,6 @@ check_digest () {
 
 	if [[ ${observed_digest_} == ${expected_digest_} ]]; then
 		info "${reference_path}/${reference_genome}.${suffix_}: digest check passed"
-
 	else 
 		info "${reference_path}/${reference_genome}.${suffix_}: digest check failed"
 	fi
