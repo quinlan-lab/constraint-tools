@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+#config_file="constraintview.yaml"
+transcripts="all"
+output="plot.html"
+
+while [[ "$1" =~ ^- ]]; do 
+  case $1 in
+    --config_file ) shift; [[ ! $1 =~ ^- ]] && config_file=$1;;
+    --transcripts ) shift; [[ ! $1 =~ ^- ]] && transcripts=$1;;
+    --output_file ) shift; [[ ! $1 =~ ^- ]] && output_file=$1;;
+    *) error "$0: $1 is an invalid flag"; exit 1;;
+  esac 
+  shift
+done
+
+cd ${CONSTRAINT_TOOLS}/report
+python create_constraint_txt.py ${config_file}
+python constraintview.py ${config_file} ${transcripts} -o ${output_file}

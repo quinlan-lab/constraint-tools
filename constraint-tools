@@ -23,9 +23,9 @@ export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities:${CONSTRAINT_TOOLS}/predict-con
 PATH="${CONSTRAINT_TOOLS}/bin:$PATH" 
 PATH="${CONSTRAINT_TOOLS}/train-model:$PATH" 
 PATH="${CONSTRAINT_TOOLS}/flask-app:${PATH}"
+PATH="${CONSTRAINT_TOOLS}/report:${PATH}"
 
 #######################################
-
 tool="${1}"
 info "\nTool: ${tool}\n"
 shift
@@ -36,6 +36,8 @@ if [[ ${tool} == "train" ]]; then
   train-model ${args}
 elif [[ ${tool} == "dashboard" ]]; then 
   flask-app ${args} 
+elif [[ ${tool} == "report" ]]; then 
+  constraintview ${args}
 else
   error "invalid tool: ${tool}"
   exit 1

@@ -15,7 +15,7 @@ export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities:${CONSTRAINT_TOOLS}/predict-con
 PATH="${CONSTRAINT_TOOLS}/bin:$PATH" 
 
 model="/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/model.ptm.json" 
-region="chr1:100,000-100,200"
+region="chr1:100,000-100,600"
 window_size="51" 
 window_stride="25"
 

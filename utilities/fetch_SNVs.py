@@ -106,4 +106,3 @@ def fetch_SNVs(mutations, genome, region, meta):
 
     SNVs.append(mutation)
   return SNVs
-

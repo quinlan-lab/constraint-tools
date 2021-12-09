@@ -27,3 +27,5 @@ static
 node
 
 slurm-*.out
+
+.html
