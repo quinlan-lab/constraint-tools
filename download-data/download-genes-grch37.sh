@@ -19,6 +19,7 @@ README="README"
 # http://gmod.org/wiki/GFF2#GFF2_is_Deprecated.21
 # https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md
 
+# data now stored at: /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/genes/grch37/
 genes_path="${CONSTRAINT_TOOLS}/data/genes"
 
 mkdir --parents ${genes_path}

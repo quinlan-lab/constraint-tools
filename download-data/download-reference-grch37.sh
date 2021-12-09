@@ -11,6 +11,8 @@ source set-environment-variables.sh
 # https://www.cureffi.org/2013/02/01/the-decoy-genome/
 
 reference_url="https://dcc.icgc.org/api/v1/download?fn=/PCAWG/reference_data/pcawg-bwa-mem"
+
+# data now stored at: /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch37
 reference_path="${CONSTRAINT_TOOLS}/data/reference/grch37"
 
 mkdir --parents ${reference_path}

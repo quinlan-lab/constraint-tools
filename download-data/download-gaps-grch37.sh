@@ -12,6 +12,7 @@ gaps_url="ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/"
 gaps_data="gap.txt.gz"
 gaps_schema="gap.sql"
 
+# data now stored at /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gaps/grch37/
 gaps_path="${CONSTRAINT_TOOLS}/data/gaps"
 
 mkdir --parents ${gaps_path}

@@ -10,6 +10,8 @@ source download-data/set-environment-variables.sh
 # https://www.encodeproject.org/files/ENCFF001TDO/
 encode_exclude_regions_url="https://www.encodeproject.org/files/ENCFF001TDO/@@download/ENCFF001TDO.bed.gz" 
 encode_exclude_regions="encode-exclude-regions.sorted"
+
+# data not stored at /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/encode-exclude-regions/grch37
 encode_exclude_regions_path="${CONSTRAINT_TOOLS}/data/encode-exclude-regions"
 
 mkdir --parents ${encode_exclude_regions_path}

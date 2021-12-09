@@ -9,6 +9,7 @@ source download-data/set-environment-variables.sh
 chromosome_sizes_url="ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips"
 chromosome_sizes="hg19.chrom.sizes"
 
+# data now stored at: /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch37/chromosome-sizes/
 chromosome_sizes_path="${CONSTRAINT_TOOLS}/data/chromosome-sizes"
 
 mkdir --parents ${chromosome_sizes_path}
