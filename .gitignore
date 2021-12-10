@@ -27,3 +27,4 @@ static
 node
 
 slurm-*.out
+logs
