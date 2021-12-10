@@ -1,3 +1,5 @@
+# https://gist.github.com/brentp/894555/f23d1d6e0c988d6711acf2fe1a5bb930c3a19604
+
 # usage ./lift.sh input input.version output.version "FLAGS"
 #
 # e.g: lift.sh Homo_sapiens.GRCh37.61.gtf hg19 hg18 -gff
