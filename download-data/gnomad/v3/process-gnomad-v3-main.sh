@@ -41,7 +41,7 @@ PATH="${CONSTRAINT_TOOLS}/bin:$PATH"
 
 #######################################
 
-## Define directory to download files into 
+## Define directory of downloaded VCFs 
 var_path="${CONSTRAINT_TOOLS}/data/gnomad/v3"
 
 ## Make necessary directories
