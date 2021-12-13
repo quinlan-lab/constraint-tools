@@ -32,15 +32,23 @@ PATH="${CONSTRAINT_TOOLS}/bin:$PATH"
 ## Define location of gnomad v3 download scripts
 gnomad_scripts="${CONSTRAINT_TOOLS}/download-data/gnomad/v3"
 
-for chromosome in $(seq 1 22) X Y
+#######################################                                                                  
+var_path="/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/vcf"
+mkdir --parents ${var_path}
+
+#for chromosome in $(seq 1 22) X Y
+for chromosome in Y
 do 
 	chromosome="chr${chromosome}"
+	gnomad_variant="gnomad_v3_${chromosome}"
+
 	info "Downloading and extracting VCF info fields from gnomad v3's ${chromosome} vcf file..."
 
 	info "Making directory for ${chromosome} log files..."
-	mkdir --parents ${CONSTRAINT_TOOLS}/logs/gnomad_v3_variants/${chromosome}
+	log_dir="${CONSTRAINT_TOOLS}/logs/gnomad_v3_variants/${chromosome}"
+	mkdir --parents ${log_dir}
 	
 	info "Executing download and processing script..."
-	sbatch -W ${gnomad_scripts}/download-gnomad-v3-vcf.sh --chromosome ${chromosome}
+	sbatch -o ${log_dir}/${chromosome}_download_gnomad_v3_vcf.out ${gnomad_scripts}/download-gnomad-v3-vcf.sh --chromosome ${chromosome} --var-path ${var_path} --gnomad-variant ${gnomad_variant}
 done
 

@@ -7,6 +7,7 @@
 ## Define input variables
 while [[ "$1" =~ ^- ]]; do
   case $1 in
+    --chromosome ) shift; [[ ! $1 =~ ^- ]] && chromosome=$1;;
     --var-path ) shift; [[ ! $1 =~ ^- ]] && var_path=$1;;
     --gnomad-variant ) shift; [[ ! $1 =~ ^- ]] && gnomad_variant=$1;;
   esac
@@ -36,19 +37,6 @@ PATH="${CONSTRAINT_TOOLS}/bin:$PATH"
 
 #######################################
 
-## Define the chromosome to download vcf fils for
-chromosome=${SLURM_ARRAY_TASK_ID}
-
-## Check to see if chromosome is a sex chromosome
-if [${chromosome} -eq 24 ]; then
-	chromosome="Y"
-elif [${chromosome} -eq 23]; then
-	chromosome="X"
-else
-fi
-
-chromosome="chr${chromosome}"
-
 info "Downloading gnomad v3's ${chromosome} vcf file..."
 
 ## Define files to download
@@ -56,9 +44,9 @@ gnomad_url="https://storage.googleapis.com/gcp-public-data--gnomad/release/3.1.1
 gnomad_tbi_url="https://storage.googleapis.com/gcp-public-data--gnomad/release/3.1.1/vcf/genomes/gnomad.genomes.v3.1.1.sites.${chromosome}.vcf.bgz.tbi"
 
 info "Downloading gnomad's variant VCF file..."
-wget ${gnomad_url} --output-document=${var_path}/vcf/${gnomad_variant}
+wget ${gnomad_url} --output-document=${var_path}/${gnomad_variant}.vcf.gz
 
 info "Downloading gnomad's tbi file..."
-wget ${gnomad_tbi_url} --output-document=${var_path}/vcf/${gnomad_variant}.tbi
+wget ${gnomad_tbi_url} --output-document=${var_path}/${gnomad_variant}vcf.gz.tbi
 
 info "Done..."
