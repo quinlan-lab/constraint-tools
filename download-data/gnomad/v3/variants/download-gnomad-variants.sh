@@ -47,6 +47,6 @@ info "Downloading gnomad's variant VCF file..."
 wget ${gnomad_url} --output-document=${var_path}/${gnomad_variant}.vcf.gz
 
 info "Downloading gnomad's tbi file..."
-wget ${gnomad_tbi_url} --output-document=${var_path}/${gnomad_variant}vcf.gz.tbi
+wget ${gnomad_tbi_url} --output-document=${var_path}/${gnomad_variant}.vcf.gz.tbi
 
 info "Done..."

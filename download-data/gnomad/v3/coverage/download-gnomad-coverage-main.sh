@@ -17,7 +17,7 @@ source download-data/set-environment-variables.sh
 log_dir="${CONSTRAINT_TOOLS}/logs/coverage"
 
 ## Define file to run downloading and filtering steps
-script="${CONSTRAINT_TOOLS}/download-data/gnomad/coverage/download-gnomad-coverage"
+script="${CONSTRAINT_TOOLS}/download-data/gnomad/v3/coverage/download-gnomad-coverage"
 
 ## gnomad: version 3 (WGS)
 info "Downloading and filtering (by coverage) gnomad v3's WGS coverage file..."
