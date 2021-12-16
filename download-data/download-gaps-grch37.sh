@@ -13,13 +13,14 @@ gaps_data="gap.txt.gz"
 gaps_schema="gap.sql"
 
 # data now stored at /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gaps/grch37/
-gaps_path="${CONSTRAINT_TOOLS}/data/gaps"
+gaps_path="${CONSTRAINT_TOOLS_DATA}/gaps/grch37"
 
 mkdir --parents ${gaps_path}
 
 info "Downloading gaps..."
 wget ${gaps_url}/${gaps_schema} --output-document=${gaps_path}/${gaps_schema}
 curl --location ${gaps_url}/${gaps_data} \
+  | gunzip -c \
   | cut -f 2-4 \
   | get-regular-chromosomes \
   | sort-compress-index-bed --name ${gaps_path}/gaps.sorted
