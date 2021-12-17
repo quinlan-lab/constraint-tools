@@ -78,18 +78,16 @@ bcftools view -h ${var_path}/vcf/${gnomad_variant} | grep "ID=vep" | tr ": " "\n
 
 #######################################
 
-## Define parameters for job array
-job_num="500" ## This is the number of chr-specific intervals a raw vcf file will be processed on
-info "Submitting job array with ${job_num} total jobs..."
+## TODO: Make this its own function
+chr_interval="${var_path}/preprocess_intervals/hg38.chrom.intervals.${chromosome}.noheader"
+cat ${chr_intervals} | tail -n +2 | grep -w ${chromosome} | bgzip > ${chr_interval}.gz
 
 #######################################
 
-info "Defining chr-specific intervals to preprocess raw variants..."
+info "Submitting job array with ${job_num} total jobs..."
 
-## TODO: Make this its own function
-chr_interval="${var_path}/preprocess_intervals/hg38.chrom.intervals.${chromosome}.noheader"
-python ${gnomad_scripts}/get_gnomad_v3_intervals.py --chr-sizes-file ${chr_sizes} --bin-num ${job_num} --output ${chr_intervals}
-cat ${chr_intervals} | tail -n +2 | grep -w ${chromosome} | bgzip > ${chr_interval}.gz
+# add in command to call process-gnomad-v3.sh
+# Model on https://github.com/quinlan-lab/constraint-tools/commit/17230cc243140d5a3a4faebca254f7bf0b722969#diff-14eb4c2bc3467c078c2ebba0253df9b2c7101316acf7bb3db22223a488bd6b40R121
 
 #######################################
 
