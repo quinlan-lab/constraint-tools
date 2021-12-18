@@ -52,4 +52,5 @@ install-node
 install-samtools
 install-htslib
 install-bedtools
+install-bcftools
 
