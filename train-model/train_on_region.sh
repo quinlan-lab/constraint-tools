@@ -42,6 +42,11 @@ fi
 
 #######################################
 
+## Add PATH for estimate_mutation_probabilities python script
+PATH="${CONSTRAINT_TOOLS}/train-model:$PATH"
+
+#######################################
+
 ## The job array size will be the number of lines in the file divided by the number of lines chosen below
 start=${SLURM_ARRAY_TASK_ID}
 numlines=${subjob_num}
@@ -64,7 +69,7 @@ do
 		continue
 	fi
 	
-	${CONSTRAINT_TOOLS}/constraint-tools train \
+	estimate_mutation_probabilities \
   	  --genome ${genome} \
   	  --mutations ${mutations} \
   	  --kmer-size ${kmer_size} \

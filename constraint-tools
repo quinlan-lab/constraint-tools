@@ -32,9 +32,7 @@ shift
 args="${@}"
 info "Tool arguments: ${args}\n"
 
-if [[ ${tool} == "train" ]]; then 
-  train-model ${args}
-elif [[ ${tool} == "dashboard" ]]; then 
+if [[ ${tool} == "dashboard" ]]; then 
   flask-app ${args} 
 else
   error "invalid tool: ${tool}"
