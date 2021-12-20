@@ -44,6 +44,9 @@ neutral_regions="${CONSTRAINT_TOOLS}/dist/neutral-regions.bed.gz"
 ## Change neutral regions variable name
 neutral_regions="/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/neutral-regions/neutral-regions.gnomadv3.filtered.bed"
 
+## Define kmer size
+kmer_size="5"
+
 ##################################################
 
 info "Checking to see if potentially outdated model files exist in the output directory..."
@@ -118,7 +121,7 @@ info "Running the job array... Training on ${subjob_num} neutral regions per job
 train_script="${CONSTRAINT_TOOLS}/train-model/train_on_region.sh"
 
 ## Generate job array sbatch script
-#sbatch -W --array [1-${job_num}]%250 ${train_script} --CONSTRAINT-TOOLS-DIR ${CONSTRAINT_TOOLS} --kmer-size 5 --cell-type ${cell_type} --model ${model} --neutral-regions-file ${neutral_regions} --subjob-num ${subjob_num} --number-samples ${number_samples}
+#sbatch -W --array [1-${job_num}]%250 ${train_script} --CONSTRAINT-TOOLS-DIR ${CONSTRAINT_TOOLS} --kmer-size ${kmer_size} --cell-type ${cell_type} --model ${model} --neutral-regions-file ${neutral_regions} --subjob-num ${subjob_num} --number-samples ${number_samples}
 
 ##################################################
 
