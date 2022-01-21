@@ -1,0 +1,133 @@
+#!/usr/bin/env bash
+
+# https://devhints.io/bash#miscellaneous
+# put option-fetching before "set -o nounset" so that we can detect flags without arguments
+while [[ "$1" =~ ^- ]]; do
+  case $1 in
+    --chromosome ) shift; [[ ! $1 =~ ^- ]] && chromosome=$1;;
+    --number-of-intervals-per-job ) shift; [[ ! $1 =~ ^- ]] && number_of_intervals_per_job=$1;;
+    --number-of-jobs ) shift; [[ ! $1 =~ ^- ]] && number_of_jobs=$1;;
+    --number-of-intervals-per-chromosome ) shift; [[ ! $1 =~ ^- ]] && number_of_intervals_per_chromosome=$1;;
+    *) error "$0: $1 is an invalid flag"; exit 1;;
+  esac
+  shift
+done
+
+set -o errexit
+set -o pipefail
+# set -o noclobber
+set -o xtrace
+set -o nounset 
+
+#######################################
+
+info "extract vep labels from vcf for this particular chromosome ..."
+
+variants_directory="${CONSTRAINT_TOOLS_DATA}/gnomad/v3/variants" 
+vcf="${variants_directory}/gnomad_v3_${chromosome}.vcf.gz"
+vep_keys="${variants_directory}/gnomad_v3_${chromosome}.vep-keys.txt"
+
+bcftools view -h ${vcf} \
+  | grep "ID=vep" \
+  | tr ": " "\n" \
+  | grep -i Allele \
+  | sed 's/">//' \
+  | tr "|" "\n" \
+  > ${vep_keys}
+
+#######################################
+
+info "get intervals for this specific chromosome ..."
+
+intervals="${CONSTRAINT_TOOLS_DATA}/map-reduce-intervals/intervals.bed"
+intervals_on_chromosome="${CONSTRAINT_TOOLS_DATA}/map-reduce-intervals/intervals.${chromosome}.bed"
+
+cat ${intervals} \
+  | tail -n +2 \
+  | grep -w ${chromosome} \
+  > ${intervals_on_chromosome}
+
+# sanity check
+if [[ ${number_of_intervals_per_chromosome} -ne $(wc -l < ${intervals_on_chromosome}) ]]; then 
+  error "number_of_intervals_per_chromosome != $(wc -l < ${intervals_on_chromosome})"
+  exit 1 
+fi 
+
+#######################################
+
+# TODO: delete 
+number_of_jobs="30"
+
+info "Submitting slurm job array with ${number_of_jobs} jobs (tasks) and ${number_of_intervals_per_job} intervals per job..."
+
+# each slurm task will store its output files in this temporary directory: 
+tmpdir=$(mktemp --tmpdir=${variants_directory} --directory)
+clean_up () {
+  rm --recursive --force "${tmpdir}"
+}
+# TODO: uncomment once debugging is complete:  
+# trap clean_up EXIT
+
+# sbatch man-page: 
+# A maximum number of simultaneously running tasks from the job array may be
+# specified using a "%" separator.  
+# For example "--array=0-15%4" will limit the number of simultaneously running
+# tasks from this job array to 4.
+sbatch \
+  --wait \
+  --array [1-${number_of_jobs}]%250 \
+  --job-name "vcf-to-bed-${chromosome}" \
+  --output ${tmpdir}/gnomad_v3_${chromosome}.vcf-to-bed.job-%A.task-%a.log \
+  vcf-to-tsv-intervals \
+    --vcf ${vcf} \
+    --vep-keys ${vep_keys} \
+    --intervals-on-chromosome ${intervals_on_chromosome} \
+    --number-of-intervals-per-job ${number_of_intervals_per_job} \
+    --tmpdir ${tmpdir}
+
+# TODO:  
+exit 1 
+
+#######################################
+
+info "Determining how many jobs were successfully completed without error..."
+
+## Combine log output files
+echo "" > ${CONSTRAINT_TOOLS}/logs/process-gnomad-v3-variants.out
+for file in ${CONSTRAINT_TOOLS}/logs/gnomad_v3_variants/${chromosome}/*
+do 
+	tail -n 1 $file >> ${CONSTRAINT_TOOLS}/logs/process-gnomad-v3-variants.out
+done
+
+## Grep for the success signature
+successful_job_num=($(cat ${CONSTRAINT_TOOLS}/logs/process-gnomad-v3-variants.out | grep "Ready to merge..." | wc -l))
+
+if [ ${job_num} -eq ${successful_job_num} ]; then
+	info "All submitted jobs to process ${chromosome} gnomad v3 vcf variants were successful... Proceeding with merge..."
+	echo "" > ${var_path}/intermediate_files/gnomad_v3_variants.${chromosome}.bed
+	cat ${var_path}/intermediate_files/${chromosome}/* >> ${var_path}/intermediate_files/gnomad_v3_variants.${chromosome}.bed
+
+else 
+	info "Some jobs failed... Did not merge..." 
+	exit 1
+fi
+
+#######################################
+
+info "Sorting gnomad v3 ${chromosome} variants..."
+cat ${var_path}/intermediate_files/gnomad_v3_variants.${chromosome}.bed | sort -k1,1 -k2,2n > ${var_path}/intermediate_files/gnomad_v3_variants.${chromosome}.sorted.bed
+
+info "Adding header to concatenated variant file... Also compressing..."
+cat ${var_path}/header_${chromosome} | head -n 1 > ${var_path}/header
+cat ${var_path}/header ${var_path}/intermediate_files/gnomad_v3_variants.${chromosome}.sorted.bed | bgzip > ${var_path}/intermediate_files/gnomad_v3_variants.${chromosome}.sorted.bed.gz
+
+rm ${var_path}/header_${chromosome}
+
+info "Indexing gnomad v3 variants..."
+tabix \
+	--skip-lines 1 \
+	--sequence 1 \
+	--begin 2 \
+	--end 3 \
+	--force \
+	${var_path}/intermediate_files/gnomad_v3_variants.${chromosome}sorted.bed.gz

@@ -1,0 +1,48 @@
+#!/bin/bash
+#SBATCH --time=12:00:00
+#SBATCH --account=quinlan-rw
+#SBATCH --partition=quinlan-shared-rw
+
+## Define input variables
+while [[ "$1" =~ ^- ]]; do
+  case $1 in
+    --vcf ) shift; [[ ! $1 =~ ^- ]] && vcf=$1;;
+    --vep-keys ) shift; [[ ! $1 =~ ^- ]] && vep_keys=$1;;
+    --intervals-on-chromosome ) shift; [[ ! $1 =~ ^- ]] && intervals_on_chromosome=$1;;
+    --number-of-intervals-per-job ) shift; [[ ! $1 =~ ^- ]] && number_of_intervals_per_job=$1;;
+    --tmpdir ) shift; [[ ! $1 =~ ^- ]] && tmpdir=$1;;
+    *) error "$0: $1 is an invalid flag"; exit 1;;
+  esac
+  shift
+done
+
+set -o errexit
+set -o pipefail
+# set -o noclobber
+set -o xtrace
+set -o nounset 
+
+#######################################
+
+line_number_of_last_interval=$(( SLURM_ARRAY_TASK_ID * number_of_intervals_per_job ))
+offset=$(( number_of_intervals_per_job - 1 ))
+line_number_of_first_interval=$(( line_number_of_last_interval - offset ))
+
+line_numbers_of_intervals=$(seq \
+  ${line_number_of_first_interval} \
+  ${line_number_of_last_interval} \
+)
+
+for line_number_of_interval in ${line_numbers_of_intervals}; do 
+	interval=$( \
+    sed --quiet ${line_number_of_interval}p ${intervals_on_chromosome} \
+    | awk '{print $1":"$2"-"$3}' \
+  )
+
+	info "converting variants within ${interval} from vcf format to bed format..."
+	vcf-to-tsv-interval \
+    --interval ${interval} \
+    --vcf ${vcf} \
+    --vep-keys ${vep_keys} \
+    --tmpdir ${tmpdir}
+done

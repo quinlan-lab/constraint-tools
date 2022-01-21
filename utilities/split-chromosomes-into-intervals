@@ -10,7 +10,7 @@ def split_chromosomes_into_intervals(chr_sizes_dict, args):
   
   for chromosome in chr_sizes_dict.keys():
     chromosome_size = int(chr_sizes_dict[chromosome])
-    interval_length = int(chromosome_size/int(args.target_number_intervals))
+    interval_length = int(chromosome_size/int(args.number_of_intervals_per_chromosome))
     
     # initial interval for this chromosome
     chromosomes.append(chromosome)
@@ -45,7 +45,7 @@ def get_chr_sizes(chr_sizes_file):
 def parse_arguments():
   parser = argparse.ArgumentParser(description='')
   parser.add_argument('--chr-sizes-file', type=str, dest='chr_sizes_file', help='')
-  parser.add_argument('--target-number-intervals', type=str, dest='target_number_intervals', help='')
+  parser.add_argument('--number-of-intervals-per-chromosome', type=str, dest='number_of_intervals_per_chromosome', help='')
   parser.add_argument('--output', type=str, help='')  
   return parser.parse_args()
 
