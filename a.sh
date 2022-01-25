@@ -10,7 +10,7 @@ export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities"
 PATH="${CONSTRAINT_TOOLS}/bin:${CONSTRAINT_TOOLS}/download-process-data/gnomad/v3/variants:$PATH"
 
 vcf-to-tsv-interval \
-  --interval chr1:5974969-5975969 \
+  --interval chr1:1074969-1075500 \
   --vcf /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/gnomad_v3_chr1.vcf.gz \
   --vep-keys /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/gnomad_v3_chr1.vep-keys.txt \
   --tmpdir /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/tmp.aWpwTX7hGU

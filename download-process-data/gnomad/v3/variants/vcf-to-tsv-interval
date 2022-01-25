@@ -36,50 +36,58 @@ def fetch_vep_keys(filename):
 
 def unpack_variants_in_interval(args):
   vep_keys = fetch_vep_keys(args.vep_keys)  
+  vep_keys_reduced = [
+    'SYMBOL', 
+    'Gene', 
+    'Amino_acids',
+    'CANONICAL',
+    'Consequence', 
+    'Feature_type', 
+    'Feature', 
+  ]
+
   vcf = VCF(args.vcf)      
-  variants = []  
+  variants_processed = []  
+
   for variant in vcf(args.interval):              
     if discard(variant): continue 
+
+    variant_processed = {
+      'chromosome': variant.CHROM,
+      'start': variant.start,
+      'end': variant.end,
+      # Possible values are "snv", "indel", "multi-snv", "multi-indel", or "mixed" :
+      'variant_type': variant.INFO.get('variant_type'),
+      'REF': variant.REF,
+      'ALT': variant.ALT[0],
+      # Total number of alternate alleles observed at variant's locus : 
+      'number_ALT': variant.INFO.get('n_alt_alleles'),
+      'number_ALT_chromosomes': variant.INFO.get('AC'),
+      'number_chromosomes': variant.INFO.get('AN'),
+    }
+
+    for vep_key in vep_keys_reduced: variant_processed[vep_key] = set()
 
     # p8 of vcf spec says that 
     # when multiple values correspond to a single INFO key (here "vep"), 
     # those values must be separated by a comma: 
     # https://samtools.github.io/hts-specs/VCFv4.3.pdf
-    for transcript_annotations in variant.INFO.get('vep').split(','):
-      variant_relative_to_transcript = {}
-  
-      variant_relative_to_transcript['chromosome'] = variant.CHROM
-      variant_relative_to_transcript['start'] = variant.start
-      variant_relative_to_transcript['end'] = variant.end
+    for transcript in variant.INFO.get('vep').split(','):
+      vep_values = transcript.split('|')
+      for vep_key, vep_value in zip(vep_keys, vep_values): 
+        if vep_key in vep_keys_reduced: 
+          variant_processed[vep_key].add(vep_value if vep_value else '.')
+    
+    for vep_key in vep_keys_reduced: 
+      vep_set = variant_processed[vep_key]
+      if len(vep_set) > 1: vep_set.discard('.')
+      variant_processed[vep_key] = ','.join(map(str, vep_set))
 
-      # Possible values are "snv", "indel", "multi-snv", "multi-indel", or "mixed" :
-      variant_relative_to_transcript['variant_type'] = variant.INFO.get('variant_type') 
-
-      variant_relative_to_transcript['REF'] = variant.REF
-      variant_relative_to_transcript['ALT'] = variant.ALT[0]
-      # Total number of alternate alleles observed at variant's locus : 
-      variant_relative_to_transcript['number_ALT'] = variant.INFO.get('n_alt_alleles') 
-
-      variant_relative_to_transcript['number_ALT_individuals'] = variant.INFO.get('AC')
-      variant_relative_to_transcript['number_individuals'] = variant.INFO.get('AN')
-
-      vep_values_for_transcript = transcript_annotations.split('|')
-      for vep_key, vep_value in zip(vep_keys, vep_values_for_transcript): 
-        if vep_key in {
-          'SYMBOL', 
-          'Gene', 
-          'Consequence', 
-          'Feature_type', 
-          'Feature', 
-          'Amino_acids',
-          'CANONICAL'
-        }: variant_relative_to_transcript[vep_key] = vep_value if vep_value else '.'
-                      
-      variants.append(variant_relative_to_transcript)
+    variants_processed.append(variant_processed)
 
   vcf.close()
   
-  return variants 
+  return variants_processed 
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='')
@@ -100,8 +108,7 @@ def vcf_to_tsv_interval():
     pd.DataFrame(variants).to_csv(
       f'{args.tmpdir}/{args.interval}.tsv', 
       index=False, 
-      sep="\t", 
-      # header=None
+      sep="\t"
     )
     print(f'Converted variants within {args.interval} from vcf format to tab-delimited format.')
     print('Ready to merge...')
