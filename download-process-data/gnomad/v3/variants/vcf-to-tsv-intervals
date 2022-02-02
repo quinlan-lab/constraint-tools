@@ -11,6 +11,7 @@ while [[ "$1" =~ ^- ]]; do
     --intervals-on-chromosome ) shift; [[ ! $1 =~ ^- ]] && intervals_on_chromosome=$1;;
     --number-of-intervals-per-job ) shift; [[ ! $1 =~ ^- ]] && number_of_intervals_per_job=$1;;
     --tmpdir ) shift; [[ ! $1 =~ ^- ]] && tmpdir=$1;;
+    --success-signature ) shift; [[ ! $1 =~ ^- ]] && success_signature=$1;;
     *) error "$0: $1 is an invalid flag"; exit 1;;
   esac
   shift
@@ -39,10 +40,11 @@ for line_number_of_interval in ${line_numbers_of_intervals}; do
     | awk '{print $1":"$2"-"$3}' \
   )
 
-	info "converting variants within ${interval} from vcf format to bed format..."
+	info "converting variants within ${interval} from vcf format to tsv format..."
 	vcf-to-tsv-interval \
     --interval ${interval} \
     --vcf ${vcf} \
     --vep-keys ${vep_keys} \
-    --tmpdir ${tmpdir}
+    --tmpdir ${tmpdir} \
+    --success-signature "${success_signature}"
 done

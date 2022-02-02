@@ -28,3 +28,7 @@ node
 
 slurm-*.out
 logs
+
+define-model/germline-model.v*.ipynb
+
+

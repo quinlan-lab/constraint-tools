@@ -36,8 +36,8 @@ split-chromosomes-into-intervals \
 
 #######################################
 
-# TODO: uncomment
 # ignore X and Y to avoid complications related to allele frequencies
+# TODO: uncomment
 # for chromosome in $(seq 1 22); do 
 for chromosome in 1; do 
   chromosome="chr${chromosome}"

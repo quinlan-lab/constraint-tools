@@ -6,51 +6,53 @@ import pandas as pd
 
 from colorize import print_string_as_info
 
-def discard(variant):   
+def discard(variant):
   # https://brentp.github.io/cyvcf2/docstrings.html#cyvcf2.cyvcf2.Variant.FILTER
   if variant.FILTER:
     print_string_as_info('variant is not PASS')
     return True
 
   # sanity check (gnomad v3)
-  if variant.INFO.get('AC') == 0: 
+  if variant.INFO.get('AC') == 0:
     print(variant)
     raise ValueError('PASS variants should have non-zero allele count!')
 
   # sanity check (gnomad v3)
-  if len(variant.ALT) != 1: 
+  if len(variant.ALT) != 1:
     print(variant)
     raise ValueError(
-      'Since multi-allelic variants appear as separate VCF records, '
+      'This field reports the identity of the allele on a single chromosome, '
+      'not the identity of, e.g., two ALT alleles in a diploid human!\n'
+      'Also, since multi-allelic variants appear as separate VCF records, '
       'there should be exactly one ALT allele per VCF record!'
     )
 
   return False
 
 def fetch_vep_keys(filename):
-  keys = [] 
-  with open(filename, 'r') as fh: 
-    for line in fh.readlines(): 
-      keys.append(line.rstrip()) 
+  keys = []
+  with open(filename, 'r') as fh:
+    for line in fh.readlines():
+      keys.append(line.rstrip())
   return keys
 
 def unpack_variants_in_interval(args):
-  vep_keys = fetch_vep_keys(args.vep_keys)  
+  vep_keys = fetch_vep_keys(args.vep_keys)
   vep_keys_reduced = [
-    'SYMBOL', 
-    'Gene', 
+    'SYMBOL',
+    'Gene',
     'Amino_acids',
     'CANONICAL',
-    'Consequence', 
-    'Feature_type', 
-    'Feature', 
+    'Consequence',
+    'Feature_type',
+    'Feature',
   ]
 
-  vcf = VCF(args.vcf)      
-  variants_processed = []  
+  vcf = VCF(args.vcf)
+  variants_processed = []
 
-  for variant in vcf(args.interval):              
-    if discard(variant): continue 
+  for variant in vcf(args.interval):
+    if discard(variant): continue
 
     variant_processed = {
       'chromosome': variant.CHROM,
@@ -60,7 +62,7 @@ def unpack_variants_in_interval(args):
       'variant_type': variant.INFO.get('variant_type'),
       'REF': variant.REF,
       'ALT': variant.ALT[0],
-      # Total number of alternate alleles observed at variant's locus : 
+      # Total number of alternate alleles observed at variant's locus :
       'number_ALT': variant.INFO.get('n_alt_alleles'),
       'number_ALT_chromosomes': variant.INFO.get('AC'),
       'number_chromosomes': variant.INFO.get('AN'),
@@ -68,17 +70,17 @@ def unpack_variants_in_interval(args):
 
     for vep_key in vep_keys_reduced: variant_processed[vep_key] = set()
 
-    # p8 of vcf spec says that 
-    # when multiple values correspond to a single INFO key (here "vep"), 
-    # those values must be separated by a comma: 
+    # p8 of vcf spec says that
+    # when multiple values correspond to a single INFO key (here "vep"),
+    # those values must be separated by a comma:
     # https://samtools.github.io/hts-specs/VCFv4.3.pdf
     for transcript in variant.INFO.get('vep').split(','):
       vep_values = transcript.split('|')
-      for vep_key, vep_value in zip(vep_keys, vep_values): 
-        if vep_key in vep_keys_reduced: 
+      for vep_key, vep_value in zip(vep_keys, vep_values):
+        if vep_key in vep_keys_reduced:
           variant_processed[vep_key].add(vep_value if vep_value else '.')
-    
-    for vep_key in vep_keys_reduced: 
+
+    for vep_key in vep_keys_reduced:
       vep_set = variant_processed[vep_key]
       if len(vep_set) > 1: vep_set.discard('.')
       variant_processed[vep_key] = ','.join(map(str, vep_set))
@@ -86,8 +88,8 @@ def unpack_variants_in_interval(args):
     variants_processed.append(variant_processed)
 
   vcf.close()
-  
-  return variants_processed 
+
+  return variants_processed
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='')
@@ -96,24 +98,25 @@ def parse_arguments():
     parser.add_argument('--vcf', type=str, dest='vcf', help='')
     parser.add_argument('--vep-keys', type=str, dest='vep_keys', help='')
     parser.add_argument('--tmpdir', type=str, dest='tmpdir', help='')
+    parser.add_argument('--success-signature', type=str, dest='success_signature', help='')
 
     return parser.parse_args()
 
 def vcf_to_tsv_interval():
   args = parse_arguments()
-  
+
   variants = unpack_variants_in_interval(args)
 
-  if len(variants) > 0: 
+  if len(variants) > 0:
     pd.DataFrame(variants).to_csv(
-      f'{args.tmpdir}/{args.interval}.tsv', 
-      index=False, 
+      f'{args.tmpdir}/{args.interval}.tsv',
+      index=False,
       sep="\t"
     )
     print(f'Converted variants within {args.interval} from vcf format to tab-delimited format.')
-    print('Ready to merge...')
-  else: 
+    print(args.success_signature)
+  else:
     print(f'There are no variants within {args.interval} to convert from vcf to tab-delimited format!')
-    
+
 if __name__ == '__main__':
   vcf_to_tsv_interval()
