@@ -13,4 +13,5 @@ vcf-to-tsv-interval \
   --interval chr1:1074969-1075500 \
   --vcf /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/gnomad_v3_chr1.vcf.gz \
   --vep-keys /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/gnomad_v3_chr1.vep-keys.txt \
-  --tmpdir /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/tmp.aWpwTX7hGU
+  --tmpdir /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/tmp.m91cWWuWuF \
+  --success-signature "SUCCESS SIGNATURE"

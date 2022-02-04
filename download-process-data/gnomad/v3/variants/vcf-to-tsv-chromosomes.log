@@ -1,0 +1,67 @@
++ set -o nounset
++ source download-process-data/set-environment-variables.sh
+++ set -o errexit
+++ set -o pipefail
+++ set -o nounset
+++++ dirname download-process-data/set-environment-variables.sh
++++ cd download-process-data
++++ pwd
+++ SCRIPT_DIR=/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/download-process-data
++++ dirname /scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/download-process-data
+++ export CONSTRAINT_TOOLS=/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools
+++ CONSTRAINT_TOOLS=/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools
+++ PATH=/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/utilities:/uufs/chpc.utah.edu/common/HIPAA/u6018199/.conda/envs/constraint-tools/bin:/uufs/chpc.utah.edu/sys/installdir/anaconda/2019.07/condabin:/uufs/chpc.utah.edu/common/HIPAA/u6018199/bin:/uufs/chpc.utah.edu/common/PE/proj_UCGD/apps/redwood.bridges/ucgd_utils/master/perl/script:/uufs/chpc.utah.edu/common/HIPAA/u6018199/.perl5/5.16.3/bin:/uufs/chpc.utah.edu/common/PE/proj_UCGD/apps/redwood.bridges/local-lib/5.16.3/bin:/uufs/chpc.utah.edu/sys/installdir/intel/compilers_and_libraries_2018.1.163/linux/bin/intel64:/uufs/chpc.utah.edu/sys/installdir/intel/compilers_and_libraries_2018.1.163/linux/mpi/intel64/bin:/uufs/chpc.utah.edu/common/HIPAA/u6018199/.vscode-server/bin/899d46d82c4c95423fb7e10e68eba52050e30ba3/bin:/uufs/chpc.utah.edu/common/HIPAA/u6018199/bin:/usr/lib64/qt-3.3/bin:/usr/kerberos/sbin:/usr/kerberos/bin:/uufs/chpc.utah.edu/sys/bin:/usr/lib64/ccache:/usr/local/bin:/usr/bin:/uufs/redwood.bridges/sys/installdir/slurm/std/bin:/usr/local/sbin:/usr/sbin:.:/uufs/chpc.utah.edu/common/HIPAA/u6018199/.local/bin:/uufs/chpc.utah.edu/common/HIPAA/u6018199/bin
+++ PATH=/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/bin:/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/utilities:/uufs/chpc.utah.edu/common/HIPAA/u6018199/.conda/envs/constraint-tools/bin:/uufs/chpc.utah.edu/sys/installdir/anaconda/2019.07/condabin:/uufs/chpc.utah.edu/common/HIPAA/u6018199/bin:/uufs/chpc.utah.edu/common/PE/proj_UCGD/apps/redwood.bridges/ucgd_utils/master/perl/script:/uufs/chpc.utah.edu/common/HIPAA/u6018199/.perl5/5.16.3/bin:/uufs/chpc.utah.edu/common/PE/proj_UCGD/apps/redwood.bridges/local-lib/5.16.3/bin:/uufs/chpc.utah.edu/sys/installdir/intel/compilers_and_libraries_2018.1.163/linux/bin/intel64:/uufs/chpc.utah.edu/sys/installdir/intel/compilers_and_libraries_2018.1.163/linux/mpi/intel64/bin:/uufs/chpc.utah.edu/common/HIPAA/u6018199/.vscode-server/bin/899d46d82c4c95423fb7e10e68eba52050e30ba3/bin:/uufs/chpc.utah.edu/common/HIPAA/u6018199/bin:/usr/lib64/qt-3.3/bin:/usr/kerberos/sbin:/usr/kerberos/bin:/uufs/chpc.utah.edu/sys/bin:/usr/lib64/ccache:/usr/local/bin:/usr/bin:/uufs/redwood.bridges/sys/installdir/slurm/std/bin:/usr/local/sbin:/usr/sbin:.:/uufs/chpc.utah.edu/common/HIPAA/u6018199/.local/bin:/uufs/chpc.utah.edu/common/HIPAA/u6018199/bin
++++ printenv
++++ grep CONSTRAINT_TOOLS
+++ info CONSTRAINT_TOOLS=/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools
+[0;36mCONSTRAINT_TOOLS=/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools[0m
+++ export CONSTRAINT_TOOLS_DATA=/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools
+++ CONSTRAINT_TOOLS_DATA=/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools
++ export PYTHONPATH=/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/utilities
++ PYTHONPATH=/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/utilities
++ PATH=/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/bin:/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/download-process-data/gnomad/v3/variants:/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/bin:/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/utilities:/uufs/chpc.utah.edu/common/HIPAA/u6018199/.conda/envs/constraint-tools/bin:/uufs/chpc.utah.edu/sys/installdir/anaconda/2019.07/condabin:/uufs/chpc.utah.edu/common/HIPAA/u6018199/bin:/uufs/chpc.utah.edu/common/PE/proj_UCGD/apps/redwood.bridges/ucgd_utils/master/perl/script:/uufs/chpc.utah.edu/common/HIPAA/u6018199/.perl5/5.16.3/bin:/uufs/chpc.utah.edu/common/PE/proj_UCGD/apps/redwood.bridges/local-lib/5.16.3/bin:/uufs/chpc.utah.edu/sys/installdir/intel/compilers_and_libraries_2018.1.163/linux/bin/intel64:/uufs/chpc.utah.edu/sys/installdir/intel/compilers_and_libraries_2018.1.163/linux/mpi/intel64/bin:/uufs/chpc.utah.edu/common/HIPAA/u6018199/.vscode-server/bin/899d46d82c4c95423fb7e10e68eba52050e30ba3/bin:/uufs/chpc.utah.edu/common/HIPAA/u6018199/bin:/usr/lib64/qt-3.3/bin:/usr/kerberos/sbin:/usr/kerberos/bin:/uufs/chpc.utah.edu/sys/bin:/usr/lib64/ccache:/usr/local/bin:/usr/bin:/uufs/redwood.bridges/sys/installdir/slurm/std/bin:/usr/local/sbin:/usr/sbin:.:/uufs/chpc.utah.edu/common/HIPAA/u6018199/.local/bin:/uufs/chpc.utah.edu/common/HIPAA/u6018199/bin
++ info 'split all chromosomes into intervals ...'
+[0;36msplit all chromosomes into intervals ...[0m
++ chromosome_sizes=/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38/chromosome-sizes/hg38.chrom.sizes.sorted
++ intervals=/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/map-reduce-intervals/intervals.bed
++ number_of_intervals_per_job=2
++ number_of_jobs=500
++ number_of_intervals_per_chromosome=1000
++ split-chromosomes-into-intervals --chr-sizes-file /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38/chromosome-sizes/hg38.chrom.sizes.sorted --number-of-intervals-per-chromosome 1000 --output /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/map-reduce-intervals/intervals.bed
+++ seq 1 22
++ for chromosome in '$(seq 1 22)'
++ chromosome=chr1
++ vcf-to-tsv-chromosome --chromosome chr1 --number-of-intervals-per-job 2 --number-of-jobs 500 --number-of-intervals-per-chromosome 1000
++ set -o nounset
++ info 'extract vep labels from vcf for chr1 ...'
+[0;36mextract vep labels from vcf for chr1 ...[0m
++ variants_directory=/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants
++ variants=/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/gnomad_v3_chr1
++ vep_keys=/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/gnomad_v3_chr1.vep-keys.txt
++ bcftools view -h /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/gnomad_v3_chr1.vcf.gz
++ grep ID=vep
++ tr ': ' '\n'
++ grep -i Allele
++ sed 's/">//'
++ tr '|' '\n'
++ info 'get intervals for chr1 ...'
+[0;36mget intervals for chr1 ...[0m
++ intervals=/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/map-reduce-intervals/intervals.bed
++ intervals_on_chromosome=/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/map-reduce-intervals/intervals.chr1.bed
++ cat /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/map-reduce-intervals/intervals.bed
++ grep -w chr1
++ tail -n +2
+++ wc -l
++ [[ 1000 -ne 1000 ]]
++ set +o errexit
+/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/download-process-data/gnomad/v3/variants/vcf-to-tsv-chromosome: line 102: tmpdir: unbound variable
+++ wc -l
++ number_of_log_files=0
++ set -o errexit
++ [[ 0 != 500 ]]
++ error 'only 0/500 jobs completed successfully'
+[0;31monly 0/500 jobs completed successfully[0m
++ error 'did not merge...'
+[0;31mdid not merge...[0m
++ exit 1

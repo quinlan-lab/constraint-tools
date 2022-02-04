@@ -1,3 +1,9 @@
+#!/bin/bash
+#SBATCH --time=12:00:00
+#SBATCH --account=quinlan-rw
+#SBATCH --partition=quinlan-shared-rw
+#SBATCH --output=download-process-data/gnomad/v3/variants/vcf-to-tsv-chromosomes.log
+
 set -o errexit
 set -o pipefail
 # set -o noclobber
@@ -37,9 +43,7 @@ split-chromosomes-into-intervals \
 #######################################
 
 # ignore X and Y to avoid complications related to allele frequencies
-# TODO: uncomment
-# for chromosome in $(seq 1 22); do 
-for chromosome in 1; do 
+for chromosome in $(seq 1 22); do 
   chromosome="chr${chromosome}"
   vcf-to-tsv-chromosome \
     --chromosome ${chromosome} \

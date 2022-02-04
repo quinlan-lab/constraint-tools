@@ -85,6 +85,8 @@ def unpack_variants_in_interval(args):
       if len(vep_set) > 1: vep_set.discard('.')
       variant_processed[vep_key] = ','.join(map(str, vep_set))
 
+    variant_processed['miscellaneous'] = '.'
+
     variants_processed.append(variant_processed)
 
   vcf.close()
@@ -117,6 +119,7 @@ def vcf_to_tsv_interval():
     print(args.success_signature)
   else:
     print(f'There are no variants within {args.interval} to convert from vcf to tab-delimited format!')
+    print(args.success_signature)
 
 if __name__ == '__main__':
   vcf_to_tsv_interval()
