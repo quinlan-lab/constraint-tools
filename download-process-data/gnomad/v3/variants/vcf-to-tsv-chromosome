@@ -57,50 +57,48 @@ fi
 
 # info "Submitting slurm job array for ${chromosome} with ${number_of_jobs} jobs (tasks) and ${number_of_intervals_per_job} intervals per job..."
 
-# # each slurm task will store its output files in this temporary directory: 
-# tmpdir=$(mktemp --tmpdir=${variants_directory} --directory)
-# clean_up () {
-#   local exit_code="$1"
-#   if [[ "${exit_code}" == "0" ]]; then 
-#     info "Deleting tmp directory for ${chromosome}..."
-#     rm --recursive --force "${tmpdir}"
-#   else 
-#     info "Received exit code ${exit_code}.."
-#     info "Not deleting tmp directory for ${chromosome}..."
-#   fi 
-# }
-# # http://redsymbol.net/articles/bash-exit-traps/
-# # https://medium.com/@dirk.avery/the-bash-trap-trap-ce6083f36700
-# trap 'clean_up $?' EXIT
+# each slurm task will store its output files in this temporary directory: 
+tmpdir=$(mktemp --tmpdir=${variants_directory} --directory)
+clean_up () {
+  local exit_code="$1"
+  if [[ "${exit_code}" == "0" ]]; then 
+    info "Deleting tmp directory for ${chromosome}..."
+    rm --recursive --force "${tmpdir}"
+  else 
+    info "Received exit code ${exit_code}.."
+    info "Not deleting tmp directory for ${chromosome}..."
+  fi 
+}
+# http://redsymbol.net/articles/bash-exit-traps/
+# https://medium.com/@dirk.avery/the-bash-trap-trap-ce6083f36700
+trap 'clean_up $?' EXIT
 
-# success_signature="TSV FILE READY TO MERGE"
+success_signature="TSV FILE READY TO MERGE"
 
-# # sbatch man-page: 
-# # A maximum number of simultaneously running tasks from the job array may be
-# # specified using a "%" separator.  
-# # For example "--array=0-15%4" will limit the number of simultaneously running
-# # tasks from this job array to 4.
-# # We "wait" for two reasons: 
-# #   1. to ensure that all the jobs/tasks are finished before merging their results
-# #   2. because the number of jobs per chromosome is already at the allowable limit for job submissions on slurm
-# sbatch \
-#   --wait \
-#   --array [1-${number_of_jobs}]%250 \
-#   --job-name "vcf-to-tsv-${chromosome}" \
-#   --output ${tmpdir}/gnomad_v3_${chromosome}.vcf-to-tsv.job-%A.task-%a.log \
-#   vcf-to-tsv-intervals \
-#     --vcf ${variants}.vcf.gz \
-#     --vep-keys ${vep_keys} \
-#     --intervals-on-chromosome ${intervals_on_chromosome} \
-#     --number-of-intervals-per-job ${number_of_intervals_per_job} \
-#     --tmpdir ${tmpdir} \
-#     --success-signature "${success_signature}"
+# sbatch man-page: 
+# A maximum number of simultaneously running tasks from the job array may be
+# specified using a "%" separator.  
+# For example "--array=0-15%4" will limit the number of simultaneously running
+# tasks from this job array to 4.
+# We "wait" for two reasons: 
+#   1. to ensure that all the jobs/tasks are finished before merging their results
+#   2. because the number of jobs per chromosome is already at the allowable limit for job submissions on slurm
+sbatch \
+  --wait \
+  --array [1-${number_of_jobs}]%250 \
+  --job-name "vcf-to-tsv-${chromosome}" \
+  --output ${tmpdir}/gnomad_v3_${chromosome}.vcf-to-tsv.job-%A.task-%a.log \
+  vcf-to-tsv-intervals \
+    --vcf ${variants}.vcf.gz \
+    --vep-keys ${vep_keys} \
+    --intervals-on-chromosome ${intervals_on_chromosome} \
+    --number-of-intervals-per-job ${number_of_intervals_per_job} \
+    --tmpdir ${tmpdir} \
+    --success-signature "${success_signature}"
 
 #######################################
 
-set +o errexit
-number_of_log_files=$(ls ${tmpdir}/*.log | wc -l)
-set -o errexit
+number_of_log_files=$(ls ${tmpdir}/*.log | wc -l) || true
 if [[ ${number_of_log_files} != ${number_of_jobs} ]]; then 
   error "only ${number_of_log_files}/${number_of_jobs} jobs completed successfully"
   error "did not merge..."
@@ -108,9 +106,7 @@ if [[ ${number_of_log_files} != ${number_of_jobs} ]]; then
 fi 
 
 for log_file in ${tmpdir}/*.log; do 
-  set +o errexit
-  number_of_successfully_processed_intervals_per_job=$(grep --count "^${success_signature}" ${log_file}) 
-  set -o errexit
+  number_of_successfully_processed_intervals_per_job=$(grep --count "^${success_signature}" ${log_file}) || true
   if [[ ${number_of_successfully_processed_intervals_per_job} != "2" ]]; then 
     error "only ${number_of_successfully_processed_intervals_per_job}/2 intervals were completed successfully"
     error "log file: ${log_file}"
@@ -120,20 +116,14 @@ for log_file in ${tmpdir}/*.log; do
 done 
 
 info "All jobs to convert ${chromosome} variants from vcf to tsv format were successful..."
+info "Merging tsv files, and sorting and block compressing, for ${chromosome}..."
 
-set +o errexit
-random_tsv_file=$(ls ${tmpdir}/*.tsv | head -1)
-set -o errexit
-head -1 ${random_tsv_file} > ${variants}.tsv 
+random_tsv_file=$(ls ${tmpdir}/*.tsv | head -1) || true
 
-info "Merging tsv files into a single tsv file for ${chromosome}..."
-tail -n +2 --quiet ${tmpdir}/*.tsv >> ${variants}.tsv
-
-info "Sorting and block compressing tsv file for ${chromosome}..."
 set +o errexit
 (
-  head -1 ${variants}.tsv
-  tail -n +2 ${variants}.tsv | sort --version-sort -k1,1 -k2,2n -k3,3n
+  head -1 ${random_tsv_file}
+  tail -n +2 --quiet ${tmpdir}/*.tsv | sort --version-sort -k1,1 -k2,2n -k3,3n
 ) |
   bgzip > ${variants}.sorted.tsv.gz
 set -o errexit
@@ -148,5 +138,4 @@ tabix \
     --force \
   ${variants}.sorted.tsv.gz
 
-rm --force ${variants}.tsv
 

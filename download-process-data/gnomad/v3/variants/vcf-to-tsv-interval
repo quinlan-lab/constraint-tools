@@ -50,8 +50,10 @@ def unpack_variants_in_interval(args):
 
   vcf = VCF(args.vcf)
   variants_processed = []
-
+  number_variants = 0
   for variant in vcf(args.interval):
+    number_variants += 1
+    
     if discard(variant): continue
 
     variant_processed = {
@@ -91,7 +93,7 @@ def unpack_variants_in_interval(args):
 
   vcf.close()
 
-  return variants_processed
+  return variants_processed, number_variants
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='')
@@ -107,19 +109,19 @@ def parse_arguments():
 def vcf_to_tsv_interval():
   args = parse_arguments()
 
-  variants = unpack_variants_in_interval(args)
+  retained_variants, total_number_variants = unpack_variants_in_interval(args)
 
-  if len(variants) > 0:
-    pd.DataFrame(variants).to_csv(
+  if len(retained_variants) > 0:
+    pd.DataFrame(retained_variants).to_csv(
       f'{args.tmpdir}/{args.interval}.tsv',
       index=False,
       sep="\t"
     )
-    print(f'Converted variants within {args.interval} from vcf format to tab-delimited format.')
-    print(args.success_signature)
+    print(f'Converted {len(retained_variants)}/{total_number_variants} variants within {args.interval} from vcf format to tab-delimited format.')
   else:
     print(f'There are no variants within {args.interval} to convert from vcf to tab-delimited format!')
-    print(args.success_signature)
+
+  print(args.success_signature)
 
 if __name__ == '__main__':
   vcf_to_tsv_interval()
