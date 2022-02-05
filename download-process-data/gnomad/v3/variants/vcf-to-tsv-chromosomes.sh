@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --time=12:00:00
+#SBATCH --time=24:00:00
 #SBATCH --account=quinlan-rw
 #SBATCH --partition=quinlan-shared-rw
 #SBATCH --output=download-process-data/gnomad/v3/variants/vcf-to-tsv-chromosomes.log
