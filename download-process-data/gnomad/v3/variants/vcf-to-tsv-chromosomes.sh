@@ -2,7 +2,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --account=quinlan-rw
 #SBATCH --partition=quinlan-shared-rw
-#SBATCH --output=download-process-data/gnomad/v3/variants/vcf-to-tsv-chromosomes.log
+#SBATCH --output=/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/vcf-to-tsv-chromosomes.log
 
 set -o errexit
 set -o pipefail
