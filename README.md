@@ -66,7 +66,8 @@ Required arguments for `train` are:
       Path to a directory to store trained model in. 
 ```
 
-By default the `train` subcommand uses a pre-computed set of putatively neutral regions from the GRCH37 reference. Optionally, the user may change this by specifying the `--regions` argument: 
+By default the `train` subcommand uses a pre-computed set of putatively neutral regions from the GRCH38 reference located in the `/dist` folder. 
+Optionally, the user may change this by specifying the `--regions` argument: 
 
 ```
 --regions STR
@@ -75,7 +76,7 @@ By default the `train` subcommand uses a pre-computed set of putatively neutral 
 
 This produces a specification of the sequence-dependent neutral mutation model in json format, viewable using, e.g., 
 ```
-${CONSTRAINT_TOOLS}/bin/jq . ${model}/<json file> 
+${CONSTRAINT_TOOLS}/bin/jq . ${model_folder}/<json file> 
 ```
 
 Required arguments for `dashboard` are:
