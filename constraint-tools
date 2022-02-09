@@ -21,8 +21,6 @@ export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities:${CONSTRAINT_TOOLS}/predict-con
 # no need to export PATH since it is already in the environment: 
 # `printenv | grep -w PATH` returns non-zero output 
 PATH="${CONSTRAINT_TOOLS}/bin:$PATH" 
-PATH="${CONSTRAINT_TOOLS}/train-model:$PATH" 
-PATH="${CONSTRAINT_TOOLS}/flask-app:${PATH}"
 
 #######################################
 
@@ -32,7 +30,11 @@ shift
 args="${@}"
 info "Tool arguments: ${args}\n"
 
-if [[ ${tool} == "dashboard" ]]; then 
+if [[ ${tool} == "train-germline-model" ]]; then 
+  PATH="${CONSTRAINT_TOOLS}/train-germline-model:$PATH" 
+  train-chromosomes ${args}
+elif [[ ${tool} == "dashboard-germline-model" ]]; then 
+  PATH="${CONSTRAINT_TOOLS}/flask-app:${PATH}"
   flask-app ${args} 
 else
   error "invalid tool: ${tool}"
