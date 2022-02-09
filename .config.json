@@ -1,7 +1,7 @@
 {
-  "windowSize": "101",
   "trainGermlineModel": {
-    "regions": "dist/neutral-regions-germline-grch38.bed.gz"
+    "regions": "dist/neutral-regions-germline-grch38.bed.gz",
+    "windowSize": "101"
   },
   "dashboardGermlineModel": {
     "model": "dist/model-germline-grch38.json",
