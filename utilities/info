@@ -3,4 +3,11 @@
 cyan='\033[0;36m'
 no_color='\033[0m'
 
-echo -e "${cyan}${1}${no_color}" >&2
+if [[ $# -eq 1 ]]; then 
+  echo -e "${cyan}${1}${no_color}" >&2
+elif [[ $# -eq 2 ]]; then 
+  echo -e "${cyan}${1}${no_color}${2}" >&2
+else
+  echo "more than two arguments to info is not allowed"
+  exit 1 
+fi 
