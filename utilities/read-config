@@ -3,8 +3,6 @@
 set -o errexit
 # set -o xtrace 
 
-info "number of args to read-config: $#"
-
 if [[ $# -eq 1 ]]; then 
   echo $(jq \
           --raw-output \
