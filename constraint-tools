@@ -25,10 +25,10 @@ PATH="${CONSTRAINT_TOOLS}/bin:$PATH"
 #######################################
 
 tool="${1}"
-info "\nTool: ${tool}\n"
+info "\nTool: " "${tool}\n"
 shift
 args="${@}"
-info "Tool arguments: ${args}\n"
+info "Tool arguments: " "${args}\n"
 
 if [[ ${tool} == "train-germline-model" ]]; then 
   PATH="${CONSTRAINT_TOOLS}/train-germline-model:$PATH" 
@@ -37,6 +37,6 @@ elif [[ ${tool} == "dashboard-germline-model" ]]; then
   PATH="${CONSTRAINT_TOOLS}/flask-app:${PATH}"
   flask-app ${args} 
 else
-  error "invalid tool: ${tool}"
+  error "invalid tool: " "${tool}"
   exit 1
 fi 
