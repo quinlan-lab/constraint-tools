@@ -3,9 +3,22 @@
 set -o errexit
 # set -o xtrace 
 
-echo $(jq \
-        --raw-output \
-        --arg key1 $1 \
-        --arg key2 $2 \
-        '.[$key1][$key2]' \
-        ${CONSTRAINT_TOOLS}/.config.json)
+info "number of args to read-config: $#"
+
+if [[ $# -eq 1 ]]; then 
+  echo $(jq \
+          --raw-output \
+          --arg key1 $1 \
+          '.[$key1]' \
+          ${CONSTRAINT_TOOLS}/.config.json)
+elif [[ $# -eq 2 ]]; then
+  echo $(jq \
+          --raw-output \
+          --arg key1 $1 \
+          --arg key2 $2 \
+          '.[$key1][$key2]' \
+          ${CONSTRAINT_TOOLS}/.config.json)
+else
+  error "number of arguments to read-config is greater than 2"
+  exit 1 
+fi 

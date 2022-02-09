@@ -1,12 +1,11 @@
 {
-  "train": {
-    "regions": "dist/neutral-regions.bed.gz",
-    "mode": "concurrent"
+  "windowSize": "101",
+  "trainGermlineModel": {
+    "regions": "dist/neutral-regions-germline-grch38.bed.gz"
   },
-  "dashboard": {
-    "model": "dist/model.json",
+  "dashboardGermlineModel": {
+    "model": "dist/model-germline-grch38.json",
     "region": "chr20:63,444,000-63,447,000", 
-    "windowSize": "51",
     "windowStride": "1"
   }
 }
