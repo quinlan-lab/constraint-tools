@@ -22,17 +22,17 @@ Tested in the Protected Environment computer cluster of the Center for High Perf
 Assuming one has access to the protected environment on the CHPC at University of Utah: 
 
 ```
-bash tests/train.sh $PWD [temporarily broken]
+bash tests/germline-model/train.sh $PWD 
 ```
 
 Once training is complete, do: 
 ```
-bash tests/dashboard.sh $PWD
+bash tests/germline-model/dashboard.sh $PWD
 ```
 
-Follow the instructions at the command line to view a web app that visualizes observed mutation counts, and those expected under a null model of sequence-dependent mutation (see `define-model` folder), as a function of genomic coordinate.  
+Follow the instructions at the command line to view a web app that visualizes observed SNV and singleton counts, and those expected under a null model of sequence-dependent mutation (see `define-model` folder), as a function of genomic coordinate.  
 
-A plot of estimated mutation probabilities of the neutral model can be found here: https://github.com/quinlan-lab/constraint-tools/blob/main/tests/plot_mutation_probabilities.ipynb
+A plot of estimated SNV probabilities of the neutral model can be found here: https://github.com/quinlan-lab/constraint-tools/blob/main/tests/plot_mutation_probabilities.ipynb
  
 ## Usage
 
@@ -43,55 +43,55 @@ A plot of estimated mutation probabilities of the neutral model can be found her
 Valid values for `SUB_COMMAND` are: 
 
 ```
-train 
-      estimate kmer-dependent mutation probabilities (see the model defined in the "define-model" folder)
-dashboard
-      start a web app that visualizes observed and expected mutation counts as a function of genomic coordinate
-predict
-      call genomic regions predicted to be under negative selection [not yet implemented]
+train-germline-model 
+      estimate kmer-dependent SNV probabilities and singleton-count probabilities (see the model defined in the "define-model" folder)
+dashboard-germline-model
+      start a web app that visualizes observed and expected SNV and singleton counts as a function of genomic coordinate
+predict-germline-constraint
+      call genomic regions predicted to be under negative selection in the germline [not yet implemented]
 ```
 
-Required arguments for `train` are:
+Required arguments for `train-germline-model` are:
 
 ```
 --genome STR
       Path to a reference fasta. 
       A "samtools faidx" index is expected to be present at the same path. 
 --mutations STR 
-      Path to a set of mutations specified in Mutation Annotation Format.
-      A "tabix" index is expected to be present at the same path.
+      Path to a set of mutations specified as tab-separated values with column headings: "chromosome start end variant_type REF ALT number_ALT number_ALT_chromosomes number_chromosomes SYMBOL Gene Amino_acids CANONICAL Consequence Feature_type Feature miscellaneous". A "tabix" index is expected to be present at the same path.
 --kmer-size INT
       Size of kmer of model to be trained. 
 --model STR 
       Path to a directory to store trained model in. 
 ```
 
-By default the `train` subcommand uses a pre-computed set of putatively neutral regions from the GRCH38 reference located in the `/dist` folder. 
-Optionally, the user may change this by specifying the `--regions` argument: 
+By default the `train-germline-model` subcommand uses a pre-computed set of putatively neutral regions from the GRCH38 reference located in the `/dist` folder, and a reasonable value of the window-size to compute singleton counts within. Optionally, the user may change either of these defaults by specifying the `--neutral-regions` and `--window-size` arguments: 
 
 ```
---regions STR
+--neutral-regions STR
       Bed-format file containing a list of genomic intervals on which the model is to be trained.
+--window-size INT
+      size of the intervals used to compute the null distribution of singleton count.
 ```
 
-This produces a specification of the sequence-dependent neutral mutation model in json format, viewable using, e.g., 
+Running `train-germline-model` produces a specification of the sequence-dependent and allele-frequency-aware neutral model in json format, viewable using, e.g., 
 ```
 ${CONSTRAINT_TOOLS}/bin/jq . ${model_folder}/<json file> 
 ```
 
-Required arguments for `dashboard` are:
+Required arguments for `dashboard-germline-model` are:
 
 ```
 --port INT 
       The port to serve the web-app on
 ```
 
-By default the `dashboard` subcommand uses a pre-computed model. 
+By default the `dashboard-germline-model` subcommand uses a pre-computed model. 
 Optionally, the user may change this by specifying the `--model` argument: 
 
 ```
 --model STR
-      Path to a neutral model produced by the train sub-command (in json format). This model is used to compute the expected mutation counts in the visualization. 
+      Path to a neutral model produced by the train-germline-model sub-command (in json format). This model is used to compute the expected SNV and singleton counts in the visualization. 
 ```
 
 ## Input Data
