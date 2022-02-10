@@ -107,8 +107,8 @@ fi
 
 for log_file in ${tmpdir}/*.log; do 
   number_of_successfully_processed_intervals_per_job=$(grep --count "^${success_signature}" ${log_file}) || true
-  if [[ ${number_of_successfully_processed_intervals_per_job} != "2" ]]; then 
-    error "only ${number_of_successfully_processed_intervals_per_job}/2 intervals were completed successfully"
+  if [[ ${number_of_successfully_processed_intervals_per_job} != ${number_of_intervals_per_job} ]]; then 
+    error "only ${number_of_successfully_processed_intervals_per_job}/${number_of_intervals_per_job} intervals were completed successfully"
     error "log file: ${log_file}"
     error "did not merge..."
     exit 1
