@@ -58,11 +58,15 @@ Required arguments for `train-germline-model` are:
       Path to a reference fasta. 
       A "samtools faidx" index is expected to be present at the same path. 
 --mutations STR 
-      Path to a set of mutations specified as tab-separated values with column headings: "chromosome start end variant_type REF ALT number_ALT number_ALT_chromosomes number_chromosomes SYMBOL Gene Amino_acids CANONICAL Consequence Feature_type Feature miscellaneous". A "tabix" index is expected to be present at the same path.
+      Path to a set of mutations specified as tab-separated values with column headings: "chromosome start end variant_type REF ALT number_ALT number_ALT_chromosomes number_chromosomes SYMBOL Gene Amino_acids CANONICAL Consequence Feature_type Feature miscellaneous". 
+      A "tabix" index is expected to be present at the same path.
+      The software ignores the X and Y chromosomes to avoid complications associated with computing allele frequencies. 
+--number-chromosomes-min INT
+      Only consider SNVs at which the nucleotide identity (allele) is known in >=INT chromosomes in the cohort.
 --kmer-size INT
       Size of kmer of model to be trained. 
---model STR 
-      Path to a directory to store trained model in. 
+--output STR 
+      Path to a directory to store the trained model and the corresponding set of (filtered) neutral regions in. 
 ```
 
 By default the `train-germline-model` subcommand uses a pre-computed set of putatively neutral regions from the GRCH38 reference located in the `/dist` folder, and a reasonable value of the window-size to compute singleton counts within. Optionally, the user may change either of these defaults by specifying the `--neutral-regions` and `--window-size` arguments: 
@@ -71,12 +75,14 @@ By default the `train-germline-model` subcommand uses a pre-computed set of puta
 --neutral-regions STR
       Bed-format file containing a list of genomic intervals on which the model is to be trained.
 --window-size INT
-      size of the intervals used to compute the null distribution of singleton count.
+      Size of the intervals used to compute the null distribution of singleton count. 
+      This is also the size of the window in "test" regions.
 ```
 
-Running `train-germline-model` produces a specification of the sequence-dependent and allele-frequency-aware neutral model in json format, viewable using, e.g., 
+Running `train-germline-model` produces a specification of the sequence-dependent and allele-frequency-aware neutral 
+model in json format, viewable using, e.g., 
 ```
-${CONSTRAINT_TOOLS}/bin/jq . ${model_folder}/<json file> 
+${CONSTRAINT_TOOLS}/bin/jq . ${output}/<json file> 
 ```
 
 Required arguments for `dashboard-germline-model` are:
