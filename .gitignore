@@ -30,5 +30,6 @@ slurm-*.out
 logs
 
 define-model/germline-model.v*.ipynb
+tmp.*
 
 
