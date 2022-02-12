@@ -1,0 +1,138 @@
+#!/usr/bin/env python
+
+# pysam API: 
+# https://github.com/pysam-developers/pysam/blob/b82cbcae22c088e64fdb58f8acaf1e9773c7b088/pysam/libctabix.pyx
+import pysam
+
+import numpy as np
+import json
+import argparse 
+import functools
+import os
+import subprocess
+import multiprocessing
+
+from kmer import (
+  initialize_kmer_data_germline, 
+  fetch_kmer_from_sequence, 
+  contains_unspecified_bases
+)
+from colorize import (
+  print_json, 
+  print_string_as_info, 
+  print_string_as_info_dim, 
+  print_unbuffered
+)
+import color_traceback 
+from fetch_SNVs import fetch_SNVs 
+from pack_unpack import unpack
+from timer import timer 
+
+# using the "khmer" library might make this function a handful of times faster:
+# https://khmer.readthedocs.io/en/v0.6.1-0/ktable.html
+def compute_total_counts_region(genome, kmer_data, args): 
+  # "fetch" API: https://pysam.readthedocs.io/en/latest/api.html?highlight=fasta#pysam.FastaFile
+  # Note that fetch(region=region) does not work if the coordinates in "region" contains commas
+  # Workaround is to parse "region" into "chromosome", "start", "end": 
+  neutral_region = genome.fetch(*unpack(args.region))    
+  print("Sequence for neutral region coordinates {} is {}".format(args.region, neutral_region))
+
+  print_string_as_info('Iterating over neutral region {} and counting kmers:'.format(args.region))
+  number_of_kmers_containing_unspecified_bases = 0
+  for position in np.arange(0, len(neutral_region), 1):
+    try: 
+      kmer = fetch_kmer_from_sequence(neutral_region, position, args.kmer_size)
+    except IndexError:
+      print_string_as_info_dim('IndexError at position: {}'.format(position))
+      continue
+    if contains_unspecified_bases(kmer): 
+      number_of_kmers_containing_unspecified_bases += 1 
+      continue 
+    kmer_data[kmer]['count'] += 1
+
+  print_string_as_info_dim(
+    f'Number of kmers containing unspecified bases: {number_of_kmers_containing_unspecified_bases}'
+  )
+  print_unbuffered('')
+
+  return kmer_data
+
+def reduce_SNVs(SNVs): 
+  # TODO: implement this 
+  return SNVs 
+
+def compute_SNV_counts_region(mutations, genome, kmer_data, args):
+  print_string_as_info('Fetching SNVs in region {} and incrementing corresponding kmer counts\n'.format(args.region))
+
+  SNVs = fetch_SNVs(mutations, genome, args.region, args.__dict__)
+  SNVs = reduce_SNVs(SNVs)
+  for SNV in SNVs: 
+    kmer_data[SNV['kmer']]['ALTStateCounts'][SNV['ALTState']] += 1
+  return kmer_data
+
+# https://realpython.com/primer-on-python-decorators/
+def diagnostics(func):
+  @functools.wraps(func)
+  def wrapper(*args, **kwargs):
+    print_unbuffered(f'diagnostics: function: {func.__name__}\n')
+    regions, counts = func(*args, **kwargs)
+    for region, count in zip(regions, counts): 
+      kmer = 'AAAAA'
+      print_unbuffered(f'\ndiagnostics: region: {region}') 
+      print_unbuffered(f'diagnostics: counts for {kmer}:')
+      print_json(count[kmer])
+    return regions, counts
+  return wrapper
+
+def get_hostname_process_cpu(): 
+  hostname = os.uname()[1]
+  pid = os.getpid()
+  cpu = subprocess.run(
+    ["ps", "-o", "psr=", "-p", f"{pid}"], 
+    capture_output=True
+  ).stdout.decode("utf-8").strip()
+  return {
+    'hostname': hostname,
+    'process': pid, 
+    'cpu': f'{cpu}/{multiprocessing.cpu_count()}'
+  }
+
+def parse_arguments():
+  parser = argparse.ArgumentParser(description='')
+  parser.add_argument('--kmer-size', type=int, dest='kmer_size', help='')
+  parser.add_argument('--genome', type=str, help='')
+  parser.add_argument('--neutral-region', type=str, dest='neutral_region', help='')
+  parser.add_argument('--number-chromosomes-min', type=int, dest='number_chromosomes_min', help='')
+  parser.add_argument('--tmpdir', type=str, help='')
+  parser.add_argument('--mutations', type=str, help='')
+  parser.add_argument('--window-size', type=int, dest='window_size', help='')
+  return parser.parse_args()
+
+@timer
+def count_on_region():
+  args = parse_arguments()  
+  print_json({'neutral region': args.neutral_region, **get_hostname_process_cpu()})
+  kmer_data = initialize_kmer_data_germline(args) 
+
+  # pysam.FastaFile uses the index produced by "samtools faidx": 
+  # https://pysam.readthedocs.io/en/latest/api.html?highlight=fasta#pysam.FastaFile
+  with pysam.TabixFile(args.mutations) as mutations, pysam.FastaFile(args.genome) as genome: 
+    kmer_data = compute_total_counts_region(genome, kmer_data, args) 
+    kmer_data = compute_SNV_counts_region(mutations, genome, kmer_data, args)
+
+  model_path = args.tmpdir + '/counts.' + args.neutral_region + '.json'
+  with open(model_path, 'w') as fh:
+    json.dump({
+      'mutations': args.mutations,
+      'genome': args.genome,
+      'kmerSize': args.kmer_size,
+      'neutralRegion': args.neutral_region,
+      'numberChromosomesMin': args.number_chromosomes_min,
+      'windowSize': args.window_size,
+      'kmerData': kmer_data
+    }, fh, indent=2)
+  print_string_as_info(f'Writing counts for {args.region} to {model_path}')
+
+if __name__ == '__main__':
+  count_on_region()  
+

@@ -1,0 +1,56 @@
+#!/bin/bash
+#SBATCH --time=1:00:00
+#SBATCH --account=quinlan-rw
+#SBATCH --partition=quinlan-shared-rw
+
+while [[ "$1" =~ ^- ]]; do
+  case $1 in
+    --genome ) shift; [[ ! $1 =~ ^- ]] && genome=$1;;
+    --mutations ) shift; [[ ! $1 =~ ^- ]] && mutations=$1;;
+    --number-chromosomes-min ) shift; [[ ! $1 =~ ^- ]] && number_chromosomes_min=$1;;
+    --kmer-size ) shift; [[ ! $1 =~ ^- ]] && kmer_size=$1;;
+    --neutral-regions ) shift; [[ ! $1 =~ ^- ]] && neutral_regions=$1;;
+    --tmpdir ) shift; [[ ! $1 =~ ^- ]] && tmpdir=$1;;
+    --number-of-neutral-regions-per-job ) shift; [[ ! $1 =~ ^- ]] && number_of_neutral_regions_per_job=$1;;
+    --window-size ) shift; [[ ! $1 =~ ^- ]] && window_size=$1;;    
+    *) error "$0: $1 is an invalid flag"; exit 1;;
+  esac
+  shift
+done
+
+set -o errexit
+set -o pipefail
+# set -o noclobber
+# set -o xtrace
+set -o nounset 
+
+line_number_of_last_region=$(( SLURM_ARRAY_TASK_ID * number_of_neutral_regions_per_job ))
+offset=$(( number_of_neutral_regions_per_job - 1 ))
+line_number_of_first_region=$(( line_number_of_last_interval - offset ))
+
+line_numbers_of_regions=$(seq \
+  ${line_number_of_first_region} \
+  ${line_number_of_last_region} \
+)
+
+for line_number_of_region in ${line_numbers_of_regions}; do 
+	neutral_region=$( \
+    sed --quiet ${line_number_of_region}p ${neutral_regions} \
+    | awk '{print $1":"$2"-"$3}' \
+  )
+
+	if [[ -z "${neutral_region}" ]]; then
+		error "neutral_region variable is empty"
+    exit 1 
+	fi
+
+	info "Performing counts on: " "${neutral_region}"
+	count-on-region \
+    --genome ${genome} \
+    --mutations ${mutations} \
+    --number-chromosomes-min ${number_chromosomes_min} \
+    --kmer-size ${kmer_size} \
+    --tmpdir ${tmpdir} \
+    --neutral-region ${neutral_region} \
+    --window-size ${window_size}
+done
