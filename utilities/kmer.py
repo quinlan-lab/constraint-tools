@@ -77,7 +77,7 @@ def CpG(kmer):
 def not_CpG(kmer): 
   return not CpG(kmer)
 
-def initialize_kmer_data_cancer(args): 
+def initialize_kmer_counts_cancer(args): 
   return {
     kmer: {
       'CpG': CpG(kmer),
@@ -88,7 +88,7 @@ def initialize_kmer_data_cancer(args):
     } for kmer in compute_kmers(args.kmer_size)
   }
 
-def initialize_kmer_data_germline(args): 
+def initialize_kmer_counts_germline(args): 
   return {
     kmer: {
       'CpG': CpG(kmer),
@@ -99,4 +99,5 @@ def initialize_kmer_data_germline(args):
   }
 
 if __name__ == '__main__': 
+  print(compute_kmers(3))
   print(compute_possible_ALT_states('AGCAT'))
