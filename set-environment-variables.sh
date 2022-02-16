@@ -11,3 +11,5 @@ PATH="${CONSTRAINT_TOOLS}/utilities:$PATH"
 
 # info "${CONSTRAINT_TOOLS}/set-environment-variables.sh: $(printenv | grep CONSTRAINT_TOOLS)"
 # info "${CONSTRAINT_TOOLS}/set-environment-variables.sh: $PATH"
+
+export CONSTRAINT_TOOLS_DATA="/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools" 
