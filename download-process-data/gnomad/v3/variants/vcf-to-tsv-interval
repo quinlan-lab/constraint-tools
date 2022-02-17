@@ -66,7 +66,9 @@ def unpack_variants_in_interval(args):
       'ALT': variant.ALT[0],
       # Total number of alternate alleles observed at variant's locus :
       'number_ALT': variant.INFO.get('n_alt_alleles'),
+      ##INFO=<ID=AC,Number=A,Type=Integer,Description="Alternate allele count">
       'number_ALT_chromosomes': variant.INFO.get('AC'),
+      ##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles">
       'number_chromosomes': variant.INFO.get('AN'),
     }
 
