@@ -8,7 +8,7 @@ import collections
 import numpy as np 
 
 from colorize import print_string_as_info_dim
-from fetch_SNVs import fetch_SNVs
+from snvs import fetch_SNVs
 from pack_unpack import unpack, pack
 from kmer import CpG, not_CpG, fetch_kmer_from_genome, compute_left_right
 
