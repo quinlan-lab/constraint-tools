@@ -59,7 +59,7 @@ def compute_kmers(kmer_size):
 
 def compute_possible_ALT_states_core(kmer, ALT_multiplicity):   
   return [
-    '{' + ','.join(s) + '}' 
+    '{' + ','.join(sorted(s)) + '}' 
     for s in itertools.combinations(get_alternate_bases(kmer), ALT_multiplicity)
   ]
 
@@ -99,5 +99,5 @@ def initialize_kmer_counts_germline(args):
   }
 
 if __name__ == '__main__': 
-  print(compute_kmers(3))
-  print(compute_possible_ALT_states('AGCAT'))
+  # print(compute_kmers(3))
+  print(compute_possible_ALT_states('AGTAT'))
