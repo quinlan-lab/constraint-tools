@@ -1,10 +1,8 @@
 import itertools
 
-bases = 'ACGT'
+from windows import is_odd, compute_left_right
 
-def is_odd(filter_size): 
-  if filter_size % 2 == 0: 
-    raise ValueError('filter size must be odd: {}'.format(filter_size))
+bases = 'ACGT'
 
 def middle_index(kmer): 
   kmer_size = len(kmer)
@@ -20,20 +18,6 @@ def get_bases():
 def get_alternate_bases(kmer): 
   return bases.replace(middle_base(kmer), '')
     
-def compute_left_right(position, filter_size, sequence_length, offset='zero_offset'): 
-  is_odd(filter_size)
-  flank = int((filter_size-1)/2)
-  left = position - flank
-  if left < 0: raise IndexError
-  if offset == 'zero_offset':
-    right = position + flank + 1
-  elif offset == 'unit_offset':
-    right = position + flank
-  else: 
-    raise ValueError
-  if right > sequence_length: raise IndexError
-  return left, right
-
 def contains_unspecified_bases(kmer): 
   return {'N', 'M', 'R'} & set(kmer)
 

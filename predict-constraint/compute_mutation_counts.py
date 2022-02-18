@@ -9,31 +9,11 @@ import numpy as np
 
 from colorize import print_string_as_info_dim
 from snvs import fetch_SNVs
-from pack_unpack import unpack, pack
-from kmer import CpG, not_CpG, fetch_kmer_from_genome, compute_left_right
+from pack_unpack import unpack
+from kmer import CpG, not_CpG, fetch_kmer_from_genome
+from windows import create_windows 
 
 import color_traceback
-
-# if the observed time series comes from overlapping windows (window_stride < window_size),
-# then the time series is auto-correlated, 
-# necessitating the use of a HMM to model the time series
-def create_windows(window_size, window_stride, region, genome): 
-  windows = []
-  chromosome, region_start, region_end = unpack(region)
-  for window_center in np.arange(region_start, region_end+1, window_stride): 
-    # provide the "reference" argument positionally to "get_reference_length": 
-    # https://stackoverflow.com/a/24463222/6674256
-    window_start, window_end = compute_left_right(
-      window_center, 
-      window_size, 
-      genome.get_reference_length(chromosome), 
-      offset='unit_offset'
-    )  
-    windows.append({
-      'region': pack(chromosome, window_start, window_end),
-      'position': int(window_center) # https://stackoverflow.com/a/50916741/6674256
-    })
-  return windows
 
 def compute_expected_mutation_count(kmer, model): 
   return binom.stats(
