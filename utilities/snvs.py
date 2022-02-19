@@ -109,15 +109,15 @@ def print_variants(vcf_filename, region):
     })
 
 def test_fetch_SNVs(): 
-  mutations = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/gnomad_v3.sorted.tsv.gz'
-  genome = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38/hg38.analysisSet.fa.gz'
+  mutations_filename = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/gnomad_v3.sorted.tsv.gz'
+  genome_filename = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38/hg38.analysisSet.fa.gz'
   neutral_region = 'chr1:15363-15768'
   meta = { 
-    'mutations': mutations, 
+    'mutations': mutations_filename, 
     'kmer_size': 3
   }
   number_chromosomes_min = 150000
-  with pysam.TabixFile(mutations) as mutations, pysam.FastaFile(genome) as genome: 
+  with pysam.TabixFile(mutations_filename) as mutations, pysam.FastaFile(genome_filename) as genome: 
     SNVs = fetch_SNVs(mutations, genome, neutral_region, meta)
     SNVs_filtered = fetch_SNVs(mutations, genome, neutral_region, meta, number_chromosomes_min)
 
