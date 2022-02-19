@@ -14,7 +14,7 @@ import copy
 from kmer import check_for_Ns, initialize_kmer_data, fetch_kmer_from_sequence, alternate_bases, middle_base, get_bases, contains_unspecified_bases
 from colorize import print_json, print_string_as_info, print_string_as_info_dim, print_unbuffered, print_string_as_error
 import color_traceback 
-from fetch_SNVs import fetch_SNVs 
+from snvs import fetch_SNVs 
 from pack_unpack import unpack, bed_to_sam_string
 from timer import timer 
 

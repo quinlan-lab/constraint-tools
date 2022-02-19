@@ -26,7 +26,7 @@ set -o nounset
 
 line_number_of_last_region=$(( SLURM_ARRAY_TASK_ID * number_of_neutral_regions_per_job ))
 offset=$(( number_of_neutral_regions_per_job - 1 ))
-line_number_of_first_region=$(( line_number_of_last_interval - offset ))
+line_number_of_first_region=$(( line_number_of_last_region - offset ))
 
 line_numbers_of_regions=$(seq \
   ${line_number_of_first_region} \
