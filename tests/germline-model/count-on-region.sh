@@ -6,7 +6,7 @@ set -o nounset
 mutations="/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/gnomad_v3.sorted.tsv.gz"
 genome="/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38/hg38.analysisSet.fa.gz"
 neutral_region="chr1:15363-15768"
-number_chromosomes_min="150000"
+number_chromosomes_min="140000"
 kmer_size="3" 
 tmpdir="/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/tests/germline-model/tmpdir"
 window_size="51" 

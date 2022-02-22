@@ -7,7 +7,6 @@ import pysam
 import numpy as np
 import json
 import argparse 
-import functools
 import os
 import subprocess
 import multiprocessing
@@ -37,7 +36,9 @@ def compute_kmer_total_counts_region(genome, kmer_counts, args):
   # Note that fetch(region=region) does not work if the coordinates in "region" contains commas
   # Workaround is to parse "region" into "chromosome", "start", "end": 
   neutral_region = genome.fetch(*unpack(args.neutral_region))    
-  print("Sequence for neutral region coordinates {} is {}".format(args.neutral_region, neutral_region))
+  print_string_as_info(f"Sequence for neutral region coordinates {args.neutral_region} is:")
+  print_string_as_info_dim(f"{neutral_region}")
+  print_unbuffered('')
 
   print_string_as_info('Iterating over neutral region {} and counting kmers:'.format(args.neutral_region))
   number_of_kmers_containing_unspecified_bases = 0
@@ -68,20 +69,6 @@ def compute_kmer_SNV_counts_region(mutations, genome, kmer_counts, args):
     kmer_counts[SNV['kmer']]['ALTStateCounts'][SNV['ALTState']] += 1
   return kmer_counts
 
-# https://realpython.com/primer-on-python-decorators/
-def diagnostics(func):
-  @functools.wraps(func)
-  def wrapper(*args, **kwargs):
-    print_unbuffered(f'diagnostics: function: {func.__name__}\n')
-    regions, counts = func(*args, **kwargs)
-    for region, count in zip(regions, counts): 
-      kmer = 'AAAAA'
-      print_unbuffered(f'\ndiagnostics: region: {region}') 
-      print_unbuffered(f'diagnostics: counts for {kmer}:')
-      print_json(count[kmer])
-    return regions, counts
-  return wrapper
-
 def get_hostname_process_cpu(): 
   hostname = os.uname()[1]
   pid = os.getpid()
@@ -106,10 +93,15 @@ def parse_arguments():
   parser.add_argument('--window-size', type=int, dest='window_size', help='')
   return parser.parse_args()
 
-def compute_SNV_counts_region(mutations, genome, args): 
+def initialize_singleton_counts():
   # https://docs.python.org/2/library/collections.html#defaultdict-examples
-  singleton_counts = defaultdict(lambda: {'numberWindows': 0}) 
-  SNV_counts = defaultdict(lambda: {'numberWindows': 0, 'singletonCounts': singleton_counts})
+  return defaultdict(lambda: {'numberWindows': 0}) 
+
+def compute_SNV_counts_region(mutations, genome, args): 
+  print_string_as_info('Breaking neutral region into non-overlapping windows, and counting SNVs and singletons per window...')
+
+  # https://docs.python.org/2/library/collections.html#defaultdict-examples
+  SNV_counts = defaultdict(lambda: {'numberWindows': 0, 'singletonCounts': initialize_singleton_counts()})
 
   windows = create_windows(
     window_size=args.window_size, 
@@ -118,13 +110,17 @@ def compute_SNV_counts_region(mutations, genome, args):
     genome=genome, 
     region_contains_windows=True
   )
+  print_string_as_info_dim(f'Created {len(windows)} windows within neutral region {args.neutral_region}')
 
   for window in windows: 
     SNVs = fetch_SNVs(mutations, genome, window['region'], args.__dict__, args.number_chromosomes_min)
     SNV_count = len(SNVs)
     singleton_count = len([SNV for SNV in SNVs if SNV['number_ALT_chromosomes'] == 1])
+    print_string_as_info_dim(f"{singleton_count} of {SNV_count} SNVs in {window['region']} are singletons")
     SNV_counts[SNV_count]['numberWindows'] += 1 
     SNV_counts[SNV_count]['singletonCounts'][singleton_count]['numberWindows'] += 1 
+
+  print_unbuffered('')
 
   return SNV_counts
 
@@ -153,7 +149,9 @@ def count_on_region():
       'kmerCounts': kmer_counts,
       'snvCounts': SNV_counts
     }, fh, indent=2)
-  print_string_as_info(f'Writing counts for {args.neutral_region} to {model_path}')
+  print_string_as_info(f'Writing counts for {args.neutral_region} to:')
+  print_string_as_info_dim(f'{model_path}')
+  print_unbuffered('')
 
 if __name__ == '__main__':
   count_on_region()  
