@@ -10,7 +10,6 @@ import argparse
 import os
 import subprocess
 import multiprocessing
-from collections import defaultdict 
 
 from kmer import (
   initialize_kmer_counts_germline, 
@@ -31,7 +30,7 @@ from windows import create_windows
 
 # using the "khmer" library might make this function a handful of times faster:
 # https://khmer.readthedocs.io/en/v0.6.1-0/ktable.html
-def compute_kmer_total_counts_region(genome, kmer_counts, args): 
+def compute_kmer_total_counts(genome, kmer_counts, args): 
   # "fetch" API: https://pysam.readthedocs.io/en/latest/api.html?highlight=fasta#pysam.FastaFile
   # Note that fetch(region=region) does not work if the coordinates in "region" contains commas
   # Workaround is to parse "region" into "chromosome", "start", "end": 
@@ -60,7 +59,7 @@ def compute_kmer_total_counts_region(genome, kmer_counts, args):
 
   return kmer_counts
 
-def compute_kmer_SNV_counts_region(mutations, genome, kmer_counts, args):
+def compute_kmer_SNV_counts(mutations, genome, kmer_counts, args):
   print_string_as_info('Fetching SNVs in region {} and incrementing corresponding kmer counts\n'.format(args.neutral_region))
 
   SNVs = fetch_SNVs(mutations, genome, args.neutral_region, args.__dict__)
@@ -93,15 +92,8 @@ def parse_arguments():
   parser.add_argument('--window-size', type=int, dest='window_size', help='')
   return parser.parse_args()
 
-def initialize_singleton_counts():
-  # https://docs.python.org/2/library/collections.html#defaultdict-examples
-  return defaultdict(lambda: {'numberWindows': 0}) 
-
-def compute_SNV_counts_region(mutations, genome, args): 
+def compute_SNV_and_singleton_counts(mutations, genome, args): 
   print_string_as_info('Breaking neutral region into non-overlapping windows, and counting SNVs and singletons per window...')
-
-  # https://docs.python.org/2/library/collections.html#defaultdict-examples
-  SNV_counts = defaultdict(lambda: {'numberWindows': 0, 'singletonCounts': initialize_singleton_counts()})
 
   windows = create_windows(
     window_size=args.window_size, 
@@ -112,17 +104,17 @@ def compute_SNV_counts_region(mutations, genome, args):
   )
   print_string_as_info_dim(f'Created {len(windows)} windows within neutral region {args.neutral_region}')
 
+  SNV_and_singleton_counts = []
   for window in windows: 
     SNVs = fetch_SNVs(mutations, genome, window['region'], args.__dict__, args.number_chromosomes_min)
     SNV_count = len(SNVs)
     singleton_count = len([SNV for SNV in SNVs if SNV['number_ALT_chromosomes'] == 1])
     print_string_as_info_dim(f"{singleton_count} of {SNV_count} SNVs in {window['region']} are singletons")
-    SNV_counts[SNV_count]['numberWindows'] += 1 
-    SNV_counts[SNV_count]['singletonCounts'][singleton_count]['numberWindows'] += 1 
+    SNV_and_singleton_counts.append((SNV_count, singleton_count))
 
   print_unbuffered('')
 
-  return SNV_counts
+  return SNV_and_singleton_counts
 
 @timer
 def count_on_region():
@@ -133,12 +125,12 @@ def count_on_region():
   # pysam.FastaFile uses the index produced by "samtools faidx": 
   # https://pysam.readthedocs.io/en/latest/api.html?highlight=fasta#pysam.FastaFile
   with pysam.TabixFile(args.mutations) as mutations, pysam.FastaFile(args.genome) as genome: 
-    kmer_counts = compute_kmer_total_counts_region(genome, kmer_counts, args) 
-    kmer_counts = compute_kmer_SNV_counts_region(mutations, genome, kmer_counts, args)
-    SNV_counts = compute_SNV_counts_region(mutations, genome, args)
+    kmer_counts = compute_kmer_total_counts(genome, kmer_counts, args) 
+    kmer_counts = compute_kmer_SNV_counts(mutations, genome, kmer_counts, args)
+    SNV_and_singleton_counts = compute_SNV_and_singleton_counts(mutations, genome, args)
 
-  model_path = args.tmpdir + '/counts.' + args.neutral_region + '.json'
-  with open(model_path, 'w') as fh:
+  counts_path = args.tmpdir + '/counts.' + args.neutral_region + '.json'
+  with open(counts_path, 'w') as fh:
     json.dump({
       'mutations': args.mutations,
       'genome': args.genome,
@@ -147,10 +139,10 @@ def count_on_region():
       'numberChromosomesMin': args.number_chromosomes_min,
       'windowSize': args.window_size,
       'kmerCounts': kmer_counts,
-      'snvCounts': SNV_counts
+      'snvAndSingletonCounts': SNV_and_singleton_counts
     }, fh, indent=2)
   print_string_as_info(f'Writing counts for {args.neutral_region} to:')
-  print_string_as_info_dim(f'{model_path}')
+  print_string_as_info_dim(f'{counts_path}')
   print_unbuffered('')
 
 if __name__ == '__main__':
