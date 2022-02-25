@@ -32,4 +32,4 @@ logs
 define-model/germline-model.v*.ipynb
 tmp.*
 estimate_mutation_probabilities_ignore
-
+dist/*.log
