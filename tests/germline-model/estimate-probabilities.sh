@@ -19,7 +19,7 @@ PATH="${CONSTRAINT_TOOLS}/train/germline-model:$PATH"
 # `printenv | grep -w PYTHONPATH` returns zero output
 export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities"
 
-aggregate-counts \
+estimate-probabilities \
   --genome "XXX" \
   --mutations "XXX" \
   --number-chromosomes-min "-1" \

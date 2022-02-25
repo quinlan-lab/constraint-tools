@@ -1,0 +1,143 @@
+#!/usr/bin/env python
+
+import functools 
+import os 
+import argparse 
+import json 
+from collections import defaultdict 
+import numpy as np 
+
+from kmer import (
+  CpG, 
+  middle_base, 
+  compute_possible_ALT_states, 
+  compute_kmers, 
+)
+from colorize import (
+  print_string_as_error, 
+  print_string_as_info, 
+  print_string_as_info_dim, 
+  print_unbuffered
+)
+import color_traceback
+
+def parse_arguments():
+  parser = argparse.ArgumentParser(description='')
+  parser.add_argument('--kmer-size', type=int, dest='kmer_size', help='')
+  parser.add_argument('--genome', type=str, help='')
+  parser.add_argument('--number-chromosomes-min', type=int, dest='number_chromosomes_min', help='')
+  parser.add_argument('--tmpdir', type=str, help='')
+  parser.add_argument('--mutations', type=str, help='')
+  parser.add_argument('--window-size', type=int, dest='window_size', help='')
+  parser.add_argument('--model', type=str, help='')
+  parser.add_argument('--number-of-neutral-regions', type=int, dest='number_of_neutral_regions', help='')  
+  parser.add_argument('--neutral-regions', type=str, dest='neutral_regions', help='')
+  return parser.parse_args()
+
+def sanity_check(args): 
+  try: 
+    number_count_files = len(os.listdir(args.tmpdir))
+    assert args.number_of_neutral_regions == number_count_files
+  except AssertionError: 
+    print_string_as_error(
+      f'{args.number_of_neutral_regions} were interrogated, but only {number_count_files} count files exist!'
+    )
+    raise ValueError
+  
+# https://realpython.com/introduction-to-python-generators/
+def fetch_counts(count_type, args): 
+  for counts_filename in os.listdir(args.tmpdir):
+    assert counts_filename.endswith('.json')
+    print_string_as_info_dim(counts_filename)
+    counts_path = f'{args.tmpdir}/{counts_filename}'
+    with open(counts_path, 'r') as fh:
+      yield json.load(fh)[count_type]  
+
+# https://stackoverflow.com/a/43268377/6674256
+# https://docs.python.org/3/library/collections.html#collections.defaultdict.__missing__
+class Conditional_Singleton_Counts(defaultdict):
+  def __missing__(self, SNV_count):
+    self[SNV_count] = singleton_counts = [0]*(SNV_count+1)
+    return singleton_counts
+
+def estimate_ALT_state_probability(kmer_counts, kmer, ALT_state): 
+  data = kmer_counts[kmer]
+  # estimate probabilities for multinomial distribution: https://math.stackexchange.com/a/421838
+  return data['ALTStateCounts'][ALT_state]/data['count'] if data['count'] > 0 else None
+  
+def estimate_kmer_probabilities(kmer_counts, args):
+  return { 
+    kmer: { 
+      ALT_state: estimate_ALT_state_probability(kmer_counts, kmer, ALT_state) 
+      for ALT_state in compute_possible_ALT_states(kmer) 
+    } 
+    for kmer in compute_kmers(args.kmer_size)      
+  }
+
+def estimate_conditional_singleton_probabilities(conditional_singleton_counts): 
+  return { 
+    SNV_count: list(map(float, np.array(singleton_counts)/np.sum(singleton_counts)))
+    for SNV_count, singleton_counts in conditional_singleton_counts.items()
+  } 
+
+def estimate_probabilities(): 
+  args = parse_arguments()  
+
+  sanity_check(args)
+
+  def combine_kmer_counts(x, y):
+    return {
+      kmer: {
+        'CpG': CpG(kmer),
+        'count': int(x[kmer]['count']) + int(y[kmer]['count']),
+        'REF': middle_base(kmer),
+        'ALTStateCounts': {
+          ALT_state: int(x[kmer]['ALTStateCounts'][ALT_state]) + int(y[kmer]['ALTStateCounts'][ALT_state])
+          for ALT_state in compute_possible_ALT_states(kmer) 
+        },
+      } for kmer in compute_kmers(args.kmer_size)
+    }
+
+  print_string_as_info('Combining kmer counts across neutral regions...')
+  kmer_counts = functools.reduce(combine_kmer_counts, fetch_counts('kmerCounts', args))
+  
+  print_string_as_info('Estimating probability of observing ALT_state, e.g. {C, T}, given kmer, e.g., AAA, ...')
+  kmer_probabilities = estimate_kmer_probabilities(kmer_counts, args) 
+
+  print_string_as_info('Combining snv and singleton counts across neutral regions...')
+  conditional_singleton_counts = Conditional_Singleton_Counts()
+  number_neutral_windows = 0
+  for SNV_and_singleton_counts in fetch_counts('snvAndSingletonCounts', args):
+    number_neutral_windows += len(SNV_and_singleton_counts)
+    for SNV_and_singleton_count in SNV_and_singleton_counts: 
+      SNV_count, singleton_count = map(int, SNV_and_singleton_count)
+      assert singleton_count >= 0 
+      assert singleton_count <= SNV_count 
+      conditional_singleton_counts[SNV_count][singleton_count] += 1 
+
+  print_string_as_info('Estimating the probability of observing k singletons given that a window contains m SNVs...')
+  conditional_singleton_probabilities = estimate_conditional_singleton_probabilities(conditional_singleton_counts)
+
+  print_string_as_info(f'Writing model to:')
+  print_string_as_info_dim(f'{args.model}')
+  print_unbuffered('')
+  with open(args.model, 'w') as fh:
+    json.dump({
+      'mutations': args.mutations,
+      'genome': args.genome,
+      'neutralRegions': args.neutral_regions,
+      'kmerSize': args.kmer_size,
+      'numberChromosomesMin': args.number_chromosomes_min,
+      'windowSize': args.window_size,
+      'numberNeutralWindows': number_neutral_windows,
+      'kmerCounts': kmer_counts,
+      'kmerProbabilities': kmer_probabilities,
+      'conditionalSingletonCounts': conditional_singleton_counts,
+      'conditionalSingletonProbabilities': conditional_singleton_probabilities
+    }, fh, indent=2)
+
+if __name__ == '__main__': 
+  estimate_probabilities() 
+
+
+

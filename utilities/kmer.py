@@ -85,3 +85,4 @@ def initialize_kmer_counts_germline(args):
 if __name__ == '__main__': 
   # print(compute_kmers(3))
   print(compute_possible_ALT_states('AGTAT'))
+  print(compute_possible_ALT_states_core(kmer='AGTAT', ALT_multiplicity=0))
