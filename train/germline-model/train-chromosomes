@@ -27,16 +27,10 @@ set -o errexit
 set -o pipefail
 # set -o noclobber
 set -o nounset
-# set -o xtrace
+set -o xtrace
 
-info "$(echo \
-  "Remove neutral regions less than ${window_size}bp in length" \
-  "(since we cannot use them to compute expected singleton counts for test regions of size ${window_size}bp)" 
-)"
-info "$(echo \
-  "Remove neutral regions on chromosomes X and Y" \
-  "(since it is too much trouble to compute allele frequencies there)" 
-)"
+info "Remove neutral regions less than window_size ${window_size}bp in length"
+info "Remove neutral regions on chromosomes X and Y"
 neutral_regions_filtered="${work}/neutral-regions.filtered.bed"
 zcat ${neutral_regions} \
   | awk --assign window_size=${window_size} '$3 - $2 > window_size' \
@@ -97,12 +91,18 @@ sbatch \
     --number-of-neutral-regions-per-job ${number_of_neutral_regions_per_job} \
     --window-size ${window_size}
 
-exit 1 
+info "Combining counts across neutral regions, and estimating probabilities..."
+estimate-probabilities \
+  --genome ${genome} \
+  --mutations ${mutations} \
+  --number-chromosomes-min ${number_chromosomes_min} \
+  --kmer-size ${kmer_size} \
+  --tmpdir ${tmpdir} \
+  --window-size ${window_size} \
+  --model ${model} \
+  --number-of-neutral-regions ${number_of_neutral_regions} \
+  --neutral-regions ${neutral_regions_filtered}
 
-# TODO: slurp up the 500 json files (make sure that 500 were created), 
-#       aggregating the count data from each, 
-#       and write a final json containing the final model
-#       c.f. calculate_mutation_probabilities
 
 
 
