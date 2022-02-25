@@ -22,7 +22,6 @@ mutations="/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad
 number_chromosomes_min="130000"
 kmer_size="3"
 neutral_regions="${CONSTRAINT_TOOLS}/dist/neutral-regions-germline-grch38.bed.gz"
-model="${CONSTRAINT_TOOLS}/dist/model-germline-grch38.json" # file to store model in
 work="${CONSTRAINT_TOOLS_DATA}/work/train-germline-model" # path to directory to store intermediate work and logs
 mkdir --parents ${work}
 
@@ -31,6 +30,8 @@ fetch_subset_of_neutral_regions () {
 }
 
 train_on_subset_of_neutral_regions () {
+  model="${CONSTRAINT_TOOLS}/tests/model-germline-grch38.json" # file to store model in
+
   info "neutral regions (with their lengths):"
   echo "$(fetch_subset_of_neutral_regions | awk '{ print $0, $3-$2 }')"
 
@@ -45,6 +46,8 @@ train_on_subset_of_neutral_regions () {
 }
 
 train_on_all_neutral_regions () {
+  model="${CONSTRAINT_TOOLS}/dist/model-germline-grch38.json" # file to store model in
+
   info "training on all neutral regions..."
 
   constraint-tools train-germline-model \
