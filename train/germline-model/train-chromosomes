@@ -37,7 +37,7 @@ zcat ${neutral_regions} \
   | get-nonXY-chromosomes \
   > ${neutral_regions_filtered}
 
-number_of_jobs="2"
+number_of_jobs="500"
 info "Number of slurm jobs (tasks): " "${number_of_jobs}"
 number_of_neutral_regions=$(wc -l < ${neutral_regions_filtered})
 info "Number of (filtered) neutral regions: " "${number_of_neutral_regions}"

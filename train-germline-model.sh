@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH --time=3:00:00
+#SBATCH --time=4:00:00
 #SBATCH --account=quinlan-rw
 #SBATCH --partition=quinlan-shared-rw
-#SBATCH --output=dist/train-germline-model.log
+#SBATCH --output=dist/model-germline-grch38.log
 
 set -o errexit
 set -o pipefail
@@ -30,7 +30,7 @@ fetch_subset_of_neutral_regions () {
 }
 
 train_on_subset_of_neutral_regions () {
-  model="${CONSTRAINT_TOOLS}/tests/model-germline-grch38.json" # file to store model in
+  model="${CONSTRAINT_TOOLS}/tests/germline-model/model-germline-grch38.json" # file to store model in
 
   info "neutral regions (with their lengths):"
   echo "$(fetch_subset_of_neutral_regions | awk '{ print $0, $3-$2 }')"
@@ -60,5 +60,5 @@ train_on_all_neutral_regions () {
     --work ${work}
 }
 
-train_on_subset_of_neutral_regions
-# train_on_all_neutral_regions
+# train_on_subset_of_neutral_regions
+train_on_all_neutral_regions
