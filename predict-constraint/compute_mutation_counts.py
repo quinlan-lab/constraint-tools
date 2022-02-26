@@ -115,6 +115,67 @@ def pull_element(list_, index):
   except IndexError: 
     return []
 
+# TODO: make this another flask endpoint that is hit when one wants to plot the distribution of singleton count in the web app: 
+  # plt.plot(x_K, probability_of_K, marker='s')
+  # plt.title(f'number of ALT alleles in interval = {m}')
+  # plt.xlabel(f'number of singletons in interval, $k$')
+  # _ = plt.ylabel('probability, $P[K=k]$')
+def fetch_distribution_K(m): # m = number of ALT alleles in interval 
+  return x_K, probability_of_K
+
+def compute_p0s_p1s_p2s_p3s(): 
+  # for each site, pull out the kmer polymorphism probabilities, and use them to compute p0, p1, etc
+  # e.g., p1 = np.sum([kmer_probabilities[kmer][ALT_state] for ALT_state in compute_ALT_states(kmer, ALT_multiplicity=1)])
+  # p0, p1, etc are defined in the section entitled "A model to predict the number of ALT alleles in a genomic interval" at https://github.com/quinlan-lab/constraint-tools/blob/main/define-model/germline-model.ipynb
+
+# TODO: make this another flask endpoint that is hit when one wants to plot the distribution of SNV count in the web app: 
+#   plt.plot(x_N, probability_of_N, marker='s')
+#  plt.title(f'interval length = {number_sites}')
+#  plt.xlabel(f'number of ALT alleles in interval, $n$')
+#  _ = plt.ylabel('probability, $P[N=n]$')
+def fetch_distribution_N(): 
+  import numpy as np
+  from collections import Counter
+
+  N = []
+  number_examples = 10000
+  for example in range(number_examples):
+    Ns = [np.random.choice(a=[0, 1, 2, 3], p=p0_p1_p2_p3) for p0_p1_p2_p3 in compute_p0s_p1s_p2s_p3s()]
+    N.append(np.sum(Ns))
+
+  N_histogram = Counter(N)    
+  max_N = max(N)
+  x_N = range(max_N+1)
+  probability_of_N = np.array([
+      N_histogram[value] 
+      if value in N_histogram 
+      else 0 
+      for value in x_N
+  ])/number_examples
+  
+  return x_N, probability_of_N
+
+# TODO
+def compute_Nbar(): 
+  # TODO: 
+  # compute N_observed = number of polymorphic sites observed in a window
+  # compute mean of N under null model: 
+  # mean_Ns = np.array([0*p0 + 1*p1 + 2*p2 + 3*p3 for p0, p1, p2, p3 in p0s_p1s_p2s_p3s])
+  # mean_N_null = np.sum(mean_Ns)
+  # compute variance under null:
+  # mean_N2s = np.array([(0**2)*p0 + (1**2)*p1 + (2**2)*p2 + (3**2)*p3 for p0, p1, p2, p3 in p0s_p1s_p2s_p3s])
+  # variance_N_null = np.sum(mean_N2s - np.square(mean_Ns))
+  # compute Nbar: 
+  # N_observed = np.array(N_observed)
+  # Nbar = (N_observed - mean_N_null)/np.sqrt(variance_N_null)
+
+# TODO: 
+def compute_Kbar(): 
+  # compute mean_K_null 
+  # compute variance_K_null 
+  # Kbar = (K_observed - mean_K_null)/np.sqrt(variance_K_null)
+
+
 def compute_mutation_counts(region, model_filename, window_size, window_stride):
   with open(model_filename) as fh:
     model = json.load(fh)
