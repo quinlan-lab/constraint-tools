@@ -21,7 +21,7 @@ PATH="${CONSTRAINT_TOOLS}/train/germline-model:$PATH"
 # `printenv | grep -w PYTHONPATH` returns zero output
 export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities"
 
-for neutral_region in "chr1:15363-15768" "chr1:102847-103286"; do
+for neutral_region in "chr1:102847-103286" "chr16:88366814-88366826"; do
   count-on-region \
     --genome ${genome} \
     --mutations ${mutations} \

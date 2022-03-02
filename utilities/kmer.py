@@ -12,31 +12,25 @@ def middle_index(kmer):
 def middle_base(kmer): 
   return kmer[middle_index(kmer)]
 
-def get_bases():
-  return bases
-
 def get_alternate_bases(kmer): 
   return bases.replace(middle_base(kmer), '')
     
 def contains_unspecified_bases(kmer): 
+  # https://www.qmul.ac.uk/sbcs/iubmb/misc/naseq.html
   return {'N', 'M', 'R'} & set(kmer)
 
-def check_for_Ns(kmer): 
-  # https://www.qmul.ac.uk/sbcs/iubmb/misc/naseq.html
-  if contains_unspecified_bases(kmer):
-    raise ValueError(f'kmer is: {kmer}\n') 
-  return kmer
-
+# TODO: eliminate calls to this function in favor of fetch_kmer_from_genome
 def fetch_kmer_from_sequence(sequence, position, kmer_size): 
   left, right = compute_left_right(position, kmer_size, len(sequence))  
   return sequence[left:right].upper()
 
+# TODO: change function signature to take a "window" object as defined in windows module 
 def fetch_kmer_from_genome(genome, chromosome, position, kmer_size): 
   # provide the "reference" argument positionally to "get_reference_length": 
   # https://stackoverflow.com/a/24463222/6674256
   left, right = compute_left_right(position, kmer_size, genome.get_reference_length(chromosome))  
   # "fetch" API: https://pysam.readthedocs.io/en/latest/api.html?highlight=fasta#pysam.FastaFile
-  return check_for_Ns(genome.fetch(chromosome, left, right).upper())
+  return genome.fetch(chromosome, left, right).upper()
 
 def compute_kmers(kmer_size): 
   return [''.join(tup) for tup in itertools.product(bases, repeat=kmer_size)]

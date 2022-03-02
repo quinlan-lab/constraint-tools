@@ -7,13 +7,20 @@ import color_traceback
 import pysam
 
 from column_headings import fetch_column_headings_indices
-from colorize import print_json
-from kmer import fetch_kmer_from_genome, middle_base
+from colorize import print_json, print_string_as_error, print_string_as_info, print_string_as_info_dim, print_unbuffered
+from kmer import fetch_kmer_from_genome, middle_base, contains_unspecified_bases
+from pack_unpack import pack, unpack 
 
-def fetch_SNVs(mutations, genome, region, meta, number_chromosomes_min=0):
-  SNVs = []
+def clip(region, flank): 
+  chromosome, start, end = unpack(region)
+  return pack(chromosome, start+flank, end-flank)
+
+def fetch_SNVs(mutations, genome, region, meta, number_chromosomes_min=0, discard_unspecified_SNVs=True):
+  clipped_region = clip(region, flank=meta['kmer_size']//2)
   column_headings, heading_to_index = fetch_column_headings_indices(meta['mutations'])
-  for row in mutations.fetch(region=region, parser=pysam.asTuple()):
+
+  SNVs = []
+  for row in mutations.fetch(region=clipped_region, parser=pysam.asTuple()): 
     row_dict = {}
     for column_heading in column_headings: 
       try: 
@@ -45,6 +52,7 @@ def fetch_SNVs(mutations, genome, region, meta, number_chromosomes_min=0):
     }
 
     kmer = fetch_kmer_from_genome(genome, mutation['chromosome'], mutation['position'], meta['kmer_size'])
+    if discard_unspecified_SNVs and contains_unspecified_bases(kmer): continue 
     if middle_base(kmer) != mutation['REF'].upper(): # sanity check
       print_json(mutation)
       raise ValueError(f"Middle base of kmer does not match ref allele: {kmer} {mutation['REF']}") 
@@ -109,6 +117,9 @@ def print_variants(vcf_filename, region):
     })
 
 def test_fetch_SNVs(): 
+  print_unbuffered('')
+  print_string_as_info('********* testing fetch_SNVs ****************')
+  print_unbuffered('')
   mutations_filename = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/gnomad_v3.sorted.tsv.gz'
   genome_filename = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38/hg38.analysisSet.fa.gz'
   neutral_region = 'chr1:15363-15768'
@@ -144,13 +155,68 @@ def test_fetch_SNVs():
 
   return SNVs
 
-def test_reduce_SNVs(SNVs): 
+def test_reduce_SNVs(): 
+  print_unbuffered('')
+  print_string_as_info('********* testing reduce_SNVs ****************')
+  print_unbuffered('')
+
+  mutations_filename = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/gnomad_v3.sorted.tsv.gz'
+  genome_filename = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38/hg38.analysisSet.fa.gz'
+  neutral_region = 'chr1:15363-15768'
+  meta = { 
+    'mutations': mutations_filename, 
+    'kmer_size': 3
+  }
+  with pysam.TabixFile(mutations_filename) as mutations, pysam.FastaFile(genome_filename) as genome: 
+    SNVs = fetch_SNVs(mutations, genome, neutral_region, meta)
+
   print('Sites where more than one ALT allele is segregating: ')
   print_json([SNV for SNV in reduce_SNVs(SNVs) if len(SNV['ALTState']) > 3])
 
-def test(): 
-  SNVs = test_fetch_SNVs()
-  test_reduce_SNVs(SNVs)
+def test_fetch_SNVs_N(): 
+  print_unbuffered('')
+  print_string_as_info('********* testing fetch_SNVs on kmers containing unspecified bases ****************')
+  print_unbuffered('')
+
+  mutations_filename = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/gnomad_v3.sorted.tsv.gz'
+  genome_filename = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38/hg38.analysisSet.fa.gz'
+  region = 'chr16:88366814-88366826' 
+  meta = { 
+    'mutations': mutations_filename, 
+    'kmer_size': 5
+  }
+  with pysam.TabixFile(mutations_filename) as mutations, pysam.FastaFile(genome_filename) as genome: 
+    SNVs = fetch_SNVs(mutations, genome, region, meta, discard_unspecified_SNVs=False)
+    print(f'without discarding SNVs associated with unspecified bases, SNVs in {region} are:')
+    print_json(SNVs)
+    SNVs = fetch_SNVs(mutations, genome, region, meta, discard_unspecified_SNVs=True)
+    print(f'discarding SNVs associated with unspecified bases, SNVs in {region} are:')
+    print_json(SNVs)
+
+def test_fetch_SNVs_boundary(): 
+  print_unbuffered('')
+  print_string_as_info('********* testing ability of fetch_SNVs to fetch SNVs positioned at ends of interval ****************')
+  print_unbuffered('')
+
+  mutations_filename = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/gnomad_v3.sorted.tsv.gz'
+  genome_filename = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38/hg38.analysisSet.fa.gz'
+  region = 'chr3:66186458-66186480' 
+  meta = { 
+    'mutations': mutations_filename, 
+    'kmer_size': 5
+  }
+  with pysam.TabixFile(mutations_filename) as mutations, pysam.FastaFile(genome_filename) as genome: 
+    SNVs = fetch_SNVs(mutations, genome, region, meta)
+    print(f'this SNV is positioned at the start of {region} after clipping:')
+    print_json(SNVs[0])
+    print(f'this SNV is positioned at the end of {region} after clipping:')
+    print_json(SNVs[-1])
+
+def run_tests():
+  test_fetch_SNVs()
+  test_reduce_SNVs()
+  test_fetch_SNVs_N()
+  test_fetch_SNVs_boundary()
 
 if __name__ == '__main__': 
-  test()
+  run_tests()

@@ -2,6 +2,7 @@
 
 neutral_regions="${CONSTRAINT_TOOLS}/$(read-config trainGermlineModel neutralRegions)"
 window_size="$(read-config trainGermlineModel windowSize)"
+number_of_jobs="$(read-config trainGermlineModel numberOfJobs)"
 
 # https://devhints.io/bash#miscellaneous
 # put option-fetching before "set -o nounset" so that we can detect flags without arguments
@@ -15,6 +16,7 @@ while [[ "$1" =~ ^- ]]; do
     --kmer-size ) shift; [[ ! $1 =~ ^- ]] && kmer_size=$1;;
     --model ) shift; [[ ! $1 =~ ^- ]] && model=$1;;
     --work ) shift; [[ ! $1 =~ ^- ]] && work=$1;;
+    --number-of-jobs ) shift; [[ ! $1 =~ ^- ]] && number_of_jobs=$1;;
     *) error "$0: " "$1 is an invalid flag"; exit 1;;
   esac 
   shift
@@ -37,13 +39,19 @@ zcat ${neutral_regions} \
   | get-nonXY-chromosomes \
   > ${neutral_regions_filtered}
 
-number_of_jobs="500"
 info "Number of slurm jobs (tasks): " "${number_of_jobs}"
+
 number_of_neutral_regions=$(wc -l < ${neutral_regions_filtered})
 info "Number of (filtered) neutral regions: " "${number_of_neutral_regions}"
 
-number_of_neutral_regions_per_job=$((number_of_neutral_regions / number_of_jobs))
-info "Number of neutral regions per job (task): " "${number_of_neutral_regions_per_job}"
+if (( number_of_neutral_regions <= number_of_jobs )); then
+  error "Number of neutral regions (${number_of_neutral_regions}) should be larger than number of jobs (${number_of_jobs})!"
+  exit 1 
+else
+  number_of_neutral_regions_per_job=$((number_of_neutral_regions / number_of_jobs))
+  info "Number of neutral regions per job (task): " "${number_of_neutral_regions_per_job}"
+fi
+
 number_of_neutral_regions_left_over=$((number_of_neutral_regions % number_of_jobs))
 if (( number_of_neutral_regions_left_over > 0 )); then
   info "Number of neutral regions not used in training: " "${number_of_neutral_regions_left_over}"

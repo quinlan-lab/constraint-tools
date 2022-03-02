@@ -25,6 +25,11 @@ neutral_regions="${CONSTRAINT_TOOLS}/dist/neutral-regions-germline-grch38.bed.gz
 work="${CONSTRAINT_TOOLS_DATA}/work/train-germline-model" # path to directory to store intermediate work and logs
 mkdir --parents ${work}
 
+# if [[ -d ${work} ]]; then 
+#   error "the following work directory already exists: " ${work}
+#   exit 1 
+# fi 
+
 fetch_subset_of_neutral_regions () { 
   less ${neutral_regions} | head -100 
 }
@@ -42,7 +47,8 @@ train_on_subset_of_neutral_regions () {
     --kmer-size ${kmer_size} \
     --neutral-regions <(fetch_subset_of_neutral_regions | bgzip) \
     --model ${model} \
-    --work ${work}
+    --work ${work} \
+    --number-of-jobs "2"
 }
 
 train_on_all_neutral_regions () {

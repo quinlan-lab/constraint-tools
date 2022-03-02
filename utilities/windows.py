@@ -50,11 +50,11 @@ def create_windows(window_size, window_stride, region, genome, region_contains_w
 
 def test(): 
   genome_filename = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38/hg38.analysisSet.fa.gz'
-  region = 'chr1:15300-15400'
+  region = 'chr1:15300-15310'
   with pysam.FastaFile(genome_filename) as genome: 
     print_json(create_windows(
-      window_size=51, 
-      window_stride=25, 
+      window_size=5, 
+      window_stride=1, 
       region=region, 
       genome=genome, 
       region_contains_windows=True

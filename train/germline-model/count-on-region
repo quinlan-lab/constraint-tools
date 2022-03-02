@@ -14,7 +14,8 @@ import multiprocessing
 from kmer import (
   initialize_kmer_counts_germline, 
   fetch_kmer_from_sequence, 
-  contains_unspecified_bases
+  contains_unspecified_bases,
+  middle_base
 )
 from colorize import (
   print_json, 
@@ -34,26 +35,27 @@ def compute_kmer_total_counts(genome, kmer_counts, args):
   # "fetch" API: https://pysam.readthedocs.io/en/latest/api.html?highlight=fasta#pysam.FastaFile
   # Note that fetch(region=region) does not work if the coordinates in "region" contains commas
   # Workaround is to parse "region" into "chromosome", "start", "end": 
-  neutral_region = genome.fetch(*unpack(args.neutral_region))    
+  neutral_sequence = genome.fetch(*unpack(args.neutral_region))    
   print_string_as_info(f"Sequence for neutral region coordinates {args.neutral_region} is:")
-  print_string_as_info_dim(f"{neutral_region}")
+  print_string_as_info_dim(f"{neutral_sequence}")
   print_unbuffered('')
 
+  # TODO: refactor this to use the "windows" module 
   print_string_as_info('Iterating over neutral region {} and counting kmers:'.format(args.neutral_region))
-  number_of_kmers_containing_unspecified_bases = 0
-  for position in np.arange(0, len(neutral_region), 1):
-    try: 
-      kmer = fetch_kmer_from_sequence(neutral_region, position, args.kmer_size)
-    except IndexError:
-      print_string_as_info_dim('IndexError at position: {}'.format(position))
-      continue
-    if contains_unspecified_bases(kmer): 
-      number_of_kmers_containing_unspecified_bases += 1 
-      continue 
+  start_position = 0 + args.kmer_size//2
+  end_position = len(neutral_sequence) - args.kmer_size//2 
+  number_of_sites_containing_unspecified_bases = 0
+  for position in np.arange(start_position, end_position, 1): 
+    kmer = fetch_kmer_from_sequence(neutral_sequence, position, args.kmer_size)
+    if contains_unspecified_bases(middle_base(kmer)): 
+      number_of_sites_containing_unspecified_bases += 1
+    if contains_unspecified_bases(kmer): continue 
     kmer_counts[kmer]['count'] += 1
 
+  number_of_sites = end_position - start_position
   print_string_as_info_dim(
-    f'Number of kmers containing unspecified bases: {number_of_kmers_containing_unspecified_bases}'
+    f'Number of sites in {args.neutral_region} containing unspecified bases: '
+    f'{number_of_sites_containing_unspecified_bases}/{number_of_sites}'
   )
   print_unbuffered('')
 

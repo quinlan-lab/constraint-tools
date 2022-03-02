@@ -1,7 +1,8 @@
 {
   "trainGermlineModel": {
     "neutralRegions": "dist/neutral-regions-germline-grch38.bed.gz",
-    "windowSize": "101"
+    "windowSize": "101",
+    "numberOfJobs": "500"
   },
   "dashboardGermlineModel": {
     "model": "dist/model-germline-grch38.json",

@@ -124,7 +124,10 @@ def fetch_distribution_K(m): # m = number of ALT alleles in interval
   return x_K, probability_of_K
 
 def compute_p0s_p1s_p2s_p3s(): 
-  # for each site, pull out the kmer polymorphism probabilities, and use them to compute p0, p1, etc
+  # TODO: 
+  # for each site, do the following: 
+  # if site has a kmer with an unspecified base, then ignore site
+  # otherwise, pull out the kmer polymorphism probabilities, and use them to compute p0, p1, etc
   # e.g., p1 = np.sum([kmer_probabilities[kmer][ALT_state] for ALT_state in compute_ALT_states(kmer, ALT_multiplicity=1)])
   # p0, p1, etc are defined in the section entitled "A model to predict the number of ALT alleles in a genomic interval" at https://github.com/quinlan-lab/constraint-tools/blob/main/define-model/germline-model.ipynb
 
@@ -155,7 +158,6 @@ def fetch_distribution_N():
   
   return x_N, probability_of_N
 
-# TODO
 def compute_Nbar(): 
   # TODO: 
   # compute N_observed = number of polymorphic sites observed in a window
