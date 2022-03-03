@@ -57,47 +57,58 @@ if (( number_of_neutral_regions_left_over > 0 )); then
   info "Number of neutral regions not used in training: " "${number_of_neutral_regions_left_over}"
 fi
 
-# each slurm task will store its output files in this temporary directory: 
-tmpdir=$(mktemp --tmpdir=${work} --directory)
-clean_up () {
-  local exit_code="$1"
-  if [[ "${exit_code}" == "0" ]]; then 
-    info "Deleting tmp directory: " "${tmpdir}"
-    rm --recursive --force "${tmpdir}"
-  else 
-    info "Received exit code ${exit_code}.."
-    info "Not deleting tmp directory: " "${tmpdir}"
-  fi 
-}
-# http://redsymbol.net/articles/bash-exit-traps/
-# https://medium.com/@dirk.avery/the-bash-trap-trap-ce6083f36700
-trap 'clean_up $?' EXIT
+# TODO: uncomment 
+# # each slurm task will store its output files in this temporary directory: 
+# tmpdir=$(mktemp --tmpdir=${work} --directory)
+# clean_up () {
+#   local exit_code="$1"
+#   if [[ "${exit_code}" == "0" ]]; then 
+#     info "Deleting tmp directory: " "${tmpdir}"
+#     rm --recursive --force "${tmpdir}"
+#   else 
+#     info "Received exit code ${exit_code}.."
+#     info "Not deleting tmp directory: " "${tmpdir}"
+#   fi 
+# }
+# # http://redsymbol.net/articles/bash-exit-traps/
+# # https://medium.com/@dirk.avery/the-bash-trap-trap-ce6083f36700
+# trap 'clean_up $?' EXIT
 
 info "Submitting slurm job array..."
 
 slurm_logs_directory="${work}/slurm_logs"
 mkdir --parents ${slurm_logs_directory}
 
-# sbatch man-page: 
-# A maximum number of simultaneously running tasks from the job array may be
-# specified using a "%" separator.  
-# For example "--array=0-15%4" will limit the number of simultaneously running
-# tasks from this job array to 4.
-# We "wait" to ensure that all the jobs/tasks are finished before merging their results
-sbatch \
-  --wait \
-  --array [1-${number_of_jobs}]%250 \
-  --job-name "count-on-regions" \
-  --output ${slurm_logs_directory}/count-on-regions.job-%A.task-%a.log \
-  count-on-regions \
-    --genome ${genome} \
-    --mutations ${mutations} \
-    --number-chromosomes-min ${number_chromosomes_min} \
-    --kmer-size ${kmer_size} \
-    --neutral-regions ${neutral_regions_filtered} \
-    --tmpdir ${tmpdir} \
-    --number-of-neutral-regions-per-job ${number_of_neutral_regions_per_job} \
-    --window-size ${window_size}
+# TODO: uncomment
+# # sbatch man-page: 
+# # A maximum number of simultaneously running tasks from the job array may be
+# # specified using a "%" separator.  
+# # For example "--array=0-15%4" will limit the number of simultaneously running
+# # tasks from this job array to 4.
+# # We "wait" to ensure that all the jobs/tasks are finished before merging their results
+# sbatch \
+#   --wait \
+#   --array [1-${number_of_jobs}]%250 \
+#   --job-name "count-on-regions" \
+#   --output ${slurm_logs_directory}/count-on-regions.job-%A.task-%a.log \
+#   count-on-regions \
+#     --genome ${genome} \
+#     --mutations ${mutations} \
+#     --number-chromosomes-min ${number_chromosomes_min} \
+#     --kmer-size ${kmer_size} \
+#     --neutral-regions ${neutral_regions_filtered} \
+#     --tmpdir ${tmpdir} \
+#     --number-of-neutral-regions-per-job ${number_of_neutral_regions_per_job} \
+#     --window-size ${window_size}
+
+# TODO: remove: 
+tmpdir="/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work/train-germline-model/tmp.ECggzoyaNS"
+
+expected_number_json_files=$(( ${number_of_jobs} * ${number_of_neutral_regions_per_job} ))
+actual_number_json_files=$(/usr/bin/ls ${tmpdir} | wc -l)
+info \
+  "Number of neutral regions for which counts were obtained: " \
+  "${actual_number_json_files}/${expected_number_json_files}"
 
 info "Combining counts across neutral regions, and estimating probabilities..."
 estimate-probabilities \
@@ -108,16 +119,5 @@ estimate-probabilities \
   --tmpdir ${tmpdir} \
   --window-size ${window_size} \
   --model ${model} \
-  --number-of-neutral-regions ${number_of_neutral_regions} \
   --neutral-regions ${neutral_regions_filtered}
-
-
-
-
-
-
-
-
-
-
 
