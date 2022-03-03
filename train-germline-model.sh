@@ -23,12 +23,13 @@ number_chromosomes_min="130000"
 kmer_size="3"
 neutral_regions="${CONSTRAINT_TOOLS}/dist/neutral-regions-germline-grch38.bed.gz"
 work="${CONSTRAINT_TOOLS_DATA}/work/train-germline-model" # path to directory to store intermediate work and logs
-mkdir --parents ${work}
+clean=false
 
-# if [[ -d ${work} ]]; then 
-#   error "the following work directory already exists: " ${work}
-#   exit 1 
-# fi 
+mkdir --parents ${work}
+if [[ ${clean} == true && -d ${work} ]]; then 
+  error "the following work directory already exists: " ${work}
+  exit 1 
+fi 
 
 fetch_subset_of_neutral_regions () { 
   less ${neutral_regions} | head -100 
