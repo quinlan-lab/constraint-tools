@@ -3,10 +3,13 @@
 red='\033[0;31m'
 no_color='\033[0m'
 
-if [[ $# -eq 1 ]]; then 
+if [[ $# -eq 0 ]]; then 
+  error "required:" "1 or 2 arguments"
+  exit 1 
+elif [[ $# -eq 1 ]]; then 
   echo -e "${red}${1}${no_color}" >&2
 elif [[ $# -eq 2 ]]; then 
-  echo -e "${red}${1}${no_color}${2}" >&2
+  echo -e "${red}${1} ${no_color}${2}" >&2
 else
   error "more than two arguments to error is not allowed"
   exit 1 
