@@ -34,10 +34,9 @@ def parse_arguments():
   return parser.parse_args()
 
 # https://realpython.com/introduction-to-python-generators/
-def fetch_counts(count_type, args): 
+def fetch_counts(count_type, args):
   for counts_filename in os.listdir(args.tmpdir):
     assert counts_filename.endswith('.json')
-    print_string_as_info_dim(counts_filename)
     counts_path = f'{args.tmpdir}/{counts_filename}'
     with open(counts_path, 'r') as fh:
       yield json.load(fh)[count_type]  
