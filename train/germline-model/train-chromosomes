@@ -17,6 +17,7 @@ while [[ "$1" =~ ^- ]]; do
     --model ) shift; [[ ! $1 =~ ^- ]] && model=$1;;
     --work ) shift; [[ ! $1 =~ ^- ]] && work=$1;;
     --number-of-jobs ) shift; [[ ! $1 =~ ^- ]] && number_of_jobs=$1;;
+    --progress-bar ) shift; [[ ! $1 =~ ^- ]] && progress_bar=$1;;
     *) error "$0: " "$1 is an invalid flag"; exit 1;;
   esac 
   shift
@@ -24,6 +25,7 @@ done
 
 info "Training on neutral regions: " "${neutral_regions}\n"
 info "Size of window used to compute singleton number: " "${window_size}"
+info "Sending progress bars to:" "${progress_bar}"
 
 set -o errexit
 set -o pipefail
@@ -65,8 +67,8 @@ clean_up () {
     info "Deleting tmp directory: " "${tmpdir}"
     rm --recursive --force "${tmpdir}"
   else 
-    info "Received exit code ${exit_code}.."
-    info "Not deleting tmp directory: " "${tmpdir}"
+    error "Received exit code:" "${exit_code}"
+    error "Not deleting tmp directory:" "${tmpdir}"
   fi 
 }
 # http://redsymbol.net/articles/bash-exit-traps/
@@ -106,6 +108,7 @@ info \
   "${actual_number_json_files}/${expected_number_json_files}"
 
 info "Combining counts across neutral regions, and estimating probabilities..."
+info "Sending progress bars to:" "${progress_bar}"
 estimate-probabilities \
   --genome ${genome} \
   --mutations ${mutations} \
@@ -114,5 +117,6 @@ estimate-probabilities \
   --tmpdir ${tmpdir} \
   --window-size ${window_size} \
   --model ${model} \
-  --neutral-regions ${neutral_regions_filtered}
+  --neutral-regions ${neutral_regions_filtered} \
+  --progress-bar ${progress_bar} 
 

@@ -27,5 +27,6 @@ estimate-probabilities \
   --tmpdir ${tmpdir} \
   --window-size "-1" \
   --model ${model} \
-  --number-of-neutral-regions ${number_of_neutral_regions} \
-  --neutral-regions "XXX"
+  --neutral-regions "XXX" \
+  --progress-bar "stdout"
+

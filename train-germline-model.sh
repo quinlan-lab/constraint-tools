@@ -55,6 +55,9 @@ train_on_subset_of_neutral_regions () {
   # file to store model in:   
   model="${CONSTRAINT_TOOLS}/tests/germline-model/model-germline-grch38-${number_of_neutral_regions}.json" 
 
+  # 'stdout' or a directory to log progress to
+  progress_bar="stdout" 
+
   # info "neutral regions (with their lengths):"
   # echo "$(fetch_subset_of_neutral_regions | awk '{ print $0, $3-$2 }')"
 
@@ -66,7 +69,8 @@ train_on_subset_of_neutral_regions () {
     --neutral-regions <(fetch_subset_of_neutral_regions | bgzip) \
     --model ${model} \
     --work ${work} \
-    --number-of-jobs "2"
+    --number-of-jobs "2" \
+    --progress-bar ${progress_bar}
 }
 
 train_on_all_neutral_regions () {
@@ -81,7 +85,8 @@ train_on_all_neutral_regions () {
     --kmer-size ${kmer_size} \
     --neutral-regions ${neutral_regions} \
     --model ${model} \
-    --work ${work}
+    --work ${work} \
+    --progress-bar ${progress_bar}
 }
 
 if [[ ${all_neutral_regions} == "true" ]]; then
