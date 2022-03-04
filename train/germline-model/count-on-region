@@ -137,7 +137,6 @@ def count_on_region():
       'mutations': args.mutations,
       'genome': args.genome,
       'kmerSize': args.kmer_size,
-      'neutralRegion': args.neutral_region,
       'numberChromosomesMin': args.number_chromosomes_min,
       'windowSize': args.window_size,
       'kmerCounts': kmer_counts,
