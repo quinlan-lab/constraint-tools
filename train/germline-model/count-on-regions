@@ -28,29 +28,22 @@ line_number_of_last_region=$(( SLURM_ARRAY_TASK_ID * number_of_neutral_regions_p
 offset=$(( number_of_neutral_regions_per_job - 1 ))
 line_number_of_first_region=$(( line_number_of_last_region - offset ))
 
-line_numbers_of_regions=$(seq \
-  ${line_number_of_first_region} \
-  ${line_number_of_last_region} \
-)
+neutral_regions_for_job="${tmpdir}/neutral-regions.${line_number_of_first_region}-${line_number_of_last_region}.bed"
+sed \
+  --quiet \
+  ${line_number_of_first_region},${line_number_of_last_region}p \
+  ${neutral_regions} \
+  > ${neutral_regions_for_job}
 
-for line_number_of_region in ${line_numbers_of_regions}; do 
-	neutral_region=$( \
-    sed --quiet ${line_number_of_region}p ${neutral_regions} \
-    | awk '{print $1":"$2"-"$3}' \
-  )
+counts_for_job="${tmpdir}/counts.${line_number_of_first_region}-${line_number_of_last_region}.json"
 
-	if [[ -z "${neutral_region}" ]]; then
-		error "neutral_region variable is empty"
-    exit 1 
-	fi
-
-	info "Performing counts on: " "${neutral_region}"
-	count-on-region \
-    --genome ${genome} \
-    --mutations ${mutations} \
-    --number-chromosomes-min ${number_chromosomes_min} \
-    --kmer-size ${kmer_size} \
-    --tmpdir ${tmpdir} \
-    --neutral-region ${neutral_region} \
-    --window-size ${window_size}
-done
+info "Performing counts on:" "${neutral_regions_for_job}"
+info "Writing counts to:" "${counts_for_job}"
+aggregate-counts-over-subset-of-neutral-regions \
+  --genome ${genome} \
+  --mutations ${mutations} \
+  --number-chromosomes-min ${number_chromosomes_min} \
+  --kmer-size ${kmer_size} \
+  --neutral-regions-filename ${neutral_regions_for_job} \
+  --counts-filename ${counts_for_job} \
+  --window-size ${window_size}
