@@ -32,7 +32,7 @@ info "Tool arguments: " "${args}\n"
 
 if [[ ${tool} == "train-germline-model" ]]; then 
   PATH="${CONSTRAINT_TOOLS}/train/germline-model:$PATH" 
-  train-chromosomes ${args}
+  train-map-reduce ${args}
 elif [[ ${tool} == "dashboard-germline-model" ]]; then 
   PATH="${CONSTRAINT_TOOLS}/flask-app:${PATH}"
   flask-app ${args} 
