@@ -76,7 +76,7 @@ def initialize_kmer_counts_germline(args):
     } for kmer in compute_kmers(args.kmer_size)
   }
 
-def combine_kmer_counts_germline(x, y, args):
+def add_kmer_counts_germline(x, y, args):
   return {
     kmer: {
       'CpG': CpG(kmer),
