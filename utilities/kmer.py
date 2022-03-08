@@ -76,6 +76,19 @@ def initialize_kmer_counts_germline(args):
     } for kmer in compute_kmers(args.kmer_size)
   }
 
+def combine_kmer_counts_germline(x, y, args):
+  return {
+    kmer: {
+      'CpG': CpG(kmer),
+      'count': int(x[kmer]['count']) + int(y[kmer]['count']),
+      'REF': middle_base(kmer),
+      'ALTStateCounts': {
+        ALT_state: int(x[kmer]['ALTStateCounts'][ALT_state]) + int(y[kmer]['ALTStateCounts'][ALT_state])
+        for ALT_state in compute_possible_ALT_states(kmer) 
+      },
+    } for kmer in compute_kmers(args.kmer_size)
+  }
+
 if __name__ == '__main__': 
   # print(compute_kmers(3))
   print(compute_possible_ALT_states('AGTAT'))
