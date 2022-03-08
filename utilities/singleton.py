@@ -15,6 +15,12 @@ def combine_singleton_counts(x, y):
     x[SNV_count] += y[SNV_count]
   return x
 
+def defaultdict_to_dict(singleton_counts): 
+  return {
+    k: v.tolist() # numpy array to list 
+    for k, v in singleton_counts.items()
+  }
+
 def test_data_structure(): 
   print_unbuffered('')
   print_string_as_info('********* testing data structure ****************')
