@@ -1,6 +1,6 @@
 def bed_to_sam_string(region): 
   chromosome, start, end = region.strip().split('\t')
-  chromosome = chromosome.strip('chr')
+  # chromosome = chromosome.strip('chr')
   return pack(chromosome, start, end)
 
 def unpack(region): 
