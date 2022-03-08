@@ -10,7 +10,7 @@ class Singleton_Counts(defaultdict):
     self[SNV_count] = singleton_counts = np.array([0]*(SNV_count+1))
     return singleton_counts
 
-def combine_singleton_counts(x, y):
+def add_singleton_counts(x, y):
   for SNV_count in y.keys():
     x[SNV_count] += y[SNV_count]
   return x
@@ -50,10 +50,9 @@ def test_combine_singleton_counts():
   print('y:', y)
 
   print('combine x and y:') 
-  print(combine_singleton_counts(x, y)) 
+  print(add_singleton_counts(x, y)) 
 
   print('x:', x)
-
 
 if __name__ == '__main__': 
   test_data_structure()
