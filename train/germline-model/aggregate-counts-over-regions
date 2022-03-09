@@ -18,7 +18,7 @@ from kmer import (
   contains_unspecified_bases,
   middle_base
 )
-from singleton import Singleton_Counts, defaultdict_to_dict
+from singleton import Singleton_Counts, make_serializable
 from aggregate_counts import aggregate_counts
 
 from colorize import (
@@ -169,7 +169,7 @@ def aggregate_counts_over_regions(args, progress_bar):
       'numberChromosomesMin': args.number_chromosomes_min,
       'windowSize': args.window_size,
       'kmerCounts': counts['kmerCounts'],
-      'singletonCounts': defaultdict_to_dict(counts['singletonCounts']),
+      'singletonCounts': make_serializable(counts['singletonCounts']),
     }, fh, indent=2)
 
 def main(): 

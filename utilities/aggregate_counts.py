@@ -17,13 +17,13 @@ def aggregate_counts(fetch_counts, args, progress_bar):
   )
 
 def fetch_subdict(d): 
-  from singleton import defaultdict_to_dict
+  from singleton import make_serializable
   return {
     'kmerCounts': {
       k: d['kmerCounts'][k]
       for k in ['AAA', 'AAC', 'AGA']
     },
-    'singletonCounts': defaultdict_to_dict(d['singletonCounts'])
+    'singletonCounts': make_serializable(d['singletonCounts'])
   }  
 
 class Args: 
