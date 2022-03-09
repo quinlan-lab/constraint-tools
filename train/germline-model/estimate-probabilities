@@ -1,27 +1,24 @@
 #!/usr/bin/env python
 
-import functools 
 import os 
 import argparse 
 import json 
-from collections import defaultdict 
 import numpy as np 
 from tqdm import tqdm
 import sys
 
 from kmer import (
-  CpG, 
-  middle_base, 
   compute_possible_ALT_states, 
   compute_kmers, 
 )
 from colorize import (
-  print_string_as_error, 
   print_string_as_info, 
   print_string_as_info_dim, 
   print_unbuffered
 )
 import color_traceback
+from aggregate_counts import aggregate_counts 
+from singleton import make_serializable, dict_to_defaultdict
 
 def parse_arguments():
   parser = argparse.ArgumentParser(description='')
@@ -33,24 +30,21 @@ def parse_arguments():
   parser.add_argument('--window-size', type=int, dest='window_size', help='')
   parser.add_argument('--model', type=str, help='')
   parser.add_argument('--neutral-regions', type=str, dest='neutral_regions', help='')
-  parser.add_argument('--progress-bar', type=str, dest='progress_bar', help='')
+  parser.add_argument('--log-filename', type=str, dest='log_filename', help='')
   return parser.parse_args()
 
 # https://realpython.com/introduction-to-python-generators/
-def fetch_counts(count_type, args, progress_bar): 
+def fetch_counts_from_jobs(args, progress_bar): 
   # os.listdir: https://bugs.python.org/issue11406
-  for counts_filename in tqdm(os.listdir(args.tmpdir), file=progress_bar, desc=count_type):
-    assert counts_filename.endswith('.json')
+  for counts_filename in tqdm(os.listdir(args.tmpdir), file=progress_bar, desc='fetch_counts_from_jobs'):
+    if not counts_filename.endswith('.json'): continue
     counts_path = f'{args.tmpdir}/{counts_filename}'
     with open(counts_path, 'r') as fh:
-      yield json.load(fh)[count_type]
-
-# https://stackoverflow.com/a/43268377/6674256
-# https://docs.python.org/3/library/collections.html#collections.defaultdict.__missing__
-class Conditional_Singleton_Counts(defaultdict):
-  def __missing__(self, SNV_count):
-    self[SNV_count] = singleton_counts = [0]*(SNV_count+1)
-    return singleton_counts
+      d = json.load(fh)
+      yield { 
+        'kmerCounts': d['kmerCounts'],
+        'singletonCounts': dict_to_defaultdict(d['singletonCounts'])
+      }
 
 def estimate_ALT_state_probability(kmer_counts, kmer, ALT_state): 
   data = kmer_counts[kmer]
@@ -66,45 +60,26 @@ def estimate_kmer_probabilities(kmer_counts, args):
     for kmer in compute_kmers(args.kmer_size)      
   }
 
-def estimate_conditional_singleton_probabilities(conditional_singleton_counts): 
+def estimate_singleton_probabilities(singleton_counts): 
   return { 
-    SNV_count: list(map(float, np.array(singleton_counts)/np.sum(singleton_counts)))
-    for SNV_count, singleton_counts in conditional_singleton_counts.items()
+    SNV_count: conditioned_singleton_counts/np.sum(conditioned_singleton_counts)
+    for SNV_count, conditioned_singleton_counts in singleton_counts.items()
   } 
 
-def estimate_probabilities_core(args, kmerCounts_log, snvAndSingletonCounts_log):
-  def combine_kmer_counts(x, y):
-    return {
-      kmer: {
-        'CpG': CpG(kmer),
-        'count': int(x[kmer]['count']) + int(y[kmer]['count']),
-        'REF': middle_base(kmer),
-        'ALTStateCounts': {
-          ALT_state: int(x[kmer]['ALTStateCounts'][ALT_state]) + int(y[kmer]['ALTStateCounts'][ALT_state])
-          for ALT_state in compute_possible_ALT_states(kmer) 
-        },
-      } for kmer in compute_kmers(args.kmer_size)
-    }
+def estimate_probabilities(args, progress_bar):
+  print_string_as_info('Aggregating kmer and singleton counts over jobs...')
+  counts = aggregate_counts(fetch_counts_from_jobs, args, progress_bar)
+  kmer_counts, singleton_counts = counts['kmerCounts'], counts['singletonCounts']
 
-  print_string_as_info('Combining kmer counts across neutral regions...')
-  kmer_counts = functools.reduce(combine_kmer_counts, fetch_counts('kmerCounts', args, kmerCounts_log))
-  
-  print_string_as_info('Estimating probability of observing ALT_state, e.g. {C, T}, given kmer, e.g., AAA, ...')
+  print_string_as_info(
+    'Estimating probability of observing ALT_state, e.g. {C, T}, given kmer, e.g., AAA, ...'
+  )
   kmer_probabilities = estimate_kmer_probabilities(kmer_counts, args) 
 
-  print_string_as_info('Combining snv and singleton counts across neutral regions...')
-  conditional_singleton_counts = Conditional_Singleton_Counts()
-  number_neutral_windows = 0
-  for SNV_and_singleton_counts in fetch_counts('snvAndSingletonCounts', args, snvAndSingletonCounts_log):
-    number_neutral_windows += len(SNV_and_singleton_counts)
-    for SNV_and_singleton_count in SNV_and_singleton_counts: 
-      SNV_count, singleton_count = map(int, SNV_and_singleton_count)
-      assert singleton_count >= 0 
-      assert singleton_count <= SNV_count 
-      conditional_singleton_counts[SNV_count][singleton_count] += 1 
-
-  print_string_as_info('Estimating the probability of observing k singletons given that a window contains m SNVs...')
-  conditional_singleton_probabilities = estimate_conditional_singleton_probabilities(conditional_singleton_counts)
+  print_string_as_info(
+    'Estimating the probability of observing k singletons, given that a window contains m SNVs...'
+  )
+  singleton_probabilities = estimate_singleton_probabilities(singleton_counts)
 
   print_string_as_info(f'Writing model to:')
   print_string_as_info_dim(f'{args.model}')
@@ -117,30 +92,22 @@ def estimate_probabilities_core(args, kmerCounts_log, snvAndSingletonCounts_log)
       'kmerSize': args.kmer_size,
       'numberChromosomesMin': args.number_chromosomes_min,
       'windowSize': args.window_size,
-      'numberNeutralWindows': number_neutral_windows,
       'kmerCounts': kmer_counts,
+      'singletonCounts': make_serializable(singleton_counts),
       'kmerProbabilities': kmer_probabilities,
-      'conditionalSingletonCounts': conditional_singleton_counts,
-      'conditionalSingletonProbabilities': conditional_singleton_probabilities
+      'singletonProbabilities': make_serializable(singleton_probabilities)
     }, fh, indent=2)
 
-def estimate_probabilities(): 
+def main(): 
   args = parse_arguments()  
-
-  # tqdm log: 
-  # https://github.com/tqdm/tqdm/issues/506#issuecomment-373762049
-  # https://github.com/tqdm/tqdm/issues/506#issuecomment-508458426
-  if args.progress_bar == 'stdout': 
-    estimate_probabilities_core(args, kmerCounts_log=sys.stdout, snvAndSingletonCounts_log=sys.stdout)
+  if args.log_filename == 'stdout': 
+    estimate_probabilities(args, progress_bar=sys.stdout)
   else: 
-    with (
-      open(f'{args.progress_bar}/kmerCounts.log', 'w') as kmerCounts_log, 
-      open(f'{args.progress_bar}/snvAndSingletonCounts.log', 'w') as snvAndSingletonCounts_log
-    ):
-      estimate_probabilities_core(args, kmerCounts_log, snvAndSingletonCounts_log)
+    with open(args.log_filename, 'w') as progress_bar:
+      estimate_probabilities(args, progress_bar=progress_bar)
 
 if __name__ == '__main__': 
-  estimate_probabilities() 
+  main() 
 
 
 

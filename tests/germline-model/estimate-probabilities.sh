@@ -5,6 +5,7 @@ set -o nounset
 
 tmpdir="/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/tests/germline-model/tmpdir"
 model="/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/tests/germline-model/model-germline-grch38.json"
+log_filename="/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/tests/germline-model/model-germline-grch38.progress-bar.log"
 number_of_neutral_regions="2"
 kmer_size="3"
 
@@ -28,5 +29,5 @@ estimate-probabilities \
   --window-size "-1" \
   --model ${model} \
   --neutral-regions "XXX" \
-  --progress-bar "stdout"
+  --log-filename "${log_filename}"
 
