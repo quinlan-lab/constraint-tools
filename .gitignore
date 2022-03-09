@@ -33,5 +33,7 @@ define-model/germline-model.v*.ipynb
 tmp.*
 estimate_mutation_probabilities_ignore
 dist/*.log*
+
 tests/germline-model/*.json
 tests/germline-model/tmpdir
+tests/germline-model/*log
