@@ -15,10 +15,10 @@ def add_singleton_counts(x, y):
     x[SNV_count] += y[SNV_count]
   return x
 
-def defaultdict_to_dict(singleton_counts): 
+def defaultdict_to_dict(singleton_data): 
   return {
     k: v.tolist() # numpy array to list 
-    for k, v in singleton_counts.items()
+    for k, v in singleton_data.items()
   }
 
 def test_data_structure(): 
