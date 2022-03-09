@@ -96,7 +96,7 @@ def parse_arguments():
   parser.add_argument('--window-size', type=int, dest='window_size', help='')
   parser.add_argument('--neutral-regions-filename', type=str, dest='neutral_regions_filename', help='')
   parser.add_argument('--counts-filename', type=str, dest='counts_filename', help='')
-  parser.add_argument('--progress-bar', type=str, dest='progress_bar', help='')
+  parser.add_argument('--log-filename', type=str, dest='log_filename', help='')
   return parser.parse_args()
 
 def compute_singleton_counts(neutral_region, mutations, genome, args):
@@ -175,10 +175,10 @@ def aggregate_counts_over_regions(args, progress_bar):
 def main(): 
   args = parse_arguments()  
   import sys 
-  if args.progress_bar == 'stdout': 
+  if args.log_filename == 'stdout': 
     aggregate_counts_over_regions(args, progress_bar=sys.stdout)
   else: 
-    with open(f'{args.progress_bar}/aggregate-counts-over-regions.log', 'w') as progress_bar:  
+    with open(args.log_filename, 'w') as progress_bar:  
       # logging tqdm output: 
       # https://github.com/tqdm/tqdm/issues/506#issuecomment-373762049
       # https://github.com/tqdm/tqdm/issues/506#issuecomment-508458426

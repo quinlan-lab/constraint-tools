@@ -9,7 +9,6 @@ number_chromosomes_min="140000"
 kmer_size="3" 
 tmpdir="/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/tests/germline-model/tmpdir"
 window_size="51" 
-progress_bar="stdout" # "stdout" or a directory to log progress to
 
 mkdir --parents ${tmpdir}
 
@@ -26,10 +25,9 @@ line_number_of_first_region="1"
 line_number_of_last_region="7"
 neutral_regions_for_job="${tmpdir}/neutral-regions.${line_number_of_first_region}-${line_number_of_last_region}.bed"
 counts_for_job="${tmpdir}/counts.${line_number_of_first_region}-${line_number_of_last_region}.json"
+# log_for_job="${tmpdir}/${line_number_of_first_region}-${line_number_of_last_region}.log"
+log_for_job='stdout'
 
-echo "" 
-info "Performing counts on:" "${neutral_regions_for_job}"
-info "Writing counts to:" "${counts_for_job}"
 echo "" 
 aggregate-counts-over-regions \
   --genome ${genome} \
@@ -39,4 +37,4 @@ aggregate-counts-over-regions \
   --neutral-regions-filename ${neutral_regions_for_job} \
   --counts-filename ${counts_for_job} \
   --window-size ${window_size} \
-  --progress-bar ${progress_bar} 
+  --log-filename ${log_for_job} 
