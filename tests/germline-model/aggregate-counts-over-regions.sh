@@ -25,8 +25,8 @@ line_number_of_first_region="1"
 line_number_of_last_region="7"
 neutral_regions_for_job="${tmpdir}/neutral-regions.${line_number_of_first_region}-${line_number_of_last_region}.bed"
 counts_for_job="${tmpdir}/counts.${line_number_of_first_region}-${line_number_of_last_region}.json"
-log_for_job="${tmpdir}/progress-bar.${line_number_of_first_region}-${line_number_of_last_region}.log"
-# log_for_job='stdout'
+# log_for_job="${tmpdir}/progress-bar.${line_number_of_first_region}-${line_number_of_last_region}.log"
+log_for_job="stdout"
 
 echo "" 
 aggregate-counts-over-regions \
@@ -37,4 +37,4 @@ aggregate-counts-over-regions \
   --neutral-regions-filename ${neutral_regions_for_job} \
   --counts-filename ${counts_for_job} \
   --window-size ${window_size} \
-  --log-filename ${log_for_job} 
+  --log ${log_for_job} 
