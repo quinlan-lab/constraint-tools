@@ -76,8 +76,6 @@ train_on_subset_of_neutral_regions () {
 train_on_all_neutral_regions () {
   model="${CONSTRAINT_TOOLS}/dist/model-germline-grch38.json" # file to store model in
 
-  info "training on all neutral regions..."
-
   constraint-tools train-germline-model \
     --genome ${genome} \
     --mutations ${mutations} \
