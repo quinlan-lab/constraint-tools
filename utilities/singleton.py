@@ -23,7 +23,9 @@ def make_serializable(singleton_data):
 
 def dict_to_defaultdict(singleton_data):
   singleton_data = {
-    k: np.array(v) # list to numpy array 
+    # JSON treats keys as strings: https://stackoverflow.com/a/1451857/6674256
+    # So convert keys from string to int, so we can perform arithmetic on keys, later: 
+    int(k): np.array(v) # list to numpy array 
     for k, v in singleton_data.items()
   }
   return Singleton_Counts(None, singleton_data)
@@ -37,7 +39,7 @@ def test_dict_to_defaultdict():
   print(Singleton_Counts()) 
   print_unbuffered('')
 
-  singleton_counts = {4: [0, 1, 2, 0, 0]}
+  singleton_counts = {'4': [0, 1, 2, 0, 0]}
   print('singleton_counts in dict format:')
   print(singleton_counts) 
   print_unbuffered('')
