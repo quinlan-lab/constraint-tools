@@ -17,29 +17,30 @@ while [[ "$1" =~ ^- ]]; do
     --model ) shift; [[ ! $1 =~ ^- ]] && model=$1;;
     --work ) shift; [[ ! $1 =~ ^- ]] && work=$1;;
     --number-of-jobs ) shift; [[ ! $1 =~ ^- ]] && number_of_jobs=$1;;
-    --progress-bar ) shift; [[ ! $1 =~ ^- ]] && progress_bar=$1;;
+    --progress-bars ) shift; [[ ! $1 =~ ^- ]] && progress_bars=$1;;
     *) error "$0: " "$1 is an invalid flag"; exit 1;;
   esac 
   shift
 done
 
-info "Training on neutral regions: " "${neutral_regions}\n"
+info "Training on neutral regions: " "${neutral_regions}"
 info "Size of window used to compute singleton number: " "${window_size}"
-info "Sending progress bars to:" "${progress_bar}"
+info "Sending progress bars to:" "${progress_bars}"
 
 set -o errexit
 set -o pipefail
 # set -o noclobber
 set -o nounset
-set -o xtrace
+# set -o xtrace
 
-info "Remove neutral regions less than window_size ${window_size}bp in length"
-info "Remove neutral regions on chromosomes X and Y"
+info "Remove neutral regions less than window_size (${window_size}bp) in length..."
+info "Remove neutral regions on chromosomes X and Y..."
 neutral_regions_filtered="${work}/neutral-regions.filtered.bed"
 zcat ${neutral_regions} \
   | awk --assign window_size=${window_size} '$3 - $2 > window_size' \
   | get-nonXY-chromosomes \
   > ${neutral_regions_filtered}
+info "Filtered neutral regions:" ${neutral_regions_filtered}
 
 info "Number of slurm jobs (tasks): " "${number_of_jobs}"
 
@@ -59,7 +60,7 @@ if (( number_of_neutral_regions_left_over > 0 )); then
   info "Number of neutral regions not used in training: " "${number_of_neutral_regions_left_over}"
 fi
 
-# each slurm task will store its output files in this temporary directory: 
+# each slurm job/task will store its output files in this temporary directory: 
 tmpdir=$(mktemp --tmpdir=${work} --directory)
 clean_up () {
   local exit_code="$1"
@@ -75,10 +76,13 @@ clean_up () {
 # https://medium.com/@dirk.avery/the-bash-trap-trap-ce6083f36700
 trap 'clean_up $?' EXIT
 
-info "Submitting slurm job array..."
+parent_slurm_job="batch-regions"
+info "Submitting slurm job array with parent-job name:" ${parent_slurm_job}
 
 slurm_logs_directory="${work}/slurm_logs"
 mkdir --parents ${slurm_logs_directory}
+
+info "Slurm log directory:" ${slurm_logs_directory}
 
 # "map" phase of map-reduce
 
@@ -91,8 +95,8 @@ mkdir --parents ${slurm_logs_directory}
 sbatch \
   --wait \
   --array [1-${number_of_jobs}]%250 \
-  --job-name "count-on-regions" \
-  --output ${slurm_logs_directory}/count-on-regions.job-%A.task-%a.log \
+  --job-name ${parent_slurm_job} \
+  --output ${slurm_logs_directory}/batch-regions.job-%A.task-%a.log \
   batch-regions \
     --genome ${genome} \
     --mutations ${mutations} \
@@ -102,17 +106,17 @@ sbatch \
     --tmpdir ${tmpdir} \
     --number-of-neutral-regions-per-job ${number_of_neutral_regions_per_job} \
     --window-size ${window_size} \
-    --progress-bar ${progress_bar} 
+    --progress-bars ${progress_bars} 
 
-expected_number_json_files=$(( ${number_of_jobs} * ${number_of_neutral_regions_per_job} ))
-actual_number_json_files=$(/usr/bin/ls ${tmpdir} | wc -l)
+expected_number_json_files=${number_of_jobs}
+actual_number_json_files=$(/usr/bin/ls ${tmpdir}/counts.*.json | wc -l)
 info \
-  "Number of neutral regions for which counts were obtained: " \
+  "Number of jobs for which counts were obtained: " \
   "${actual_number_json_files}/${expected_number_json_files}"
 
 # "reduce" step of map-reduce: 
 
-info "Combining counts across neutral regions, and estimating probabilities..."
+info "Combining counts across jobs, and estimating probabilities..."
 estimate-probabilities \
   --genome ${genome} \
   --mutations ${mutations} \
@@ -122,5 +126,5 @@ estimate-probabilities \
   --window-size ${window_size} \
   --model ${model} \
   --neutral-regions ${neutral_regions_filtered} \
-  --progress-bar ${progress_bar} 
+  --progress-bars ${progress_bars} 
 
