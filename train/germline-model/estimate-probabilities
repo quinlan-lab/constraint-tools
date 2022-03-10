@@ -30,7 +30,7 @@ def parse_arguments():
   parser.add_argument('--window-size', type=int, dest='window_size', help='')
   parser.add_argument('--model', type=str, help='')
   parser.add_argument('--neutral-regions', type=str, dest='neutral_regions', help='')
-  parser.add_argument('--log-filename', type=str, dest='log_filename', help='')
+  parser.add_argument('--progress-bars', type=str, dest='progress_bars', help='')
   return parser.parse_args()
 
 # https://realpython.com/introduction-to-python-generators/
@@ -100,11 +100,13 @@ def estimate_probabilities(args, progress_bar):
 
 def main(): 
   args = parse_arguments()  
-  if args.log_filename == 'stdout': 
+  if args.progress_bars == 'stdout': 
     estimate_probabilities(args, progress_bar=sys.stdout)
-  else: 
-    with open(args.log_filename, 'w') as progress_bar:
+  elif args.progress_bars == 'disk':
+    with open(f'{args.tmpdir}/progress-bar.log', 'w') as progress_bar:
       estimate_probabilities(args, progress_bar=progress_bar)
+  else: 
+    raise ValueError(f'invalid value for progress-bars: {args.progress_bars}')
 
 if __name__ == '__main__': 
   main() 
