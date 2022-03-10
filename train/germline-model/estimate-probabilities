@@ -35,12 +35,10 @@ def parse_arguments():
 
 # https://realpython.com/introduction-to-python-generators/
 def fetch_counts_from_jobs(args, progress_bar): 
-  # os.listdir: https://bugs.python.org/issue11406
-  for counts_filename in tqdm(os.listdir(args.tmpdir), file=progress_bar, desc='fetch_counts_from_jobs'):
-    if not counts_filename.endswith('.json'): continue
-    counts_path = f'{args.tmpdir}/{counts_filename}'
-    with open(counts_path, 'r') as fh:
-      d = json.load(fh)
+  from glob import glob 
+  for counts_filename in tqdm(glob(f'{args.tmpdir}/*.json'), file=progress_bar, desc='fetch_counts_from_jobs'):
+    with open(counts_filename, 'r') as fh:
+      d = json.load(fh) 
       yield { 
         'kmerCounts': d['kmerCounts'],
         'singletonCounts': dict_to_defaultdict(d['singletonCounts'])
@@ -66,19 +64,28 @@ def estimate_singleton_probabilities(singleton_counts):
     for SNV_count, conditioned_singleton_counts in singleton_counts.items()
   } 
 
-def estimate_probabilities(args, progress_bar):
-  print_string_as_info('Aggregating kmer and singleton counts over jobs...')
+def estimate_probabilities(args, progress_bar, progress_bar_filename):
+  print_string_as_info('Aggregating kmer and singleton counts over jobs:')
+  print_string_as_info_dim(f'{args.tmpdir}/*.json')
+  print_unbuffered('')
+
+  print_string_as_info('Logging progress to:')
+  print_string_as_info_dim(progress_bar_filename)
+  print_unbuffered('')
+
   counts = aggregate_counts(fetch_counts_from_jobs, args, progress_bar)
   kmer_counts, singleton_counts = counts['kmerCounts'], counts['singletonCounts']
 
   print_string_as_info(
     'Estimating probability of observing ALT_state, e.g. {C, T}, given kmer, e.g., AAA, ...'
   )
+  print_unbuffered('')
   kmer_probabilities = estimate_kmer_probabilities(kmer_counts, args) 
 
   print_string_as_info(
     'Estimating the probability of observing k singletons, given that a window contains m SNVs...'
   )
+  print_unbuffered('')
   singleton_probabilities = estimate_singleton_probabilities(singleton_counts)
 
   print_string_as_info(f'Writing model to:')
@@ -101,10 +108,11 @@ def estimate_probabilities(args, progress_bar):
 def main(): 
   args = parse_arguments()  
   if args.progress_bars == 'stdout': 
-    estimate_probabilities(args, progress_bar=sys.stdout)
+    estimate_probabilities(args, sys.stdout, 'stdout')
   elif args.progress_bars == 'disk':
-    with open(f'{args.tmpdir}/progress-bar.log', 'w') as progress_bar:
-      estimate_probabilities(args, progress_bar=progress_bar)
+    progress_bar_filename = f'{args.tmpdir}/progress-bar.log'
+    with open(progress_bar_filename, 'w') as progress_bar:
+      estimate_probabilities(args, progress_bar, progress_bar_filename)
   else: 
     raise ValueError(f'invalid value for progress-bars: {args.progress_bars}')
 

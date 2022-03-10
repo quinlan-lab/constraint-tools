@@ -6,7 +6,6 @@ set -o nounset
 tmpdir="/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/tests/germline-model/tmpdir"
 model="/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/tests/germline-model/model-germline-grch38.json"
 progress_bars='disk'
-number_of_neutral_regions="2"
 kmer_size="3"
 
 mkdir --parents ${tmpdir}
