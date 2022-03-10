@@ -36,7 +36,7 @@ def parse_arguments():
 # https://realpython.com/introduction-to-python-generators/
 def fetch_counts_from_jobs(args, progress_bar): 
   from glob import glob 
-  for counts_filename in tqdm(glob(f'{args.tmpdir}/*.json'), file=progress_bar, desc='fetch_counts_from_jobs'):
+  for counts_filename in tqdm(glob(f'{args.tmpdir}/counts.*.json'), file=progress_bar, desc='fetch_counts_from_jobs'):
     with open(counts_filename, 'r') as fh:
       d = json.load(fh) 
       yield { 
@@ -65,13 +65,11 @@ def estimate_singleton_probabilities(singleton_counts):
   } 
 
 def estimate_probabilities(args, progress_bar, progress_bar_filename):
-  print_string_as_info('Aggregating kmer and singleton counts over jobs:')
-  print_string_as_info_dim(f'{args.tmpdir}/*.json')
-  print_unbuffered('')
+  print_string_as_info('Aggregating kmer and singleton counts over jobs using count files:')
+  print_string_as_info_dim(f'{args.tmpdir}/counts.*.json')
 
-  print_string_as_info('Logging progress to:')
+  print_string_as_info('Logging progress of job aggregation to:')
   print_string_as_info_dim(progress_bar_filename)
-  print_unbuffered('')
 
   counts = aggregate_counts(fetch_counts_from_jobs, args, progress_bar)
   kmer_counts, singleton_counts = counts['kmerCounts'], counts['singletonCounts']
@@ -79,18 +77,15 @@ def estimate_probabilities(args, progress_bar, progress_bar_filename):
   print_string_as_info(
     'Estimating probability of observing ALT_state, e.g. {C, T}, given kmer, e.g., AAA, ...'
   )
-  print_unbuffered('')
   kmer_probabilities = estimate_kmer_probabilities(kmer_counts, args) 
 
   print_string_as_info(
     'Estimating the probability of observing k singletons, given that a window contains m SNVs...'
   )
-  print_unbuffered('')
   singleton_probabilities = estimate_singleton_probabilities(singleton_counts)
 
   print_string_as_info(f'Writing model to:')
   print_string_as_info_dim(f'{args.model}')
-  print_unbuffered('')
   with open(args.model, 'w') as fh:
     json.dump({
       'mutations': args.mutations,
