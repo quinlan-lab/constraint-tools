@@ -3,6 +3,7 @@
 neutral_regions="${CONSTRAINT_TOOLS}/$(read-config trainGermlineModel neutralRegions)"
 window_size="$(read-config trainGermlineModel windowSize)"
 number_of_jobs="$(read-config trainGermlineModel numberOfJobs)"
+max_neutral_region_length="$(read-config trainGermlineModel maxNeutralRegionLength)"
 
 # https://devhints.io/bash#miscellaneous
 # put option-fetching before "set -o nounset" so that we can detect flags without arguments
@@ -18,6 +19,7 @@ while [[ "$1" =~ ^- ]]; do
     --work ) shift; [[ ! $1 =~ ^- ]] && work=$1;;
     --number-of-jobs ) shift; [[ ! $1 =~ ^- ]] && number_of_jobs=$1;;
     --progress-bars ) shift; [[ ! $1 =~ ^- ]] && progress_bars=$1;;
+    --max-neutral-region-length ) shift; [[ ! $1 =~ ^- ]] && max_neutral_region_length=$1;;
     *) error "$0: " "$1 is an invalid flag"; exit 1;;
   esac 
   shift
@@ -33,14 +35,17 @@ set -o pipefail
 set -o nounset
 # set -o xtrace
 
-info "Remove neutral regions less than window_size (${window_size}bp) in length..."
-info "Remove neutral regions on chromosomes X and Y..."
+info "Filtering neutral regions..."
+info "\tRemove neutral regions less than:" "${window_size}bp"
+info "\tRemove neutral regions greater than:" "${max_neutral_region_length}bp"
+info "\tRemove neutral regions on chromosomes X and Y"
 neutral_regions_filtered="${work}/neutral-regions.filtered.bed"
 zcat ${neutral_regions} \
   | awk --assign window_size=${window_size} '$3 - $2 > window_size' \
+  | awk --assign max_neutral_region_length=${max_neutral_region_length} '$3 - $2 < max_neutral_region_length' \
   | get-nonXY-chromosomes \
   > ${neutral_regions_filtered}
-info "Filtered neutral regions:" ${neutral_regions_filtered}
+info "\tFiltered neutral regions:" ${neutral_regions_filtered}
 
 info "Number of slurm jobs (tasks): " "${number_of_jobs}"
 
@@ -127,4 +132,3 @@ estimate-probabilities \
   --model ${model} \
   --neutral-regions ${neutral_regions_filtered} \
   --progress-bars ${progress_bars} 
-

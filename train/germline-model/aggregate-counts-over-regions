@@ -32,6 +32,9 @@ from pack_unpack import unpack, bed_to_sam_string
 from timer import timer 
 from windows import create_windows 
 
+def truncate(string, length=100):   
+  return string[:length] + '...' if len(string) > length else string
+
 # using the "khmer" library might make this function a handful of times faster:
 # https://khmer.readthedocs.io/en/v0.6.1-0/ktable.html
 def compute_kmer_total_counts(neutral_region, genome, kmer_counts, args):
@@ -40,7 +43,7 @@ def compute_kmer_total_counts(neutral_region, genome, kmer_counts, args):
   # Workaround is to parse "region" into "chromosome", "start", "end": 
   neutral_sequence = genome.fetch(*unpack(neutral_region))    
   print_string_as_info(f"Sequence for neutral region {neutral_region}:")
-  print_string_as_info_dim(f"{neutral_sequence}")
+  print_string_as_info_dim(truncate(neutral_sequence))
 
   # TODO: refactor this to use the "windows" module 
   print_string_as_info('Iterating over neutral region {} and counting kmers...'.format(neutral_region))
