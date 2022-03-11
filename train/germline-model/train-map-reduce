@@ -88,7 +88,7 @@ slurm_logs_directory="${work}/slurm_logs"
 mkdir --parents ${slurm_logs_directory}
 
 info "Slurm log directory:" ${slurm_logs_directory}
-info "For each of ${number_of_jobs} batches, aggregate kmer and singleton counts over the regions in each batch..."
+info "For each of ${number_of_jobs} jobs, aggregate kmer and singleton counts over the regions assigned to each job..."
 
 # "map" phase of map-reduce
 
