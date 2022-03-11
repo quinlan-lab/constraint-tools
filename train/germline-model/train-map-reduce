@@ -88,6 +88,7 @@ slurm_logs_directory="${work}/slurm_logs"
 mkdir --parents ${slurm_logs_directory}
 
 info "Slurm log directory:" ${slurm_logs_directory}
+info "For each of ${number_of_jobs} batches, aggregate kmer and singleton counts over the regions in each batch..."
 
 # "map" phase of map-reduce
 
@@ -131,4 +132,5 @@ estimate-probabilities \
   --window-size ${window_size} \
   --model ${model} \
   --neutral-regions ${neutral_regions_filtered} \
-  --progress-bars ${progress_bars} 
+  --progress-bars ${progress_bars} \
+  --max-neutral-region-length ${max_neutral_region_length}

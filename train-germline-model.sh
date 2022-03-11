@@ -5,7 +5,7 @@
 #SBATCH --output=dist/model-germline-grch38.log
 
 all_neutral_regions="true"
-work_directory="work"
+work_directory="work-train-germline-model"
 work_directory_should_be_clean="true"
 
 # https://devhints.io/bash#miscellaneous
@@ -13,6 +13,7 @@ work_directory_should_be_clean="true"
 while [[ "$1" =~ ^- ]]; do 
   case $1 in
     --constraint-tools-directory ) shift; [[ ! $1 =~ ^- ]] && CONSTRAINT_TOOLS=$1;;
+    --number-of-jobs ) shift; [[ ! $1 =~ ^- ]] && number_of_jobs=$1;;
     --number-of-neutral-regions ) shift; [[ ! $1 =~ ^- ]] && number_of_neutral_regions=$1 && all_neutral_regions="false";;
     --work-directory ) shift; [[ ! $1 =~ ^- ]] && work_directory=$1;;
     --work-directory-should-be-clean ) shift; [[ ! $1 =~ ^- ]] && work_directory_should_be_clean=$1;;
@@ -38,7 +39,7 @@ mutations="/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad
 number_chromosomes_min="130000"
 kmer_size="3"
 neutral_regions="${CONSTRAINT_TOOLS}/dist/neutral-regions-germline-grch38.bed.gz"
-work="${CONSTRAINT_TOOLS_DATA}/${work_directory}/train-germline-model" # path to directory to store intermediate work and logs
+work="${CONSTRAINT_TOOLS_DATA}/${work_directory}" # path to directory to store intermediate work and logs
 
 if [[ ${work_directory_should_be_clean} == "true" && -d ${work} ]]; then 
   error "the following work directory already exists:" ${work}
@@ -69,7 +70,7 @@ train_on_subset_of_neutral_regions () {
     --neutral-regions <(fetch_subset_of_neutral_regions | bgzip) \
     --model ${model} \
     --work ${work} \
-    --number-of-jobs "2" \
+    --number-of-jobs ${number_of_jobs} \
     --progress-bars ${progress_bars}
 }
 

@@ -25,7 +25,7 @@ PATH="${CONSTRAINT_TOOLS}/bin:$PATH"
 #######################################
 
 tool="${1}"
-info "\nTool: " "${tool}"
+info "Tool: " "${tool}"
 shift
 args="${@}"
 info "Tool arguments: " "${args}"

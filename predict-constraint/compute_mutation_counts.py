@@ -121,6 +121,7 @@ def pull_element(list_, index):
   # plt.xlabel(f'number of singletons in interval, $k$')
   # _ = plt.ylabel('probability, $P[K=k]$')
 def fetch_distribution_K(m): # m = number of ALT alleles in interval 
+  # IMPORTANT: report total number of counts, so we can gauge how accurate the estimate of the progbability distribution of K is
   return x_K, probability_of_K
 
 def compute_p0s_p1s_p2s_p3s(): 
@@ -175,6 +176,7 @@ def compute_Nbar():
 def compute_Kbar(): 
   # compute mean_K_null 
   # compute variance_K_null 
+  # IMPORTANT: report total number of counts (number of windows) used to estimate mean_K_null and variance_K_null 
   # Kbar = (K_observed - mean_K_null)/np.sqrt(variance_K_null)
 
 

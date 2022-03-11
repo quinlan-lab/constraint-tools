@@ -31,6 +31,7 @@ def parse_arguments():
   parser.add_argument('--model', type=str, help='')
   parser.add_argument('--neutral-regions', type=str, dest='neutral_regions', help='')
   parser.add_argument('--progress-bars', type=str, dest='progress_bars', help='')
+  parser.add_argument('--max-neutral-region-length', type=int, dest='max_neutral_region_length', help='')
   return parser.parse_args()
 
 # https://realpython.com/introduction-to-python-generators/
@@ -94,6 +95,7 @@ def estimate_probabilities(args, progress_bar, progress_bar_filename):
       'kmerSize': args.kmer_size,
       'numberChromosomesMin': args.number_chromosomes_min,
       'windowSize': args.window_size,
+      'maxNeutralRegionLength': args.max_neutral_region_length,
       'kmerCounts': kmer_counts,
       'singletonCounts': make_serializable(singleton_counts),
       'kmerProbabilities': kmer_probabilities,
