@@ -138,7 +138,14 @@ def count_on_region(neutral_region, args):
 def fetch_counts_from_regions(args, progress_bar): 
   print_json({'neutral regions': args.neutral_regions_filename, **get_hostname_process_cpu()})
   with open(args.neutral_regions_filename, 'r') as neutral_regions:
-    for neutral_region in tqdm(neutral_regions, file=progress_bar, desc='fetch_counts_from_regions'): 
+    number_of_neutral_regions = sum(1 for line in neutral_regions)
+  with open(args.neutral_regions_filename, 'r') as neutral_regions:
+    for neutral_region in tqdm(
+      neutral_regions, 
+      total=number_of_neutral_regions,
+      file=progress_bar, 
+      desc='fetch_counts_from_regions'
+    ): 
       neutral_region = bed_to_sam_string(neutral_region)
       kmer_counts, singleton_counts = count_on_region(neutral_region, args)      
       yield { 
