@@ -22,7 +22,7 @@ Tested in the Protected Environment computer cluster of the Center for High Perf
 Assuming one has access to the protected environment on the CHPC at University of Utah: 
 
 ```
-bash tests/germline-model/train.sh $PWD 
+bash tests/germline-model/train-germline-model.sh
 ```
 
 Once training is complete, do: 
@@ -44,7 +44,8 @@ Valid values for `SUB_COMMAND` are:
 
 ```
 train-germline-model 
-      estimate kmer-dependent SNV probabilities and singleton-count probabilities (see the model defined in the "define-model" folder)
+      estimate kmer-dependent SNV probabilities and singleton-count probabilities 
+      (see the model defined in the "define-model" folder)
 dashboard-germline-model
       start a web app that visualizes observed and expected SNV and singleton counts as a function of genomic coordinate
 predict-germline-constraint
@@ -58,15 +59,23 @@ Required arguments for `train-germline-model` are:
       Path to a reference fasta. 
       A "samtools faidx" index is expected to be present at the same path. 
 --mutations STR 
-      Path to a set of mutations specified as tab-separated values with column headings: "chromosome start end variant_type REF ALT number_ALT number_ALT_chromosomes number_chromosomes SYMBOL Gene Amino_acids CANONICAL Consequence Feature_type Feature miscellaneous". 
+      Path to a set of mutations specified as tab-separated values with column headings: 
+      "chromosome start end variant_type REF ALT number_ALT 
+      number_ALT_chromosomes number_chromosomes SYMBOL Gene Amino_acids 
+      CANONICAL Consequence Feature_type Feature miscellaneous". 
       A "tabix" index is expected to be present at the same path.
-      The software ignores the X and Y chromosomes to avoid complications associated with computing allele frequencies. 
 --number-chromosomes-min INT
       Only consider SNVs at which the nucleotide identity (allele) is known in >=INT chromosomes in the cohort.
 --kmer-size INT
-      Size of kmer of model to be trained. 
---output STR 
-      Path to a directory to store the trained model and the corresponding set of (filtered) neutral regions in. 
+      Size of kmer in model to be trained. 
+--model STR 
+      JSON file to store the trained model in. 
+--work STR 
+      Path to a directory to store intermediate work and logs.
+--progress-bars STR 
+      Allowed values are "disk" or "stdout", 
+      indicating whether to store logs containing "progress bars" 
+      to disk or stdout, respetively.
 ```
 
 By default the `train-germline-model` subcommand uses a pre-computed set of putatively neutral regions from the GRCH38 reference located in the `/dist` folder, and a reasonable value of the window-size to compute singleton counts within. Optionally, the user may change either of these defaults by specifying the `--neutral-regions` and `--window-size` arguments: 
@@ -77,12 +86,17 @@ By default the `train-germline-model` subcommand uses a pre-computed set of puta
 --window-size INT
       Size of the intervals used to compute the null distribution of singleton count. 
       This is also the size of the window in "test" regions.
+--number-of-jobs INT 
+      Number of slurm jobs to use during training. 
+--max-neutral-region-length INT 
+      Neutral regions longer than this number are filtered out 
+      from the set of regions that are ultimately used to train the model. 
 ```
 
 Running `train-germline-model` produces a specification of the sequence-dependent and allele-frequency-aware neutral 
 model in json format, viewable using, e.g., 
 ```
-${CONSTRAINT_TOOLS}/bin/jq . ${output}/<json file> 
+${CONSTRAINT_TOOLS}/bin/jq . <model> 
 ```
 
 Required arguments for `dashboard-germline-model` are:
