@@ -58,6 +58,9 @@ Required arguments for `train-germline-model` are:
 --genome STR
       Path to a reference fasta. 
       A "samtools faidx" index is expected to be present at the same path. 
+--build STR 
+      Human reference genome build. 
+      Allowed values for STR are "hg19" and "hg38".
 --mutations STR 
       Path to a set of mutations specified as tab-separated values with column headings: 
       "chromosome start end variant_type REF ALT number_ALT 

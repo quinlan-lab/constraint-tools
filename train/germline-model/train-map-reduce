@@ -10,6 +10,7 @@ max_neutral_region_length="$(read-config trainGermlineModel maxNeutralRegionLeng
 while [[ "$1" =~ ^- ]]; do 
   case $1 in
     --genome ) shift; [[ ! $1 =~ ^- ]] && genome=$1;;
+    --build ) shift; [[ ! $1 =~ ^- ]] && build=$1;;
     --mutations ) shift; [[ ! $1 =~ ^- ]] && mutations=$1;;
     --number-chromosomes-min ) shift; [[ ! $1 =~ ^- ]] && number_chromosomes_min=$1;;
     --neutral-regions ) shift; [[ ! $1 =~ ^- ]] && neutral_regions=$1;;
@@ -25,15 +26,21 @@ while [[ "$1" =~ ^- ]]; do
   shift
 done
 
-info "Training on neutral regions: " "${neutral_regions}"
-info "Size of window used to compute singleton number: " "${window_size}"
-info "Sending progress bars to:" "${progress_bars}"
-
 set -o errexit
 set -o pipefail
 # set -o noclobber
 set -o nounset
 # set -o xtrace
+
+if [[ ${build} != "hg19" && ${build} != "hg38" ]]; then
+  error "genome build parameter is:" ${build}
+  error "genome build must be 'hg19' or 'hg38'"
+  exit 1
+fi
+
+info "Training on neutral regions: " "${neutral_regions}"
+info "Size of window used to compute singleton number: " "${window_size}"
+info "Sending progress bars to:" "${progress_bars}"
 
 info "Filtering neutral regions..."
 info "\tRemove neutral regions less than:" "${window_size}bp"
@@ -125,6 +132,7 @@ info \
 info "Combining counts across jobs, and estimating probabilities..."
 estimate-probabilities \
   --genome ${genome} \
+  --build ${build} \
   --mutations ${mutations} \
   --number-chromosomes-min ${number_chromosomes_min} \
   --kmer-size ${kmer_size} \

@@ -35,6 +35,7 @@ PATH=${CONSTRAINT_TOOLS}/utilities:$PATH
 PATH=${CONSTRAINT_TOOLS}/bin:$PATH 
 
 genome="/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38/hg38.analysisSet.fa.gz"
+build="hg38" 
 mutations="/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/gnomad_v3.sorted.tsv.gz"
 number_chromosomes_min="130000"
 kmer_size="5"
@@ -64,6 +65,7 @@ train_on_subset_of_neutral_regions () {
 
   constraint-tools train-germline-model \
     --genome ${genome} \
+    --build ${build} \
     --mutations ${mutations} \
     --number-chromosomes-min ${number_chromosomes_min} \
     --kmer-size ${kmer_size} \
@@ -79,6 +81,7 @@ train_on_all_neutral_regions () {
 
   constraint-tools train-germline-model \
     --genome ${genome} \
+    --build ${build} \
     --mutations ${mutations} \
     --number-chromosomes-min ${number_chromosomes_min} \
     --kmer-size ${kmer_size} \

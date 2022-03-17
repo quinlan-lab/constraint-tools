@@ -24,6 +24,7 @@ def parse_arguments():
   parser = argparse.ArgumentParser(description='')
   parser.add_argument('--kmer-size', type=int, dest='kmer_size', help='')
   parser.add_argument('--genome', type=str, help='')
+  parser.add_argument('--build', type=str, help='')
   parser.add_argument('--number-chromosomes-min', type=int, dest='number_chromosomes_min', help='')
   parser.add_argument('--tmpdir', type=str, help='')
   parser.add_argument('--mutations', type=str, help='')
@@ -91,6 +92,7 @@ def estimate_probabilities(args, progress_bar, progress_bar_filename):
     json.dump({
       'mutations': args.mutations,
       'genome': args.genome,
+      'build': args.build,
       'neutralRegions': args.neutral_regions,
       'kmerSize': args.kmer_size,
       'numberChromosomesMin': args.number_chromosomes_min,

@@ -3,6 +3,7 @@ set -o pipefail
 set -o nounset
 
 number_of_jobs="500"
+# number_of_jobs="5"
 
 CONSTRAINT_TOOLS=$PWD
 PATH=${CONSTRAINT_TOOLS}/utilities:$PATH 
@@ -11,6 +12,7 @@ training_durations_filename="tests/germline-model/train-durations.${number_of_jo
 echo -e "number_of_neutral_regions\ttraining_duration" > ${training_durations_filename} 
 
 for number_of_neutral_regions in "10000" "100000" "1000000"; do
+# for number_of_neutral_regions in "1000"; do
   info "Number of (unfiltered) neutral regions:" ${number_of_neutral_regions}
   time_output_file="tests/germline-model/${number_of_neutral_regions}.time"
   /usr/bin/time --verbose --output ${time_output_file} bash train-germline-model.sh \
