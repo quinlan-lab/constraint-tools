@@ -45,12 +45,21 @@ def compute_possible_ALT_states(kmer):
   list_of_lists = [compute_possible_ALT_states_core(kmer, ALT_multiplicity) for ALT_multiplicity in [1, 2, 3]]
   return [item for sub_list in list_of_lists for item in sub_list]
 
-def CpG(kmer): 
-  if len(kmer) == 1: return False 
+def CpG_forward_strand(kmer): 
   return (
       kmer[middle_index(kmer)] == 'C' and 
       kmer[middle_index(kmer)+1] == 'G'
   )
+
+def CpG_reverse_strand(kmer): 
+  return (
+      kmer[middle_index(kmer)-1] == 'C' and 
+      kmer[middle_index(kmer)] == 'G'
+  )
+
+def CpG(kmer):
+  if len(kmer) == 1: return False 
+  return CpG_forward_strand(kmer) or CpG_reverse_strand(kmer)
 
 def not_CpG(kmer): 
   return not CpG(kmer)
@@ -91,5 +100,10 @@ def add_kmer_counts_germline(x, y, args):
 
 if __name__ == '__main__': 
   # print(compute_kmers(3))
-  print(compute_possible_ALT_states('AGTAT'))
-  print(compute_possible_ALT_states_core(kmer='AGTAT', ALT_multiplicity=0))
+  print("possible ALT states of 'AGTAT':", compute_possible_ALT_states('AGTAT'))
+  print("possible ALT states of 'AGTAT' of multiplicity 2:", compute_possible_ALT_states_core(kmer='AGTAT', ALT_multiplicity=2))
+  print("CpG('AACGT'):", CpG('AACGT'))
+  print("CpG('ACGTT'):", CpG('ACGTT'))
+  print("CpG('AACCT'):", CpG('AACCT'))
+  print("CpG('AGGTT'):", CpG('AGGTT'))
+  
