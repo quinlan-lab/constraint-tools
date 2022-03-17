@@ -31,8 +31,6 @@ bash tests/germline-model/dashboard.sh $PWD
 ```
 
 Follow the instructions at the command line to view a web app that visualizes observed SNV and singleton counts, and those expected under a null model of sequence-dependent mutation (see `define-model` folder), as a function of genomic coordinate.  
-
-A plot of estimated SNV probabilities of the neutral model can be found here: https://github.com/quinlan-lab/constraint-tools/blob/main/tests/plot_mutation_probabilities.ipynb
  
 ## Usage
 
@@ -47,9 +45,11 @@ train-germline-model
       estimate kmer-dependent SNV probabilities and singleton-count probabilities 
       (see the model defined in the "define-model" folder)
 dashboard-germline-model
-      start a web app that visualizes observed and expected SNV and singleton counts as a function of genomic coordinate
+      start a web app that visualizes observed and expected 
+      SNV and singleton counts as a function of genomic coordinate
 predict-germline-constraint
-      call genomic regions predicted to be under negative selection in the germline [not yet implemented]
+      call genomic regions predicted to be under negative selection 
+      in the germline [not yet implemented]
 ```
 
 Required arguments for `train-germline-model` are:
@@ -65,7 +65,8 @@ Required arguments for `train-germline-model` are:
       CANONICAL Consequence Feature_type Feature miscellaneous". 
       A "tabix" index is expected to be present at the same path.
 --number-chromosomes-min INT
-      Only consider SNVs at which the nucleotide identity (allele) is known in >=INT chromosomes in the cohort.
+      Only consider SNVs at which the nucleotide identity (allele) is known 
+      in >=INT chromosomes in the cohort.
 --kmer-size INT
       Size of kmer in model to be trained. 
 --model STR 
@@ -78,7 +79,7 @@ Required arguments for `train-germline-model` are:
       to disk or stdout, respetively.
 ```
 
-By default the `train-germline-model` subcommand uses a pre-computed set of putatively neutral regions from the GRCH38 reference located in the `/dist` folder, and a reasonable value of the window-size to compute singleton counts within. Optionally, the user may change either of these defaults by specifying the `--neutral-regions` and `--window-size` arguments: 
+By default the `train-germline-model` subcommand uses a pre-computed set of putatively neutral regions from the GRCH38 reference located in the `/dist` folder, and a reasonable value of the size of the window within which to count singletons. Optionally, the user may change either of these defaults by specifying the `--neutral-regions` and `--window-size` arguments: 
 
 ```
 --neutral-regions STR
@@ -86,6 +87,11 @@ By default the `train-germline-model` subcommand uses a pre-computed set of puta
 --window-size INT
       Size of the intervals used to compute the null distribution of singleton count. 
       This is also the size of the window in "test" regions.
+```
+
+Other optional arguments are: 
+
+```
 --number-of-jobs INT 
       Number of slurm jobs to use during training. 
 --max-neutral-region-length INT 
@@ -111,7 +117,9 @@ Optionally, the user may change this by specifying the `--model` argument:
 
 ```
 --model STR
-      Path to a neutral model produced by the train-germline-model sub-command (in json format). This model is used to compute the expected SNV and singleton counts in the visualization. 
+      Path to a neutral model produced by the train-germline-model sub-command 
+      (in json format). 
+      This model is used to compute the expected SNV and singleton counts in the visualization. 
 ```
 
 ## Input Data
@@ -128,6 +136,11 @@ then data files can be found at:
 In the `/dist` directory, we distribute a model 
 that was trained on a genome-wide set of putatively neutral regions
 (also located in the `/dist` directory).
+The bash script that was used to generate this model is:
+
+```
+train-germline-model-production.sh
+```
 
 ## Development note
 
