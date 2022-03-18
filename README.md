@@ -19,13 +19,14 @@ Tested in the Protected Environment computer cluster of the Center for High Perf
 
 ## Quick Start 
 
-Assuming one has access to the protected environment on the CHPC at University of Utah: 
+Assuming one has access to the protected environment on the CHPC at University of Utah,
+one can do a prototype training using: 
 
 ```
-bash tests/germline-model/train-germline-model.sh
+bash tests/germline-model/train-germline-model-fast.sh
 ```
 
-Once training is complete, do: 
+One can render a prototype dashboard using: 
 ```
 bash tests/germline-model/dashboard.sh $PWD
 ```

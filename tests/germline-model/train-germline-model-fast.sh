@@ -1,0 +1,1 @@
+bash tests/germline-model/train-germline-model.sh "5" "1000"
