@@ -38,7 +38,7 @@ genome="/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference
 build="hg38" 
 mutations="/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/gnomad_v3.sorted.tsv.gz"
 number_chromosomes_min="130000"
-kmer_size="5"
+kmer_size="7"
 work="${CONSTRAINT_TOOLS_DATA}/${work_directory}" # path to directory to store intermediate work and logs
 
 progress_bars="disk" 
