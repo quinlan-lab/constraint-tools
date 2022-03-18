@@ -1,8 +1,23 @@
 import itertools
+from colorize import print_string_as_info
 
 from windows import is_odd, compute_left_right
 
 bases = 'ACGT'
+complement = {
+  'A': 'T', 
+  'C': 'G', 
+  'G': 'C', 
+  'T': 'A'
+}
+
+def get_reverse_complement(kmer): 
+  return ''.join(complement[base] for base in reversed(kmer))
+
+def get_complement(ALT_state): 
+  ALT_alleles = ALT_state.strip('{}').split(',')
+  ALT_alleles_complemented = (complement[ALT_allele] for ALT_allele in ALT_alleles)
+  return '{' + ','.join(sorted(ALT_alleles_complemented)) + '}'
 
 def middle_index(kmer): 
   kmer_size = len(kmer)
@@ -45,21 +60,15 @@ def compute_possible_ALT_states(kmer):
   list_of_lists = [compute_possible_ALT_states_core(kmer, ALT_multiplicity) for ALT_multiplicity in [1, 2, 3]]
   return [item for sub_list in list_of_lists for item in sub_list]
 
-def CpG_forward_strand(kmer): 
+def C_followed_by_G(kmer): 
   return (
       kmer[middle_index(kmer)] == 'C' and 
       kmer[middle_index(kmer)+1] == 'G'
   )
 
-def CpG_reverse_strand(kmer): 
-  return (
-      kmer[middle_index(kmer)-1] == 'C' and 
-      kmer[middle_index(kmer)] == 'G'
-  )
-
 def CpG(kmer):
   if len(kmer) == 1: return False 
-  return CpG_forward_strand(kmer) or CpG_reverse_strand(kmer)
+  return C_followed_by_G(kmer) or C_followed_by_G(get_reverse_complement(kmer))
 
 def not_CpG(kmer): 
   return not CpG(kmer)
@@ -98,6 +107,15 @@ def add_kmer_counts_germline(x, y, args):
     } for kmer in compute_kmers(args.kmer_size)
   }
 
+def test_get_reverse_complement(kmer): 
+  print(f"reverse complement of {kmer} is {get_reverse_complement(kmer)}")
+
+def test_get_complement(kmer): 
+  print('')
+  print_string_as_info('**** testing get_complement(ALT_state) ***** ')
+  for ALT_state in compute_possible_ALT_states(kmer): 
+    print(kmer, ALT_state, get_complement(ALT_state))
+
 if __name__ == '__main__': 
   # print(compute_kmers(3))
   print("possible ALT states of 'AGTAT':", compute_possible_ALT_states('AGTAT'))
@@ -106,4 +124,10 @@ if __name__ == '__main__':
   print("CpG('ACGTT'):", CpG('ACGTT'))
   print("CpG('AACCT'):", CpG('AACCT'))
   print("CpG('AGGTT'):", CpG('AGGTT'))
+  print("CpG('CGT'):", CpG('CGT'))
+  print("CpG('AGT'):", CpG('AGT'))
+  test_get_reverse_complement('AGCGT')
+  test_get_reverse_complement('ACGCT')
+  test_get_complement('AGTAT')
+  test_get_complement('AGCGT')
   

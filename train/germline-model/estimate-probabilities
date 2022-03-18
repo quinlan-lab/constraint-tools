@@ -10,6 +10,8 @@ import sys
 from kmer import (
   compute_possible_ALT_states, 
   compute_kmers, 
+  get_reverse_complement,
+  get_complement
 )
 from colorize import (
   print_string_as_info, 
@@ -46,11 +48,19 @@ def fetch_counts_from_jobs(args, progress_bar):
         'singletonCounts': dict_to_defaultdict(d['singletonCounts'])
       }
 
-def estimate_ALT_state_probability(kmer_counts, kmer, ALT_state): 
+def get_counts(kmer_counts, kmer, ALT_state): 
   data = kmer_counts[kmer]
+  return data['ALTStateCounts'][ALT_state], data['count'] 
+
+def estimate_ALT_state_probability(kmer_counts, kmer, ALT_state): 
+  # see define-model/germline-model.ipynb: 
+  s_to_S_count, s_count = get_counts(kmer_counts, kmer, ALT_state)
+  sbar_to_Sbar_count, sbar_count = get_counts(kmer_counts, get_reverse_complement(kmer), get_complement(ALT_state))
+  num = s_to_S_count + sbar_to_Sbar_count
+  den = s_count + sbar_count
   # estimate probabilities for multinomial distribution: https://math.stackexchange.com/a/421838
-  return data['ALTStateCounts'][ALT_state]/data['count'] if data['count'] > 0 else None
-  
+  return num/den if den > 0 else None
+
 def estimate_kmer_probabilities(kmer_counts, args):
   return { 
     kmer: { 
