@@ -79,6 +79,7 @@ clean_up () {
   if [[ "${exit_code}" == "0" ]]; then 
     info "Deleting tmp directory: " "${tmpdir}"
     rm --recursive --force "${tmpdir}"
+    info "Training complete."
   else 
     error "Received exit code:" "${exit_code}"
     error "Not deleting tmp directory:" "${tmpdir}"

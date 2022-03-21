@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --time=4:00:00
+#SBATCH --time=8:00:00
 #SBATCH --account=quinlan-rw
 #SBATCH --partition=quinlan-shared-rw
 #SBATCH --output=dist/model-germline-grch38.log

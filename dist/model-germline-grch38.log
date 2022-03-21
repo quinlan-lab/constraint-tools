@@ -1,5 +1,5 @@
 [0;36mTool:  [0mtrain-germline-model
-[0;36mTool arguments:  [0m--genome /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38/hg38.analysisSet.fa.gz --mutations /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/gnomad_v3.sorted.tsv.gz --number-chromosomes-min 130000 --kmer-size 5 --model /scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/model-germline-grch38.json --work /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-train-germline-model --progress-bars disk
+[0;36mTool arguments:  [0m--genome /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38/hg38.analysisSet.fa.gz --build hg38 --mutations /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/gnomad_v3.sorted.tsv.gz --number-chromosomes-min 130000 --kmer-size 7 --model /scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/model-germline-grch38.json --work /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-train-germline-model --progress-bars disk
 [0;36mTraining on neutral regions:  [0m/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/neutral-regions-germline-grch38.bed.gz
 [0;36mSize of window used to compute singleton number:  [0m101
 [0;36mSending progress bars to: [0mdisk
@@ -15,15 +15,15 @@
 [0;36mSubmitting slurm job array with parent-job name: [0mbatch-regions
 [0;36mSlurm log directory: [0m/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-train-germline-model/slurm_logs
 [0;36mFor each of 500 jobs, aggregate kmer and singleton counts over the regions assigned to each job...[0m
-Submitted batch job 4709911
+Submitted batch job 4723583
 [0;36mNumber of jobs for which counts were obtained:  [0m500/500
 [0;36mCombining counts across jobs, and estimating probabilities...[0m
 [36mAggregating kmer and singleton counts over jobs using count files:[0m
-[90m/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-train-germline-model/tmp.Ox5Q8DJDbR/counts.*.json[0m
+[90m/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-train-germline-model/tmp.AY48KFdHK3/counts.*.json[0m
 [36mLogging progress of job aggregation to:[0m
-[90m/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-train-germline-model/tmp.Ox5Q8DJDbR/progress-bar.log[0m
+[90m/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-train-germline-model/tmp.AY48KFdHK3/progress-bar.log[0m
 [36mEstimating probability of observing ALT_state, e.g. {C, T}, given kmer, e.g., AAA, ...[0m
 [36mEstimating the probability of observing k singletons, given that a window contains m SNVs...[0m
 [36mWriting model to:[0m
 [90m/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/model-germline-grch38.json[0m
-[0;36mDeleting tmp directory:  [0m/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-train-germline-model/tmp.Ox5Q8DJDbR
+[0;36mDeleting tmp directory:  [0m/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-train-germline-model/tmp.AY48KFdHK3
