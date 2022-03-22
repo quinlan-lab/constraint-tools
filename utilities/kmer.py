@@ -66,12 +66,25 @@ def C_followed_by_G(kmer):
       kmer[middle_index(kmer)+1] == 'G'
   )
 
+def A_followed_by_T(kmer): 
+  return (
+      kmer[middle_index(kmer)] == 'A' and 
+      kmer[middle_index(kmer)+1] == 'T'
+  )
+
 def CpG(kmer):
   if len(kmer) == 1: return False 
   return C_followed_by_G(kmer) or C_followed_by_G(get_reverse_complement(kmer))
 
+def ApT(kmer):
+  if len(kmer) == 1: return False 
+  return A_followed_by_T(kmer) or A_followed_by_T(get_reverse_complement(kmer))
+
 def not_CpG(kmer): 
   return not CpG(kmer)
+
+def not_ApT(kmer): 
+  return not ApT(kmer)
 
 def initialize_kmer_counts_cancer(args): 
   return {
