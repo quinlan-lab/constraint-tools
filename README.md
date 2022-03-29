@@ -146,6 +146,11 @@ The bash script that was used to generate this model is:
 train-germline-model-production.sh
 ```
 
+## Sanity checks
+
+A sanity check of the substitution probabilities we estimate during training can be found at: 
+https://github.com/quinlan-lab/constraint-tools/blob/main/tests/germline-model/substitution-probabilities.ipynb
+
 ## Development note
 
 Changes to the `vue-app` directory necessitate rebuilding the vue app by running 
