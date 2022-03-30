@@ -151,6 +151,10 @@ train-germline-model-production.sh
 A sanity check of the substitution probabilities we estimate during training can be found at: 
 https://github.com/quinlan-lab/constraint-tools/blob/main/tests/germline-model/substitution-probabilities.ipynb
 
+A sanity check of the distribution of SNV counts per window in training regions can be found at: 
+https://github.com/quinlan-lab/constraint-tools/blob/main/tests/germline-model/snv-counts.ipynb
+
+
 ## Development note
 
 Changes to the `vue-app` directory necessitate rebuilding the vue app by running 
