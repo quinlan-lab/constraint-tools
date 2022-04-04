@@ -28,7 +28,6 @@ counts_for_job="${tmpdir}/counts.${line_number_of_first_region}-${line_number_of
 log_for_job="${tmpdir}/progress-bar.${line_number_of_first_region}-${line_number_of_last_region}.log"
 # log_for_job="stdout"
 
-echo "" 
 aggregate-counts-over-regions \
   --genome ${genome} \
   --mutations ${mutations} \

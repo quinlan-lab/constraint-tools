@@ -4,7 +4,6 @@
 # https://github.com/pysam-developers/pysam/blob/b82cbcae22c088e64fdb58f8acaf1e9773c7b088/pysam/libctabix.pyx
 import pysam
 
-import numpy as np
 import json
 import argparse 
 import os
@@ -12,12 +11,7 @@ import subprocess
 import multiprocessing
 from tqdm import tqdm
 
-from kmer import (
-  initialize_kmer_counts_germline, 
-  fetch_kmer_from_sequence, 
-  contains_unspecified_bases,
-  middle_base
-)
+from kmer import initialize_kmer_counts_germline, fetch_kmers
 from singleton import Singleton_Counts, make_serializable
 from aggregate_counts import aggregate_counts
 
@@ -28,41 +22,15 @@ from colorize import (
 )
 import color_traceback 
 from snvs import fetch_SNVs, reduce_SNVs
-from pack_unpack import unpack, bed_to_sam_string
+from pack_unpack import bed_to_sam_string
 from timer import timer 
 from windows import create_windows 
-
-def truncate(string, length=100):   
-  return string[:length] + '...' if len(string) > length else string
 
 # using the "khmer" library might make this function a handful of times faster:
 # https://khmer.readthedocs.io/en/v0.6.1-0/ktable.html
 def compute_kmer_total_counts(neutral_region, genome, kmer_counts, args):
-  # "fetch" API: https://pysam.readthedocs.io/en/latest/api.html?highlight=fasta#pysam.FastaFile
-  # Note that fetch(region=region) does not work if the coordinates in "region" contains commas
-  # Workaround is to parse "region" into "chromosome", "start", "end": 
-  neutral_sequence = genome.fetch(*unpack(neutral_region))    
-  print_string_as_info(f"Sequence for neutral region {neutral_region}:")
-  print_string_as_info_dim(truncate(neutral_sequence))
-
-  # TODO: refactor this to use the "windows" module 
-  print_string_as_info('Iterating over neutral region {} and counting kmers...'.format(neutral_region))
-  start_position = 0 + args.kmer_size//2
-  end_position = len(neutral_sequence) - args.kmer_size//2 
-  number_of_sites_containing_unspecified_bases = 0
-  for position in np.arange(start_position, end_position, 1): 
-    kmer = fetch_kmer_from_sequence(neutral_sequence, position, args.kmer_size)
-    if contains_unspecified_bases(middle_base(kmer)): 
-      number_of_sites_containing_unspecified_bases += 1
-    if contains_unspecified_bases(kmer): continue 
+  for kmer in fetch_kmers(neutral_region, genome, args.kmer_size): 
     kmer_counts[kmer]['count'] += 1
-
-  number_of_sites = end_position - start_position
-  print_string_as_info_dim(
-    f'Number of sites in {neutral_region} containing unspecified bases: '
-    f'{number_of_sites_containing_unspecified_bases}/{number_of_sites}'
-  )
-
   return kmer_counts
 
 def compute_kmer_SNV_counts(neutral_region, mutations, genome, kmer_counts, args):
@@ -189,6 +157,26 @@ def main():
       # https://github.com/tqdm/tqdm/issues/506#issuecomment-508458426
       aggregate_counts_over_regions(args, progress_bar=progress_bar)
 
+def test_compute_kmer_total_counts(): 
+  print('')
+  print('*************************************************')
+  print('')
+  print_string_as_info('**** testing compute_kmer_total_counts(...) ***** ')
+  print('')
+  args = parse_arguments()  
+  genome_filename = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38/hg38.analysisSet.fa.gz'
+  region = 'chr1:15320-15340'
+  with pysam.FastaFile(genome_filename) as genome: 
+    kmer_counts = initialize_kmer_counts_germline(args)
+    expected_kmer_total_counts = [('AAA', 2), ('AAG', 2), ('AGA', 1), ('AGC', 3), ('AGG', 1), ('CAA', 2), ('CAG', 1), ('GAG', 1), ('GCA', 3), ('GCG', 1), ('GGC', 1)]
+    kmer_counts = compute_kmer_total_counts(region, genome, kmer_counts, args)
+    observed_kmer_total_counts = [(kmer, data['count']) for kmer, data in kmer_counts.items() if data['count'] > 0]
+    observed_number_kmers = sum([count for _, count in observed_kmer_total_counts])
+    assert observed_number_kmers == 20 - (args.kmer_size - 1) # 20 is the hard-coded sequence length
+    assert observed_kmer_total_counts == expected_kmer_total_counts
+    print_string_as_info('... compute_kmer_total_counts(...) passed test')
+
 if __name__ == '__main__':
-  main()  
+  main() 
+  test_compute_kmer_total_counts()  
 
