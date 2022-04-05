@@ -59,4 +59,5 @@ aggregate-counts-over-regions \
   --neutral-regions-filename ${neutral_regions_for_job} \
   --counts-filename ${counts_for_job} \
   --window-size ${window_size} \
-  --log ${log_for_job} 
+  --log ${log_for_job} \
+  --no-test
