@@ -71,7 +71,7 @@ def fetch_kmers(region, genome, kmer_size):
   )
   number_of_sites = 0 
   number_of_sites_containing_unspecified_bases = 0
-  print_string_as_info('Iterating over region {} and counting kmers...'.format(region))
+  print_string_as_info('Iterating over region {} ...'.format(region))
   for window in windows: 
     number_of_sites += 1
     chromosome, _, _ = unpack(region)
