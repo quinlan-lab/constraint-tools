@@ -65,6 +65,8 @@ def parse_arguments():
   parser.add_argument('--neutral-regions-filename', type=str, dest='neutral_regions_filename', help='')
   parser.add_argument('--counts-filename', type=str, dest='counts_filename', help='')
   parser.add_argument('--log', type=str, help='')
+  # https://docs.python.org/3/library/argparse.html#action:
+  parser.add_argument('--test', action=argparse.BooleanOptionalAction)
   return parser.parse_args()
 
 def compute_singleton_counts(neutral_region, mutations, genome, args):
@@ -157,13 +159,15 @@ def main():
       # https://github.com/tqdm/tqdm/issues/506#issuecomment-508458426
       aggregate_counts_over_regions(args, progress_bar=progress_bar)
 
-def test_compute_kmer_total_counts(): 
+  if args.test: 
+    test_compute_kmer_total_counts(args)  
+
+def test_compute_kmer_total_counts(args): 
   print('')
   print('*************************************************')
   print('')
   print_string_as_info('**** testing compute_kmer_total_counts(...) ***** ')
   print('')
-  args = parse_arguments()  
   genome_filename = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38/hg38.analysisSet.fa.gz'
   region = 'chr1:15320-15340'
   with pysam.FastaFile(genome_filename) as genome: 
@@ -178,5 +182,4 @@ def test_compute_kmer_total_counts():
 
 if __name__ == '__main__':
   main() 
-  test_compute_kmer_total_counts()  
 
