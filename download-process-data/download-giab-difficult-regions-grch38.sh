@@ -7,6 +7,7 @@ set -o nounset
 source download-process-data/set-environment-variables.sh 
 
 # https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/union/GRCh38-union-README.md
+# https://github.com/genome-in-a-bottle/genome-stratifications/blob/master/GRCh38/union/GRCh38-union-README.md
 giab_difficult_regions_url="https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/union/GRCh38_alldifficultregions.bed.gz"
 giab_difficult_regions="giab-difficult-regions.sorted"
 
