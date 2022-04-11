@@ -13,7 +13,8 @@ encode_exclude_regions="${CONSTRAINT_TOOLS_DATA}/encode-exclude-regions/grch38/e
 
 # TODO: decide which regions to exclude: 
 # giab_difficult_regions="${CONSTRAINT_TOOLS_DATA}/giab-difficult-regions/grch38/giab-difficult-regions.sorted.bed.gz"
-giab_low_complexity_regions="${CONSTRAINT_TOOLS_DATA}/giab-low-complexity-regions/grch38/giab-low-complexity-regions.sorted.bed.gz"
+# giab_low_complexity_regions="${CONSTRAINT_TOOLS_DATA}/giab-low-complexity-regions/grch38/giab-low-complexity-regions.sorted.bed.gz"
+li_low_complexity_regions="${CONSTRAINT_TOOLS_DATA}/li-low-complexity-regions/grch38/li-low-complexity-regions.sorted.bed.gz"
 
 covered_sites="${CONSTRAINT_TOOLS_DATA}/gnomad/v3/gnomad_v3_coverage.filtered.sorted.bed.gz"
 
@@ -21,6 +22,6 @@ info "Compute regions putatively under neutral selection..."
 info "This is the strategy Kelley Harris’s lab took:" 
 set -o xtrace
 bedtools complement -i ${exons} -g ${chromosome_sizes} \
-  | bedtools intersect -v -a - -b ${gaps} ${encode_exclude_regions} ${giab_low_complexity_regions} \
+  | bedtools intersect -v -a - -b ${gaps} ${encode_exclude_regions} ${li_low_complexity_regions} \
   | bedtools intersect -a - -b ${covered_sites} \
   | sort-compress-index-bed --name ${CONSTRAINT_TOOLS}/dist/neutral-regions-germline-grch38
