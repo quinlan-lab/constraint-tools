@@ -21,13 +21,16 @@ def make_serializable(singleton_data):
     for k, v in singleton_data.items()
   }
 
-def dict_to_defaultdict(singleton_data):
-  singleton_data = {
+def update_types(singleton_data):
+  return {
     # JSON treats keys as strings: https://stackoverflow.com/a/1451857/6674256
     # So convert keys from string to int, so we can perform arithmetic on keys, later: 
     int(k): np.array(v) # list to numpy array 
     for k, v in singleton_data.items()
   }
+
+def dict_to_defaultdict(singleton_data):
+  singleton_data = update_types(singleton_data)
   return Singleton_Counts(None, singleton_data)
 
 def test_dict_to_defaultdict(): 
