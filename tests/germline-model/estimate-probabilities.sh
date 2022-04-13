@@ -30,3 +30,5 @@ estimate-probabilities \
   --neutral-regions "XXX" \
   --progress-bars "${progress_bars}"
 
+tests_directory="${CONSTRAINT_TOOLS}/tests/germline-model"
+python ${tests_directory}/estimate-probabilities.py ${tests_directory}/model-germline-grch38.json
