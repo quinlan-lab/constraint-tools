@@ -16,7 +16,12 @@ def clip(region, flank):
   return pack(chromosome, start+flank, end-flank)
 
 def fetch_SNVs(mutations, genome, region, meta, number_chromosomes_min=0, discard_unspecified_SNVs=True):
-  clipped_region = clip(region, flank=meta['kmer_size']//2)
+  try:
+    kmer_size = meta['kmer_size']
+  except KeyError: 
+    kmer_size = meta['kmerSize']
+
+  clipped_region = clip(region, flank=kmer_size//2)
   column_headings, heading_to_index = fetch_column_headings_indices(meta['mutations'])
 
   SNVs = []
@@ -51,7 +56,7 @@ def fetch_SNVs(mutations, genome, region, meta, number_chromosomes_min=0, discar
       'number_chromosomes': int(row_dict['number_chromosomes']),
     }
 
-    kmer = fetch_kmer_from_genome(genome, mutation['chromosome'], mutation['position'], meta['kmer_size'])
+    kmer = fetch_kmer_from_genome(genome, mutation['chromosome'], mutation['position'], kmer_size)
     if discard_unspecified_SNVs and contains_unspecified_bases(kmer): continue 
     if middle_base(kmer) != mutation['REF'].upper(): # sanity check
       print_json(mutation)
@@ -212,11 +217,38 @@ def test_fetch_SNVs_boundary():
     print(f'this SNV is positioned at the end of {region} after clipping:')
     print_json(SNVs[-1])
 
+def test_fetch_SNVs_meta(): 
+  print_unbuffered('')
+  print_string_as_info('********* testing fetch_SNVs using meta dictionaries with "kmerSize" key vs "kmer_size" key ****************')
+  print_unbuffered('')
+
+  mutations_filename = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/gnomad_v3.sorted.tsv.gz'
+  genome_filename = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38/hg38.analysisSet.fa.gz'
+  region = 'chr16:88366814-88366826' 
+  meta1 = { 
+    'mutations': mutations_filename, 
+    'kmer_size': 5
+  }
+  meta2 = { 
+    'mutations': mutations_filename, 
+    'kmerSize': 5
+  }
+  with pysam.TabixFile(mutations_filename) as mutations, pysam.FastaFile(genome_filename) as genome: 
+    SNVs_meta1 = fetch_SNVs(mutations, genome, region, meta1)
+    print_json(SNVs_meta1)
+    SNVs_meta2 = fetch_SNVs(mutations, genome, region, meta2)
+    print_json(SNVs_meta2)
+
+  from unittest import TestCase
+  TestCase().assertEqual(SNVs_meta1, SNVs_meta2)
+  print_string_as_info('Test passed.')
+
 def run_tests():
   test_fetch_SNVs()
   test_reduce_SNVs()
   test_fetch_SNVs_N()
   test_fetch_SNVs_boundary()
+  test_fetch_SNVs_meta()
 
 if __name__ == '__main__': 
   run_tests()
