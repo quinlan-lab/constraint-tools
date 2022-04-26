@@ -28,7 +28,7 @@ bash tests/germline-model/train-germline-model-fast.sh
 
 One can render a prototype dashboard using: 
 ```
-bash tests/germline-model/dashboard.sh $PWD
+bash tests/germline-model/dashboard.sh
 ```
 
 Follow the instructions at the command line to view a web app that visualizes observed SNV and singleton counts, and those expected under a null model of sequence-dependent mutation (see `define-model` folder), as a function of genomic coordinate.  
@@ -43,13 +43,13 @@ Valid values for `SUB_COMMAND` are:
 
 ```
 train-germline-model 
-      estimate kmer-dependent SNV probabilities and singleton-count probabilities 
+      Estimate kmer-dependent SNV probabilities and singleton-count probabilities 
       (see the model defined in the "define-model" folder)
 dashboard-germline-model
-      start a web app that visualizes observed and expected 
+      Start a web app that visualizes observed and expected 
       SNV and singleton counts as a function of genomic coordinate
 predict-germline-constraint
-      call genomic regions predicted to be under negative selection 
+      Call genomic regions predicted to be under negative selection 
       in the germline [not yet implemented]
 ```
 
@@ -148,12 +148,7 @@ train-germline-model-production.sh
 
 ## Sanity checks
 
-A sanity check of the substitution probabilities we estimate during training can be found at: 
-https://github.com/quinlan-lab/constraint-tools/blob/main/tests/germline-model/substitution-probabilities.ipynb
-
-A sanity check of the distribution of SNV counts per window in training regions can be found at: 
-https://github.com/quinlan-lab/constraint-tools/blob/main/tests/germline-model/snv-counts.ipynb
-
+See `experiments/germline-model/sanity-check-*.ipynb`. 
 
 ## Development note
 

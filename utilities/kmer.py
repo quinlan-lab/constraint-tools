@@ -54,13 +54,14 @@ def fetch_kmer_from_genome(genome, chromosome, position, kmer_size):
 def truncate(string, length=100):   
   return string[:length] + '...' if len(string) > length else string
 
-def fetch_kmers(region, genome, kmer_size): 
+def fetch_kmers(region, genome, kmer_size, log=True): 
   # "fetch" API: https://pysam.readthedocs.io/en/latest/api.html?highlight=fasta#pysam.FastaFile
   # Note that fetch(region=region) does not work if the coordinates in "region" contains commas
   # Workaround is to parse "region" into "chromosome", "start", "end": 
   sequence = genome.fetch(*unpack(region))    
-  print_string_as_info(f"Sequence for region {region}:")
-  print_string_as_info_dim(truncate(sequence))
+  if log: 
+    print_string_as_info(f"Sequence for region {region}:")
+    print_string_as_info_dim(truncate(sequence))
 
   windows = create_windows(
     window_size = kmer_size, 
@@ -71,7 +72,8 @@ def fetch_kmers(region, genome, kmer_size):
   )
   number_of_sites = 0 
   number_of_sites_containing_unspecified_bases = 0
-  print_string_as_info('Iterating over region {} ...'.format(region))
+  if log: 
+    print_string_as_info('Iterating over region {} ...'.format(region))
   for window in windows: 
     number_of_sites += 1
     chromosome, _, _ = unpack(region)
@@ -81,10 +83,11 @@ def fetch_kmers(region, genome, kmer_size):
     if contains_unspecified_bases(kmer): continue 
     yield kmer 
     
-  print_string_as_info_dim(
-    f'Number of sites in {region} containing unspecified bases: '
-    f'{number_of_sites_containing_unspecified_bases}/{number_of_sites}'
-  )
+  if log: 
+    print_string_as_info_dim(
+      f'Number of sites in {region} containing unspecified bases: '
+      f'{number_of_sites_containing_unspecified_bases}/{number_of_sites}'
+    )
 
 def compute_kmers(kmer_size): 
   return [''.join(tup) for tup in itertools.product(bases, repeat=kmer_size)]

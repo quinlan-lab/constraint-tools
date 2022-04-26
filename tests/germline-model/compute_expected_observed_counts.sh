@@ -6,7 +6,7 @@ set -o nounset
 # need to export PYTHONPATH since it is not already in the environment: 
 # `printenv | grep -w PYTHONPATH` returns zero output
 
-CONSTRAINT_TOOLS=$1
+CONSTRAINT_TOOLS="/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools"
 
 export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities:${CONSTRAINT_TOOLS}/predict-constraint"
 
@@ -14,15 +14,11 @@ export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities:${CONSTRAINT_TOOLS}/predict-con
 # `printenv | grep -w PATH` returns non-zero output 
 PATH="${CONSTRAINT_TOOLS}/bin:$PATH" 
 
-model="/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/model.ptm.json" 
-region="chr1:100,000-100,200"
-window_size="51" 
+model="/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/model-germline-grch38.json" 
+region="chr1:1,000,000-1,000,200"
 window_stride="25"
 
-python ${CONSTRAINT_TOOLS}/predict-constraint/compute_mutation_counts.py \
+python ${CONSTRAINT_TOOLS}/predict-constraint/germline-model/compute_expected_observed_counts.py \
     --region ${region} \
     --model ${model} \
-    --window-size ${window_size} \
-    --window-stride ${window_stride} \
-  | jq .
-
+    --window-stride ${window_stride} 

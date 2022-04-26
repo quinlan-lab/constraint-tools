@@ -4,7 +4,7 @@
 
 <template> 
   <div> 
-    <md-progress-bar v-if="!initialPlotParametersSet" md-mode="indeterminate" />
+    <md-progress-bar v-if="!initialPlotParametersSet || !modelParametersSet" md-mode="indeterminate" />
     <md-card 
       v-else
       style="margin: 10px auto;" 
@@ -25,19 +25,27 @@
         </div>
       </md-card-header>
 
+      <md-card-header> 
+        <div class="md-title">
+          Model 
+        </div>
+        <div class="md-subhead">
+          kmerSize: {{ modelParameters.kmerSize }} 
+        </div>  
+        <div class="md-subhead">
+          numberChromosomesMin: {{ modelParameters.numberChromosomesMin }} 
+        </div>  
+        <div class="md-subhead">
+          windowSize: {{ modelParameters.windowSize }} 
+        </div>  
+      </md-card-header>
+
       <md-card-content>
         <div class="md-layout md-gutter">
           <div class="md-layout-item" style="min-width: 250px; max-width: 300px;">
             <md-field>
               <label for="region">Region</label>
               <md-input id="region" v-model="plotParameters.region" :disabled="fetchingAPIData" />
-            </md-field>
-          </div>    
-
-          <div class="md-layout-item" style="max-width: 150px;">
-            <md-field>
-              <label for="window-size">Window size</label>
-              <md-input id="window-size" v-model="plotParameters.windowSize" :disabled="fetchingAPIData" />
             </md-field>
           </div>    
 
@@ -108,13 +116,20 @@ export default {
     return {
       errors: [],
       showSnackbar: false,
+
       plotParameters: null,
-      initialPlotParametersSet: false
+      initialPlotParametersSet: false,
+
+      modelParameters: null,
+      modelParametersSet: false,
     }
   }, 
   methods: {
-    isEven (number) {
-      return number % 2 == 0
+    intervalSizeIsNegataive (region) { 
+      const start_end = region.split(':')[1]
+      const [start, end] = start_end.replaceAll(',', '').split('-')
+      const intervalSize = parseInt(end) - parseInt(start)
+      return intervalSize < 0
     },
     validateParameters () {
       this.errors = []
@@ -122,15 +137,12 @@ export default {
       if (!this.plotParameters.region) {
         this.errors.push('Region required.')
       }
-      if (!this.plotParameters.windowSize) {
-        this.errors.push('Window size required.')
-      }
       if (!this.plotParameters.windowStride) {
         this.errors.push('Window stride required.')
       }   
 
-      if (this.isEven(this.plotParameters.windowSize)) {
-        this.errors.push('Window size must be odd.')
+      if (this.intervalSizeIsNegataive(this.plotParameters.region)) {
+        this.errors.push('End of region must be larger than start of region.')
       }
 
       if (this.errors.length > 0) {
@@ -141,7 +153,7 @@ export default {
     },
     getAPIData () {
       if ( this.validateParameters() ) {
-        this.$store.dispatch('getMutationCounts', this.plotParameters)
+        this.$store.dispatch('getExpectedObservedCounts', this.plotParameters)
         this.$store.dispatch('getCanonicalData', this.plotParameters.region)
       } else { 
         this.showSnackbar = true
@@ -167,6 +179,9 @@ export default {
   async created () { 
     this.plotParameters = await api.getInitialPlotParameters()
     this.initialPlotParametersSet = true
+
+    this.modelParameters = await api.getModelParameters()
+    this.modelParametersSet = true
   }  
 }
 </script>

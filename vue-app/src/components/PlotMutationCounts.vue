@@ -42,7 +42,7 @@ export default {
   },
   computed: {
     ...mapState([
-      'mutationCounts',
+      'expectedObservedCounts',
       'canonicalExons'
     ]),
     ...mapGetters([
@@ -62,8 +62,8 @@ export default {
     },
     yaxisMax () { 
       return Math.max(
-        ...this.mutationCounts.windowExpectedMutationCounts,
-        ...this.mutationCounts.windowObservedMutationCounts
+        ...this.expectedObservedCounts.NBars,
+        ...this.expectedObservedCounts.NObserveds
       )
     },
     traces () {
@@ -76,27 +76,27 @@ export default {
           showlegend: false
         },      
         {
-          x: this.mutationCounts.windowPositions,
-          y: this.mutationCounts.windowObservedMutationCounts,
-          name: 'observed'
+          x: this.expectedObservedCounts.windowPositions,
+          y: this.expectedObservedCounts.NObserveds,
+          name: 'N_observed'
         }, 
         { 
-          x: this.mutationCounts.windowPositions,
-          y: this.mutationCounts.windowExpectedMutationCounts,
-          name: 'expected'
+          x: this.expectedObservedCounts.windowPositions,
+          y: this.expectedObservedCounts.NBars,
+          name: 'N_bar'
         },
         {
           type: 'bar', // https://github.com/plotly/documentation/issues/1270#issuecomment-468645317
-          x: this.mutationCounts.lollipopsCpGNegativePositions,
-          y: this.mutationCounts.lollipopsCpGNegativeHeights,
-          width: Array(this.mutationCounts.lollipopsCpGNegativePositions.length).fill(1),
+          x: this.expectedObservedCounts.ellipsesCpGNegativePositions,
+          y: this.expectedObservedCounts.ellipsesCpGNegativeHeights,
+          width: Array(this.expectedObservedCounts.ellipsesCpGNegativePositions.length).fill(1),
           name: 'CpG-'
         },
         {
           type: 'bar', // https://github.com/plotly/documentation/issues/1270#issuecomment-468645317
-          x: this.mutationCounts.lollipopsCpGPositivePositions,
-          y: this.mutationCounts.lollipopsCpGPositiveHeights,
-          width: Array(this.mutationCounts.lollipopsCpGPositivePositions.length).fill(1),
+          x: this.expectedObservedCounts.ellipsesCpGPositivePositions,
+          y: this.expectedObservedCounts.ellipsesCpGPositiveHeights,
+          width: Array(this.expectedObservedCounts.ellipsesCpGPositivePositions.length).fill(1),
           name: 'CpG+'
         },
       ] 
@@ -110,7 +110,7 @@ export default {
         },
         // https://codepen.io/plotly/pen/KpLVzv ...
         xaxis: {
-          title: `Position (bps) along chromosome ${this.mutationCounts.chromosome}`,
+          title: `Position (bps) along chromosome ${this.expectedObservedCounts.chromosome}`,
           showline: true,
           showgrid: false,
           zeroline: false,
@@ -118,7 +118,7 @@ export default {
           showticklabels: true,
         },
         yaxis: {
-          title: 'Number of mutations',
+          title: '',
           showline: true,
           showgrid: false,
           zeroline: false,

@@ -2,10 +2,9 @@
 
 # set -o xtrace 
 
-model="${CONSTRAINT_TOOLS}/$(read-config dashboard model)"
-region=$(read-config dashboard region)
-window_size=$(read-config dashboard windowSize)
-window_stride=$(read-config dashboard windowStride)
+model="${CONSTRAINT_TOOLS}/$(read-config dashboardGermlineModel model)"
+region=$(read-config dashboardGermlineModel region)
+window_stride=$(read-config dashboardGermlineModel windowStride)
 
 # https://devhints.io/bash#miscellaneous
 # put option-fetching before "set -o nounset" so that we can detect flags without arguments
@@ -18,21 +17,19 @@ while [[ "$1" =~ ^- ]]; do
   shift
 done
 
-info "using the model specified at:"
-info "${model}\n"
+info "Using the model specified at:" ${model}
 
 set -o errexit
 set -o pipefail
 set -o noclobber
 set -o nounset
 
-cd ${CONSTRAINT_TOOLS}/flask-app
+cd ${CONSTRAINT_TOOLS}/flask-app/germline-model
 FLASK_ENV="development" # https://flask.palletsprojects.com/en/2.0.x/server/#in-code
 python flask-app.py \
   --model ${model} \
   --port ${port} \
   --region ${region} \
-  --window-size ${window_size} \
   --window-stride ${window_stride}
 
 

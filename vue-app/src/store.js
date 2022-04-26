@@ -8,8 +8,8 @@ Vue.use(Vuex)
 
 export const store = new Vuex.Store({
   state: {
-    mutationCounts: null,
-    fetchingMutationCounts: false,
+    expectedObservedCounts: null,
+    fetchingExpectedObservedCounts: false,
 
     canonicalTranscript: null,
     canonicalExons: null,
@@ -19,15 +19,15 @@ export const store = new Vuex.Store({
   },
   getters: {
     fetchingAPIData: state => {
-      return state.fetchingMutationCounts || state.fetchingCanonicalData 
+      return state.fetchingExpectedObservedCounts || state.fetchingCanonicalData 
     }
   },
   mutations: {
-    setMutationCounts (state, mutationCounts) {
-      state.mutationCounts = mutationCounts
+    setExpectedObservedCounts (state, expectedObservedCounts) {
+      state.expectedObservedCounts = expectedObservedCounts
     },
-    setFetchingMutationCounts (state, fetchingMutationCounts) {
-      state.fetchingMutationCounts = fetchingMutationCounts
+    setFetchingExpectedObservedCounts (state, fetchingExpectedObservedCounts) {
+      state.fetchingExpectedObservedCounts = fetchingExpectedObservedCounts
     },
 
     setCanonicalTranscript (state, canonicalTranscript) {
@@ -45,10 +45,10 @@ export const store = new Vuex.Store({
     },
   },
   actions: {
-    async getMutationCounts ({ commit }, plotParameters) { 
-      commit('setFetchingMutationCounts', true)
-      commit('setMutationCounts', await api.getMutationCounts(plotParameters))
-      commit('setFetchingMutationCounts', false)
+    async getExpectedObservedCounts ({ commit }, plotParameters) { 
+      commit('setFetchingExpectedObservedCounts', true)
+      commit('setExpectedObservedCounts', await api.getExpectedObservedCounts(plotParameters))
+      commit('setFetchingExpectedObservedCounts', false)
     },
     async getCanonicalData ({ commit }, region) { 
       // https://vuex.vuejs.org/guide/actions.html#composing-actions

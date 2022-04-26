@@ -23,13 +23,23 @@ export async function getInitialPlotParameters() {
   }
 }
 
-export async function getMutationCounts(plotParameters) {
+export async function getModelParameters() {
   try {
-    const response = await axiosInstance.post('/api/mutation-counts', plotParameters)
-    const mutationCounts = response.data 
-    console.log('mutationCounts:')
-    console.log(mutationCounts)
-    return mutationCounts  
+    const response = await axiosInstance.get('/api/model-parameters')
+    const modelParameters = response.data 
+    return modelParameters
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+export async function getExpectedObservedCounts(plotParameters) {
+  try {
+    const response = await axiosInstance.post('/api/expected-observed-counts', plotParameters)
+    const expectedObservedCounts = response.data 
+    console.log('expectedObservedCounts:')
+    console.log(expectedObservedCounts)
+    return expectedObservedCounts  
   } catch (error) {
     console.error(error)
   }
