@@ -19,18 +19,18 @@ from windows import create_windows
 
 import color_traceback
 
-def compute_SNV_positions_frequencies(SNVs, filter_function):
+def compute_SNV_positions_frequencies_filtered(SNVs, filter_function):
   SNV_positions_frequencies = [
     (SNV['position'], SNV['number_ALT_chromosomes']) 
     for SNV in SNVs if filter_function(SNV['kmer'])
   ]  
   return tuple(zip(*SNV_positions_frequencies))
 
-def compute_ellipses(mutations, genome, region, model, number_chromosomes_min):
+def compute_SNV_positions_frequencies(mutations, genome, region, model, number_chromosomes_min):
   SNVs = fetch_SNVs(mutations, genome, region, meta=model, number_chromosomes_min=number_chromosomes_min)
   return (
-    compute_SNV_positions_frequencies(SNVs, CpG),
-    compute_SNV_positions_frequencies(SNVs, not_CpG)
+    compute_SNV_positions_frequencies_filtered(SNVs, CpG),
+    compute_SNV_positions_frequencies_filtered(SNVs, not_CpG)
   )
 
 def pull_element(list_, index): 
@@ -117,7 +117,10 @@ def compute_expected_observed_counts(region, model, window_stride, number_chromo
   with pysam.TabixFile(model['mutations']) as mutations, pysam.FastaFile(model['genome']) as genome:
     windows = create_windows(model['windowSize'], window_stride, region, genome, region_contains_windows=True)    
     N_bars, N_observeds = zip(*[compute_Nbar_Nobserved(window, model, mutations, genome, log) for window in windows])
-    ellipses_CpG_positive, ellipses_CpG_negative = compute_ellipses(mutations, genome, region, model, number_chromosomes_min)
+    (
+      SNV_positions_frequencies_CpG_positive, 
+      SNV_positions_frequencies_CpG_negative
+     ) = compute_SNV_positions_frequencies(mutations, genome, region, model, number_chromosomes_min)
 
   chromosome, start, end = unpack(region)
 
@@ -130,10 +133,10 @@ def compute_expected_observed_counts(region, model, window_stride, number_chromo
     'windowRegions': [window['region'] for window in windows], 
     'NBars': N_bars, 
     'NObserveds': N_observeds, 
-    'ellipsesCpGPositivePositions': pull_element(ellipses_CpG_positive, index=0), 
-    'ellipsesCpGPositiveHeights': pull_element(ellipses_CpG_positive, index=1), 
-    'ellipsesCpGNegativePositions': pull_element(ellipses_CpG_negative, index=0),
-    'ellipsesCpGNegativeHeights': pull_element(ellipses_CpG_negative, index=1)
+    'snvCpGPositivePositions': pull_element(SNV_positions_frequencies_CpG_positive, index=0), 
+    'snvCpGPositiveFrequencies': pull_element(SNV_positions_frequencies_CpG_positive, index=1), 
+    'snvCpGNegativePositions': pull_element(SNV_positions_frequencies_CpG_negative, index=0),
+    'snvCpGNegativeFrequencies': pull_element(SNV_positions_frequencies_CpG_negative, index=1)
   }
 
 def parse_arguments(): 

@@ -7,7 +7,7 @@
   },
   "dashboardGermlineModel": {
     "model": "dist/model-germline-grch38.json",
-    "region": "chr20:63,444,000-63,447,000", 
+    "region": "chr20:63,444,500-63,445,000", 
     "windowStride": "1"
   }
 }

@@ -10,39 +10,42 @@
       style="margin: 10px auto;" 
     >
     
-      <md-card-header v-if="canonicalTranscriptExists"> 
-        <div class="md-title">
-          Canonical Transcript: {{ canonicalTranscript.display_name }}
-        </div>
-        <div class="md-subhead">
-          Ensemble ID: 
-          <a :href="canonicalTranscriptEnsembleUI" target="_blank">
-            {{ canonicalTranscript.id }}
-          </a>  
-        </div>  
-        <div class="md-subhead">
-          Strand: {{ canonicalTranscript.strand }}
-        </div>
-      </md-card-header>
-
-      <md-card-header> 
-        <div class="md-title">
-          Model 
-        </div>
-        <div class="md-subhead">
-          kmerSize: {{ modelParameters.kmerSize }} 
-        </div>  
-        <div class="md-subhead">
-          numberChromosomesMin: {{ modelParameters.numberChromosomesMin }} 
-        </div>  
-        <div class="md-subhead">
-          windowSize: {{ modelParameters.windowSize }} 
-        </div>  
-      </md-card-header>
-
       <md-card-content>
         <div class="md-layout md-gutter">
-          <div class="md-layout-item" style="min-width: 250px; max-width: 300px;">
+          <div class="md-layout-item header-item" v-if="canonicalTranscriptExists">
+            <div class="md-head">
+              Canonical Transcript
+            </div>
+            <div class="md-subhead">
+              Name: {{ canonicalTranscript.display_name }}
+            </div>
+            <div class="md-subhead">
+              Ensemble ID: 
+              <a :href="canonicalTranscriptEnsembleUI" target="_blank">
+                {{ canonicalTranscript.id }}
+              </a>  
+            </div>  
+            <div class="md-subhead">
+              Strand: {{ canonicalTranscript.strand }}
+            </div>
+          </div>
+
+          <div class="md-layout-item header-item">
+            <div class="md-head">
+              Model 
+            </div>
+            <div class="md-subhead">
+              kmerSize: {{ modelParameters.kmerSize }} 
+            </div>  
+            <div class="md-subhead">
+              numberChromosomesMin: {{ modelParameters.numberChromosomesMin }} 
+            </div>  
+            <div class="md-subhead">
+              windowSize: {{ modelParameters.windowSize }} 
+            </div>  
+          </div>
+
+          <div class="md-layout-item header-item">
             <md-field>
               <label for="region">Region</label>
               <md-input id="region" v-model="plotParameters.region" :disabled="fetchingAPIData" />
@@ -125,11 +128,11 @@ export default {
     }
   }, 
   methods: {
-    intervalSizeIsNegataive (region) { 
+    intervalSizeTooSmall (region) { 
       const start_end = region.split(':')[1]
       const [start, end] = start_end.replaceAll(',', '').split('-')
       const intervalSize = parseInt(end) - parseInt(start)
-      return intervalSize < 0
+      return intervalSize < this.modelParameters.windowSize
     },
     validateParameters () {
       this.errors = []
@@ -141,8 +144,8 @@ export default {
         this.errors.push('Window stride required.')
       }   
 
-      if (this.intervalSizeIsNegataive(this.plotParameters.region)) {
-        this.errors.push('End of region must be larger than start of region.')
+      if (this.intervalSizeTooSmall(this.plotParameters.region)) {
+        this.errors.push(`Region must be at least ${this.modelParameters.windowSize}bp`)
       }
 
       if (this.errors.length > 0) {
@@ -187,5 +190,18 @@ export default {
 </script>
 
 <style scoped> 
+.header-item { 
+  min-width: 250px; 
+  max-width: 300px;
+  padding-bottom: 10px;
+}
+
+div.md-subhead { 
+  font-size: 12px;
+}
+
+.md-field.md-has-value .md-input { 
+  font-size: 14px;
+}
 </style>
 

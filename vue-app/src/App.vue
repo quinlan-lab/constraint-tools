@@ -1,19 +1,19 @@
 <template>
   <div style="padding: 10px;">
     <set-plot-parameters/>
-    <plot-mutation-counts/>
+    <plot-counts/>
   </div>
 </template>
 
 <script>
 
-import PlotMutationCounts from '@/components/PlotMutationCounts'
+import PlotCounts from '@/components/PlotCounts'
 import SetPlotParameters from '@/components/SetPlotParameters'
 
 export default {
   name: 'App',
   components: {
-    PlotMutationCounts,
+    PlotCounts,
     SetPlotParameters
   }
 }
