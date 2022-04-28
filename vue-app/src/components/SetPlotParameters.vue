@@ -122,9 +122,6 @@ export default {
 
       plotParameters: null,
       initialPlotParametersSet: false,
-
-      modelParameters: null,
-      modelParametersSet: false,
     }
   }, 
   methods: {
@@ -168,6 +165,8 @@ export default {
       'canonicalTranscript',
       'canonicalExons',
       'canonicalDataSet',
+      'modelParameters',
+      'modelParametersSet'
     ]),
     ...mapGetters([
       'fetchingAPIData'
@@ -183,8 +182,7 @@ export default {
     this.plotParameters = await api.getInitialPlotParameters()
     this.initialPlotParametersSet = true
 
-    this.modelParameters = await api.getModelParameters()
-    this.modelParametersSet = true
+    this.$store.dispatch('getModelParameters')
   }  
 }
 </script>

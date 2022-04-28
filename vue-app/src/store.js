@@ -8,6 +8,10 @@ Vue.use(Vuex)
 
 export const store = new Vuex.Store({
   state: {
+    modelParameters: null, 
+    fetchingModelParameters: false, 
+    modelParametersSet: false,
+    
     expectedObservedCounts: null,
     fetchingExpectedObservedCounts: false,
 
@@ -23,6 +27,14 @@ export const store = new Vuex.Store({
     }
   },
   mutations: {
+    setModelParameters (state, modelParameters) {
+      state.modelParameters = modelParameters
+      state.modelParametersSet = true
+    },
+    setFetchingModelParameters (state, fetchingModelParameters) {
+      state.fetchingModelParameters = fetchingModelParameters
+    },
+
     setExpectedObservedCounts (state, expectedObservedCounts) {
       state.expectedObservedCounts = expectedObservedCounts
     },
@@ -45,6 +57,11 @@ export const store = new Vuex.Store({
     },
   },
   actions: {
+    async getModelParameters ({ commit }) { 
+      commit('setFetchingModelParameters', true)
+      commit('setModelParameters', await api.getModelParameters())
+      commit('setFetchingModelParameters', false)
+    },
     async getExpectedObservedCounts ({ commit }, plotParameters) { 
       commit('setFetchingExpectedObservedCounts', true)
       commit('setExpectedObservedCounts', await api.getExpectedObservedCounts(plotParameters))

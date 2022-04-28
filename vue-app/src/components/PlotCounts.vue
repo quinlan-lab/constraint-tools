@@ -10,15 +10,21 @@
       when plotly code is called. 
       -->
     <div class="plot-container md-elevation-3">
-      <div ref="plot" style="padding-left: 60px"> </div>
+      <div ref="plot" style="padding-left: 120px"> </div>
       <div class="cpg-container" v-if="expectedObservedCounts">
+        <span class="annotation"># chroms > {{ modelParameters.numberChromosomesMin }}</span>
+        <br>
         <div class="cpg-box" :style="{ 'background-color': cpgNegativeColor }"></div>
         <span class="cpg-explanation">CpG-</span>
         <br>
         <div class="cpg-box" :style="{ 'background-color': cpgPositiveColor }"></div>
         <span class="cpg-explanation">CpG+</span>
         <br>
-        <div style="padding-top: 100px">
+        <div style="padding-top: 150px">
+          <span class="annotation">No constraint on</span> 
+          <br> 
+          <span class="annotation"># chromosomes</span>
+          <br>
           <div class="exon-box" :style="{ 'background-color': exonColor }"></div>
           <span class="exon-explanation">exon</span>
         </div>
@@ -89,7 +95,8 @@ export default {
   computed: {
     ...mapState([
       'expectedObservedCounts',
-      'canonicalExons'
+      'canonicalExons',
+      'modelParameters',
     ]),
     ...mapGetters([
       'fetchingAPIData'
@@ -157,7 +164,8 @@ export default {
         showlegend: true,
         legend: {
           x: 1.05,
-          y: 0.4
+          y: 0.4,
+          // xanchor: 'right',
         },
         height: 600,
         width: 1000,
@@ -286,5 +294,9 @@ export default {
   .exon-explanation {
     margin-left: 5px;
     vertical-align: middle;
+  }
+
+  .annotation {
+    color: grey;
   }
 </style>
