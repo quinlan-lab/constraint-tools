@@ -11,12 +11,17 @@
       -->
     <div class="plot-container md-elevation-3">
       <div ref="plot" style="padding-left: 60px"> </div>
-      <div class="cpg-container">
+      <div class="cpg-container" v-if="expectedObservedCounts">
         <div class="cpg-box" :style="{ 'background-color': cpgNegativeColor }"></div>
         <span class="cpg-explanation">CpG-</span>
         <br>
         <div class="cpg-box" :style="{ 'background-color': cpgPositiveColor }"></div>
         <span class="cpg-explanation">CpG+</span>
+        <br>
+        <div style="padding-top: 100px">
+          <div class="exon-box" :style="{ 'background-color': exonColor }"></div>
+          <span class="exon-explanation">exon</span>
+        </div>
       </div> 
     </div> 
   </div>
@@ -31,7 +36,8 @@ export default {
   data () {
     return {
       cpgNegativeColor: 'rgba(255, 0, 0, 0.2)',
-      cpgPositiveColor: 'rgba(0, 0, 255, 0.2)'
+      cpgPositiveColor: 'rgba(0, 0, 255, 0.2)',
+      exonColor: '#d3d3d3'
     }
   },
   methods: {
@@ -44,7 +50,7 @@ export default {
         y0: 0,
         x1: exon.end,
         y1: this.y2axisMax,
-        fillcolor: '#d3d3d3',
+        fillcolor: this.exonColor,
         opacity: 0.6,
         line: {
             width: 0
@@ -148,7 +154,13 @@ export default {
     },
     layout () {
       return { 
-        height: 750,
+        showlegend: true,
+        legend: {
+          x: 1.05,
+          y: 0.4
+        },
+        height: 600,
+        width: 1000,
         grid: {
           rows: 3, 
           columns: 1, 
@@ -167,7 +179,7 @@ export default {
         },
         yaxis: { 
           domain: [0.8, 1.0],
-          title: '1 + log(# ALT chromosomes) <br>(semi-major axis)',
+          title: '1 + log(# ALT chroms) <br>(semi-major axis)',
           showgrid: false,
           showline: true,
           zeroline: false,
@@ -176,7 +188,7 @@ export default {
         },
         yaxis2: { 
           domain: [0.4, 0.75],
-          title: 'observed #SNVs',
+          title: 'observed # SNVs <br>(per window)',
           showgrid: false,
           showline: true,
           zeroline: true,
@@ -261,4 +273,18 @@ export default {
     vertical-align: middle;
   }
 
+  .exon-box {
+    width: 10px;
+    height: 20px;
+    border-radius: 0%;
+    border: 0px solid black;
+    margin: 5px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .exon-explanation {
+    margin-left: 5px;
+    vertical-align: middle;
+  }
 </style>
