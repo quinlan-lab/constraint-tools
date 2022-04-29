@@ -17,12 +17,12 @@ while [[ "$1" =~ ^- ]]; do
   shift
 done
 
-info "Using the model specified at:" ${model}
-
 set -o errexit
 set -o pipefail
 set -o noclobber
 set -o nounset
+
+info "Using the model specified at:" ${model}
 
 cd ${CONSTRAINT_TOOLS}/flask-app/germline-model
 FLASK_ENV="development" # https://flask.palletsprojects.com/en/2.0.x/server/#in-code
@@ -30,6 +30,6 @@ python flask-app.py \
   --model ${model} \
   --port ${port} \
   --region ${region} \
-  --window-stride ${window_stride}
+  --window-stride ${window_stride} 
 
 

@@ -81,8 +81,7 @@
 
         <md-card-expand-content>
           <md-card-content>
-            Exons from the canonical transcript are indicated in grey in the plot below, 
-            and labeled with their rank in that transcript.          
+            Exons from the canonical transcript are labeled with their rank in that transcript.          
           </md-card-content>
         </md-card-expand-content>
       </md-card-expand>
@@ -155,6 +154,7 @@ export default {
       if ( this.validateParameters() ) {
         this.$store.dispatch('getExpectedObservedCounts', this.plotParameters)
         this.$store.dispatch('getCanonicalData', this.plotParameters.region)
+        this.$store.dispatch('getNeutralRegions', this.plotParameters)
       } else { 
         this.showSnackbar = true
       }

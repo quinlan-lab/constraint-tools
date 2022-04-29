@@ -33,6 +33,23 @@ export async function getModelParameters() {
   }
 }
 
+export async function getNeutralRegions(plotParameters) {
+  try {
+    const response = await axiosInstance.post('/api/neutral-regions', plotParameters)
+    let neutralRegions = response.data['neutralRegions'] 
+    console.log('neutralRegions lengths:')
+    console.log(neutralRegions.map(region => region.End - region.Start))
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions#advanced_syntax
+    neutralRegions = neutralRegions.map(region => ({
+      'start': region.Start, 
+      'end': region.End
+    }))
+    return neutralRegions
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 export async function getExpectedObservedCounts(plotParameters) {
   try {
     const response = await axiosInstance.post('/api/expected-observed-counts', plotParameters)

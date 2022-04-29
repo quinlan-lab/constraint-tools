@@ -11,22 +11,20 @@
       -->
     <div class="plot-container md-elevation-3">
       <div ref="plot" style="padding-left: 120px"> </div>
-      <div class="cpg-container" v-if="expectedObservedCounts">
+      <div class="legend-container" v-if="expectedObservedCounts">
         <span class="annotation"># chroms > {{ modelParameters.numberChromosomesMin }}</span>
         <br>
         <div class="cpg-box" :style="{ 'background-color': cpgNegativeColor }"></div>
-        <span class="cpg-explanation">CpG-</span>
+        <span class="explanation">CpG-</span>
         <br>
         <div class="cpg-box" :style="{ 'background-color': cpgPositiveColor }"></div>
-        <span class="cpg-explanation">CpG+</span>
-        <br>
-        <div style="padding-top: 150px">
-          <span class="annotation">No constraint on</span> 
-          <br> 
-          <span class="annotation"># chromosomes</span>
+        <span class="explanation">CpG+</span>
+        <div style="padding-top: 250px">
+          <div class="box" :style="{ 'background-color': exonColor }"></div>
+          <span class="explanation">exon</span>
           <br>
-          <div class="exon-box" :style="{ 'background-color': exonColor }"></div>
-          <span class="exon-explanation">exon</span>
+          <div class="box" :style="{ 'background-color': neutralRegionColor }"></div>
+          <span class="explanation">"neutral region"</span>
         </div>
       </div> 
     </div> 
@@ -43,21 +41,23 @@ export default {
     return {
       cpgNegativeColor: 'rgba(255, 0, 0, 0.2)',
       cpgPositiveColor: 'rgba(0, 0, 255, 0.2)',
-      exonColor: '#d3d3d3'
+      exonColor: '#d3d3d3',
+      neutralRegionColor: 'rgba(0, 255, 0, 0.3)',
+      y3axisMin: -10,
+      y3axisMax: 10
     }
   },
   methods: {
-    exonToRectangle (exon) {
+    createRectangle (region, color) {
       return {
         type: 'rect',
         xref: 'x', 
-        yref: 'y2',
-        x0: exon.start,
-        y0: 0,
-        x1: exon.end,
-        y1: this.y2axisMax,
-        fillcolor: this.exonColor,
-        opacity: 0.6,
+        yref: 'y3',
+        x0: region.start,
+        y0: this.y3axisMin,
+        x1: region.end,
+        y1: this.y3axisMax,
+        fillcolor: color,
         line: {
             width: 0
         },
@@ -97,6 +97,7 @@ export default {
       'expectedObservedCounts',
       'canonicalExons',
       'modelParameters',
+      'neutralRegions'
     ]),
     ...mapGetters([
       'fetchingAPIData'
@@ -105,58 +106,64 @@ export default {
       const xaxisRange = this.expectedObservedCounts.end - this.expectedObservedCounts.start
       return 0.005 * xaxisRange
     },
-    rectangles () {
-      return this.canonicalExons.map(this.exonToRectangle) 
+    exonRectangles () {
+      return this.canonicalExons.map(exon => this.createRectangle(exon, this.exonColor)) 
     },
-    ellipsesCpGNegative () {
+    neutralRegionRectangles () {
+      return this.neutralRegions.map(neutralRegion => this.createRectangle(neutralRegion, this.neutralRegionColor))
+    },
+    cpgNegativeEllipses () {
       const positions = this.expectedObservedCounts.snvCpGNegativePositions
       const frequencies = this.expectedObservedCounts.snvCpGNegativeFrequencies
       const color = this.cpgNegativeColor
       return this.ellipses(positions, frequencies, color)
     },
-    ellipsesCpGPositive () {
+    cpgPositiveEllipses () {
       const positions = this.expectedObservedCounts.snvCpGPositivePositions
       const frequencies = this.expectedObservedCounts.snvCpGPositiveFrequencies
       const color = this.cpgPositiveColor
       return this.ellipses(positions, frequencies, color)
     },
-    rectangleLabels () {
+    exonRectangleLabels () {
       return this.canonicalExons.map(exon => exon.rank) 
     },
-    rectangleLabelXPositions () {
+    exonRectangleLabelXPositions () {
       return this.canonicalExons.map(exon => exon.start + 0.2*(exon.end - exon.start)) 
     },
-    rectangleLabelYPositions () {
-      return Array(this.canonicalExons.length).fill(0.95*this.y2axisMax)
+    exonRectangleLabelYPositions () {
+      return Array(this.canonicalExons.length).fill(0.9*this.y3axisMax)
     },
-    y2axisMax () { 
-      return Math.max(...this.expectedObservedCounts.NObserveds)
+    xaxisMin () { 
+      return Math.min(...this.expectedObservedCounts.windowPositions)
+    },
+    xaxisMax () { 
+      return Math.max(...this.expectedObservedCounts.windowPositions)
     },
     traces () {
       return [
         {
           x: this.expectedObservedCounts.windowPositions,
           y: this.expectedObservedCounts.NObserveds,
-          name: 'N_observed',
+          name: 'N_observed (no constraint <br> on chromosome number)',
           xaxis: 'x',
           yaxis: 'y2',
         }, 
-        {
-          x: this.rectangleLabelXPositions,
-          y: this.rectangleLabelYPositions,
-          text: this.rectangleLabels,
-          mode: 'text',
-          showlegend: false,
-          xaxis: 'x',
-          yaxis: 'y2'
-        },      
         { 
           x: this.expectedObservedCounts.windowPositions,
           y: this.expectedObservedCounts.NBars,
-          name: 'N_bar',
+          name: 'N_bar (no constraint <br> on chromosome number)',
           xaxis: 'x',
           yaxis: 'y3',
         },
+        {
+          x: this.exonRectangleLabelXPositions,
+          y: this.exonRectangleLabelYPositions,
+          text: this.exonRectangleLabels,
+          mode: 'text',
+          showlegend: false,
+          xaxis: 'x',
+          yaxis: 'y3'
+        },      
       ] 
     },
     layout () {
@@ -184,6 +191,7 @@ export default {
           autotick: true,
           showticklabels: true,
           tickformat: ",.0f",
+          range: [this.xaxisMin, this.xaxisMax]
         },
         yaxis: { 
           domain: [0.8, 1.0],
@@ -202,7 +210,7 @@ export default {
           zeroline: true,
           autotick: true,
           showticklabels: true,
-          // range: [0, this.y2axisMax]
+          range: [0, 50]
         },
         yaxis3: { 
           domain: [0, 0.35],
@@ -212,6 +220,7 @@ export default {
           zeroline: false,
           autotick: true,
           showticklabels: true,
+          range: [this.y3axisMin, this.y3axisMax]
         },
         responsive: true,
         font: {
@@ -225,7 +234,7 @@ export default {
         margin: { 
           t: 40 
         },
-        shapes: [...this.rectangles, ...this.ellipsesCpGNegative, ...this.ellipsesCpGPositive]
+        shapes: [...this.exonRectangles, ...this.neutralRegionRectangles, ...this.cpgNegativeEllipses, ...this.cpgPositiveEllipses]
       }
     }
   },
@@ -260,7 +269,7 @@ export default {
     height: 10px;
   }
 
-  .cpg-container {
+  .legend-container {
     position: absolute;
     top: 60px;
     left: 10px;
@@ -276,12 +285,7 @@ export default {
     vertical-align: middle;
   }
 
-  .cpg-explanation {
-    margin-left: 5px;
-    vertical-align: middle;
-  }
-
-  .exon-box {
+  .box {
     width: 10px;
     height: 20px;
     border-radius: 0%;
@@ -291,7 +295,7 @@ export default {
     vertical-align: middle;
   }
 
-  .exon-explanation {
+  .explanation {
     margin-left: 5px;
     vertical-align: middle;
   }

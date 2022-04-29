@@ -2,10 +2,12 @@ import argparse
 import color_traceback
 from flask import Flask, request, make_response
 from flask_cors import CORS # required for development of vue app
+import pyranges as pr
 
 from compute_expected_observed_counts import compute_expected_observed_counts
 from colorize import print_string_as_error, print_string_as_info, print_json
 from read_model import read_model
+from pack_unpack import unpack 
 
 def parse_arguments(): 
   parser = argparse.ArgumentParser(description='')
@@ -19,6 +21,9 @@ app = Flask(__name__, static_folder='static', static_url_path="/static") # WSGI 
 
 args = parse_arguments()
 model = read_model(args.model)
+
+# https://biocore-ntnu.github.io/pyranges/loadingcreating-pyranges.html
+neutral_regions = pr.read_bed(model['neutralRegions'])
 
 # https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
 # this line of code can be removed once the vue.js app is served from the same port as the flask app: 
@@ -40,14 +45,27 @@ def serve_other_static_file(path):
 
 # TODO: add endpoint that returns fetch_distribution_N and fetch_distribution_K
 
+def bad_request(): 
+  response = make_response({ 
+    'message': 'Please format the request payload in json format'
+  })
+  response.status_code = 400 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+  return response
+
+def internal_server_error(): 
+  import traceback
+  for line in traceback.format_exc().splitlines(): 
+    print_string_as_error(line)
+  response = make_response({ 
+    'exceptionTraceback': traceback.format_exc().splitlines()
+  })
+  response.status_code = 500 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500
+  return response
+
 @app.route('/api/expected-observed-counts', methods=['POST'])
 def serve_api_expected_observed_counts():
   if not request.is_json: 
-    response = make_response({ 
-      'message': 'Please format the request payload in json format'
-    })
-    response.status_code = 400 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
-    return response
+    return bad_request()
   try: 
     # returning a dictionary makes flask respond with: 
     # "Content-Type: application/json" 
@@ -60,14 +78,7 @@ def serve_api_expected_observed_counts():
       log = False
     )
   except Exception: 
-    import traceback
-    for line in traceback.format_exc().splitlines(): 
-      print_string_as_error(line)
-    response = make_response({ 
-      'exceptionTraceback': traceback.format_exc().splitlines()
-    })
-    response.status_code = 500 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500
-    return response
+    return internal_server_error() 
 
 @app.route('/api/initial-plot-parameters', methods=['GET'])
 def serve_api_initial_plot_parameters():
@@ -89,6 +100,25 @@ def serve_api_model_parameters():
     'numberChromosomesMin': model['numberChromosomesMin'],
     'windowSize': model['windowSize']
   }
+
+def get_neutral_regions(region): 
+  chromosome, start, end = unpack(region)
+  # https://biocore-ntnu.github.io/pyranges/manipulating-the-data-in-pyranges.html
+  return neutral_regions[chromosome, start:end].df.to_dict(orient='records')
+
+@app.route('/api/neutral-regions', methods=['POST'])
+def serve_api_neutral_regions():
+  if not request.is_json: 
+    return bad_request()
+  try: 
+    # returning a dictionary makes flask respond with: 
+    # "Content-Type: application/json" 
+    # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
+    return { 
+      'neutralRegions': get_neutral_regions(request.json['region'])
+    }
+  except Exception: 
+    return internal_server_error() 
 
 def print_app_info(): 
   # print_string_as_info(

@@ -116,7 +116,8 @@ Required arguments for `dashboard-germline-model` are:
       The port to serve the web-app on
 ```
 
-By default the `dashboard-germline-model` subcommand uses a pre-computed model. 
+By default the `dashboard-germline-model` subcommand uses a pre-computed model
+corresponding to a pre-computed set of putatively neutral regions. 
 Optionally, the user may change this by specifying the `--model` argument: 
 
 ```
@@ -124,6 +125,7 @@ Optionally, the user may change this by specifying the `--model` argument:
       Path to a neutral model produced by the train-germline-model sub-command 
       (in json format). 
       This model is used to compute the expected SNV and singleton counts in the visualization. 
+
 ```
 
 ## Input Data
