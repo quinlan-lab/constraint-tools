@@ -95,7 +95,8 @@ def serve_api_model_parameters():
   # returning a dictionary makes flask respond with: 
   # "Content-Type: application/json" 
   # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
-  return { 
+  return {
+    'genomeBuild': model['build'], 
     'kmerSize': model['kmerSize'],
     'numberChromosomesMin': model['numberChromosomesMin'],
     'windowSize': model['windowSize']

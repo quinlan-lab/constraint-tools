@@ -35,6 +35,9 @@
               Model 
             </div>
             <div class="md-subhead">
+              genomeBuild: {{ modelParameters.genomeBuild }} 
+            </div>  
+            <div class="md-subhead">
               kmerSize: {{ modelParameters.kmerSize }} 
             </div>  
             <div class="md-subhead">
