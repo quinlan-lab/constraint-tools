@@ -107,3 +107,28 @@ export async function getExons(region) {
     console.error(error)
   }
 }
+
+export async function getChromosomeLength(chromosome) {
+  try { 
+    // https://rest.ensembl.org/documentation/info/assembly_info
+    const response = await axios.get(`http://rest.ensembl.org/info/assembly/homo_sapiens`, {
+      params: {
+        'content-type': 'application/json',
+      }
+    })
+    const contigs = response.data.top_level_region
+    for ( let contig of contigs ) { 
+      if ( 
+        contig.coord_system === 'chromosome' && 
+        contig.name === chromosome.replace('chr','') 
+      ){ 
+        const chromosomeLength = contig.length
+        console.log(`length of chromosome ${chromosome}: ${chromosomeLength}`)
+        return chromosomeLength
+      }
+    }
+    throw `length of chromosome ${chromosome} cannot be obtained from Ensemble API!`
+  } catch (error) {
+    console.error(error)
+  }
+}

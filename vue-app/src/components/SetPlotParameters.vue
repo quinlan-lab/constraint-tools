@@ -124,13 +124,22 @@ export default {
     }
   }, 
   methods: {
-    intervalSizeTooSmall (region) { 
-      const start_end = region.split(':')[1]
+    getChromosomeStartEnd (region) {
+      const [chromosome, start_end] = region.split(':')
       const [start, end] = start_end.replaceAll(',', '').split('-')
+      return [chromosome, start, end]
+    },
+    intervalSizeTooSmall (region) { 
+      const [, start, end] = this.getChromosomeStartEnd(region)
       const intervalSize = parseInt(end) - parseInt(start)
       return intervalSize < this.modelParameters.windowSize
     },
-    validateParameters () {
+    async getEndChromosomeLength (region) {
+      const [chromosome, , end] = this.getChromosomeStartEnd(region)
+      const chromosomeLength = await api.getChromosomeLength(chromosome)
+      return [parseInt(end), parseInt(chromosomeLength)]
+    },
+    async validateParameters () {
       this.errors = []
 
       if (!this.plotParameters.region) {
@@ -144,14 +153,19 @@ export default {
         this.errors.push(`Region must be at least ${this.modelParameters.windowSize}bp`)
       }
 
+      const [end, chromosomeLength] = await this.getEndChromosomeLength(this.plotParameters.region)
+      if ( end >= chromosomeLength ) {
+        this.errors.push(`End coordinate, ${end}, must be smaller than chromosome length, ${chromosomeLength}`)
+      }
+
       if (this.errors.length > 0) {
         return false
       } else { 
         return true
       }
     },
-    getAPIData () {
-      if ( this.validateParameters() ) {
+    async getAPIData () {
+      if ( await this.validateParameters() ) {
         this.$store.dispatch('getExpectedObservedCounts', this.plotParameters)
         this.$store.dispatch('getCanonicalData', this.plotParameters.region)
         this.$store.dispatch('getNeutralRegions', this.plotParameters)
