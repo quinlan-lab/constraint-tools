@@ -62,11 +62,21 @@ export async function getExpectedObservedCounts(plotParameters) {
   }
 }
 
-export async function getCanonicalTranscript(transcriptIDs) {
+function getDomain(genomeBuild) {
+  if ( genomeBuild === 'hg38' ) {
+    return 'https://rest.ensembl.org'
+  } 
+  if ( genomeBuild === 'hg37' ) {
+    return 'https://grch37.rest.ensembl.org'
+  } 
+  throw `genome build ${genomeBuild} not supported!`
+}
+
+export async function getCanonicalTranscript(transcriptIDs, genomeBuild) {
   try { 
     // https://rest.ensembl.org/documentation/info/lookup_post
     // https://github.com/Ensembl/ensembl-rest/wiki/Getting-Started
-    const response = await axiosInstance.post('https://rest.ensembl.org/lookup/id', {
+    const response = await axiosInstance.post(`${getDomain(genomeBuild)}/lookup/id`, {
       'ids': transcriptIDs
     }, {
       params: {
@@ -75,7 +85,7 @@ export async function getCanonicalTranscript(transcriptIDs) {
     })
     const transcripts = response.data 
 
-    // http://uswest.ensembl.org/info/genome/genebuild/canonical.html
+    // https://uswest.ensembl.org/info/genome/genebuild/canonical.html
     // eslint-disable-next-line no-unused-vars
     let canonicalTranscript = Object.entries(transcripts).filter(([transcriptID, transcriptObject]) => transcriptObject.is_canonical == 1)
     if ( canonicalTranscript.length == 0 ) {
@@ -93,10 +103,10 @@ export async function getCanonicalTranscript(transcriptIDs) {
   }
 }
 
-export async function getExons(region) {
+export async function getExons(region, genomeBuild) {
   try { 
     // https://rest.ensembl.org/documentation/info/overlap_region
-    const response = await axios.get(`http://rest.ensembl.org/overlap/region/human/${region}`, {
+    const response = await axios.get(`${getDomain(genomeBuild)}/overlap/region/human/${region}`, {
       params: {
         'feature': 'exon',
       }
@@ -108,10 +118,10 @@ export async function getExons(region) {
   }
 }
 
-export async function getChromosomeLength(chromosome) {
+export async function getChromosomeLength(chromosome, genomeBuild) {
   try { 
     // https://rest.ensembl.org/documentation/info/assembly_info
-    const response = await axios.get(`http://rest.ensembl.org/info/assembly/homo_sapiens`, {
+    const response = await axios.get(`${getDomain(genomeBuild)}/info/assembly/homo_sapiens`, {
       params: {
         'content-type': 'application/json',
       }

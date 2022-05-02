@@ -88,19 +88,19 @@ export const store = new Vuex.Store({
       commit('setExpectedObservedCounts', await api.getExpectedObservedCounts(plotParameters))
       commit('setFetchingExpectedObservedCounts', false)
     },
-    async getCanonicalData ({ commit }, region) { 
+    async getCanonicalData ({ commit }, payload) { 
       // https://vuex.vuejs.org/guide/actions.html#composing-actions
 
       commit('setFetchingCanonicalData', true)
 
-      const exons = await api.getExons(region)
+      const exons = await api.getExons(payload.region, payload.genomeBuild)
       console.log('exons:')
       console.log(exons)      
 
       const transcriptIDs = [...new Set(exons.map(exon => exon.Parent))]
       console.log('transcriptIDs:')
       console.log(transcriptIDs)
-      const canonicalTranscript = await api.getCanonicalTranscript(transcriptIDs)
+      const canonicalTranscript = await api.getCanonicalTranscript(transcriptIDs, payload.genomeBuild)
       console.log('canonicalTranscript:')
       console.log(canonicalTranscript)
       commit('setCanonicalTranscript', canonicalTranscript)

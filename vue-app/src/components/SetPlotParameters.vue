@@ -139,7 +139,7 @@ export default {
     },
     async getEndChromosomeLength (region) {
       const [chromosome, , end] = this.getChromosomeStartEnd(region)
-      const chromosomeLength = await api.getChromosomeLength(chromosome)
+      const chromosomeLength = await api.getChromosomeLength(chromosome, this.modelParameters.genomeBuild)
       return [parseInt(end), parseInt(chromosomeLength)]
     },
     async validateParameters () {
@@ -170,7 +170,10 @@ export default {
     async getAPIData () {
       if ( await this.validateParameters() ) {
         this.$store.dispatch('getExpectedObservedCounts', this.plotParameters)
-        this.$store.dispatch('getCanonicalData', this.plotParameters.region)
+        this.$store.dispatch('getCanonicalData', {
+          region: this.plotParameters.region,
+          genomeBuild: this.modelParameters.genomeBuild
+        })
         this.$store.dispatch('getNeutralRegions', this.plotParameters)
       } else { 
         this.showSnackbar = true
