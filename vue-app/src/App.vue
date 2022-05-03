@@ -1,19 +1,22 @@
 <template>
   <div style="padding: 10px;">
     <set-plot-parameters/>
-    <plot-counts/>
+    <plot-distributions/>
+    <plot-time-series/>
   </div>
 </template>
 
 <script>
 
-import PlotCounts from '@/components/PlotCounts'
+import PlotTimeSeries from '@/components/PlotTimeSeries'
+import PlotDistributions from '@/components/PlotDistributions'
 import SetPlotParameters from '@/components/SetPlotParameters'
 
 export default {
   name: 'App',
   components: {
-    PlotCounts,
+    PlotTimeSeries,
+    PlotDistributions,
     SetPlotParameters
   }
 }

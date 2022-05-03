@@ -51,14 +51,14 @@
           <div class="md-layout-item header-item">
             <md-field>
               <label for="region">Region</label>
-              <md-input id="region" v-model="plotParameters.region" :disabled="fetchingAPIData" />
+              <md-input id="region" v-model="plotParameters.region" :disabled="fetchingTimeSeriesData" />
             </md-field>
           </div>    
 
           <div class="md-layout-item" style="max-width: 150px;">
             <md-field>
               <label for="window-stride">Window stride</label>
-              <md-input id="window-stride" v-model="plotParameters.windowStride" :disabled="fetchingAPIData" />
+              <md-input id="window-stride" v-model="plotParameters.windowStride" :disabled="fetchingTimeSeriesData" />
             </md-field>
           </div> 
         </div>
@@ -70,7 +70,7 @@
           <md-button 
             v-on:click="getAPIData" 
             class="md-icon-button md-primary"
-            :disabled="fetchingAPIData"
+            :disabled="fetchingTimeSeriesData"
           >
             <md-icon>refresh</md-icon>
           </md-button>      
@@ -189,7 +189,7 @@ export default {
       'modelParametersSet'
     ]),
     ...mapGetters([
-      'fetchingAPIData'
+      'fetchingTimeSeriesData'
     ]),
     canonicalTranscriptEnsembleUI () {
       return `https://uswest.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=${this.canonicalTranscript.id}`

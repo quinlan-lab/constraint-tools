@@ -4,7 +4,10 @@ from flask import Flask, request, make_response
 from flask_cors import CORS # required for development of vue app
 import pyranges as pr
 
-from compute_expected_observed_counts import compute_expected_observed_counts
+from compute_expected_observed_counts import (
+  compute_expected_observed_counts,
+  fetch_distribution_N
+)
 from colorize import print_string_as_error, print_string_as_info, print_json
 from read_model import read_model
 from pack_unpack import unpack 
@@ -43,8 +46,6 @@ def serve_other_static_file(path):
   # https://flask.palletsprojects.com/en/2.0.x/api/#flask.Flask.send_static_file
   return app.send_static_file(path)
 
-# TODO: add endpoint that returns fetch_distribution_N and fetch_distribution_K
-
 def bad_request(): 
   response = make_response({ 
     'message': 'Please format the request payload in json format'
@@ -61,6 +62,18 @@ def internal_server_error():
   })
   response.status_code = 500 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500
   return response
+
+@app.route('/api/distribution-n', methods=['POST'])
+def serve_api_distribution_N():
+  if not request.is_json: 
+    return bad_request()
+  try: 
+    # returning a dictionary makes flask respond with: 
+    # "Content-Type: application/json" 
+    # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
+    return fetch_distribution_N(window=request.json, model=model)
+  except Exception: 
+    return internal_server_error() 
 
 @app.route('/api/expected-observed-counts', methods=['POST'])
 def serve_api_expected_observed_counts():

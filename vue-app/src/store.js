@@ -8,6 +8,10 @@ Vue.use(Vuex)
 
 export const store = new Vuex.Store({
   state: {
+    selectedGenomicPosition: null, 
+    distributionN: null,
+    fetchingDistributionN: false,
+
     modelParameters: null, 
     fetchingModelParameters: false, 
     modelParametersSet: false,
@@ -26,15 +30,30 @@ export const store = new Vuex.Store({
     canonicalDataSet: false,
   },
   getters: {
-    fetchingAPIData: state => {
+    fetchingTimeSeriesData: state => {
       return (
         state.fetchingExpectedObservedCounts || 
         state.fetchingCanonicalData || 
         state.fetchingNeutralRegions 
       )
+    },
+    fetchingDistributionData: state => {
+      return (
+        state.fetchingDistributionN // || state.fetchingDistributionK
+      )
     }
   },
   mutations: {
+    setSelectedGenomicPosition (state, selectedGenomicPosition) {
+      state.selectedGenomicPosition = selectedGenomicPosition
+    },
+    setDistributionN (state, distributionN) {
+      state.distributionN = distributionN
+    },
+    setFetchingDistributionN (state, fetchingDistributionN) {
+      state.fetchingDistributionN = fetchingDistributionN
+    },
+
     setModelParameters (state, modelParameters) {
       state.modelParameters = modelParameters
       state.modelParametersSet = true
@@ -73,6 +92,11 @@ export const store = new Vuex.Store({
     },
   },
   actions: {
+    async getDistributionN ({ commit }, window) { 
+      commit('setFetchingDistributionN', true)
+      commit('setDistributionN', await api.getDistributionN(window))
+      commit('setFetchingDistributionN', false)
+    },
     async getModelParameters ({ commit }) { 
       commit('setFetchingModelParameters', true)
       commit('setModelParameters', await api.getModelParameters())

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="fetchingAPIData" class="progress-bar-container">
+    <div v-if="fetchingTimeSeriesData" class="progress-bar-container">
       <md-progress-bar md-mode="indeterminate" />
     </div>
     <!-- 
@@ -36,7 +36,7 @@ import Plotly from 'plotly.js-dist'
 import { mapState, mapGetters } from 'vuex'
 
 export default {
-  name: 'PlotCounts',
+  name: 'PlotTimeSeries',
   data () {
     return {
       cpgNegativeColor: 'rgba(255, 0, 0, 0.2)',
@@ -44,10 +44,23 @@ export default {
       exonColor: '#d3d3d3',
       neutralRegionColor: 'rgba(0, 255, 0, 0.3)',
       y3axisMin: -10,
-      y3axisMax: 10
+      y3axisMax: 10,
+      plotlyEventListenerAdded: false
     }
   },
   methods: {
+    getDistributionN (eventData) {
+      const [point] = eventData.points
+      this.$store.commit('setSelectedGenomicPosition', point.x)
+      const index = point.pointNumber
+      const window = { 
+        position: this.expectedObservedCounts.windowPositions[index], 
+        region: this.expectedObservedCounts.windowRegions[index]
+      }
+      console.log('window:')
+      console.log(window)
+      this.$store.dispatch('getDistributionN', window)
+    },
     createRectangle (region, color) {
       return {
         type: 'rect',
@@ -100,7 +113,7 @@ export default {
       'neutralRegions'
     ]),
     ...mapGetters([
-      'fetchingAPIData'
+      'fetchingTimeSeriesData'
     ]),
     semiMinorAxis () {
       const xaxisRange = this.expectedObservedCounts.end - this.expectedObservedCounts.start
@@ -239,14 +252,19 @@ export default {
     }
   },
   watch: {
-    fetchingAPIData: {
+    fetchingTimeSeriesData: {
       handler: function (newValue, oldValue) {
         if ( newValue === true && oldValue === false ) { 
-          console.log('fetching data from one or more APIs')
+          console.log('fetching data for time-series plot from one or more APIs')
         }
         if ( newValue === false && oldValue === true ) {
-          console.log('data fetched from all APIs')
+          console.log('data for time-series plot fetched from all APIs')
           Plotly.react(this.$refs.plot, this.traces, this.layout)
+          if ( !this.plotlyEventListenerAdded ) { 
+            console.log('plotly event listener added')
+            this.$refs.plot.on('plotly_click', this.getDistributionN)
+            this.plotlyEventListenerAdded = true
+          }
         }
       },
       deep: true
@@ -254,7 +272,7 @@ export default {
   },
   beforeUnmount () {
     Plotly.purge(this.$refs.plot)
-  }  
+  },
 }
 </script>
 

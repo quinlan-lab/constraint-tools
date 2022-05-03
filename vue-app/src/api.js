@@ -50,6 +50,18 @@ export async function getNeutralRegions(plotParameters) {
   }
 }
 
+export async function getDistributionN(window) {
+  try {
+    const response = await axiosInstance.post('/api/distribution-n', window)
+    const distributionN = response.data 
+    console.log('distributionN:')
+    console.log(distributionN)
+    return distributionN  
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 export async function getExpectedObservedCounts(plotParameters) {
   try {
     const response = await axiosInstance.post('/api/expected-observed-counts', plotParameters)

@@ -49,10 +49,11 @@ def fetch_distribution_K(window, genome, model):
 def create_column_of_Ns_core(number_examples, p0_p1_p2_p3): 
   return np.random.choice(a=[0, 1, 2, 3], size=(number_examples, 1), p=p0_p1_p2_p3)
 
-def fetch_distribution_N(window, genome, model): 
+def fetch_distribution_N(window, model): 
   number_examples = 100000
   create_column_of_Ns = lambda p0_p1_p2_p3: create_column_of_Ns_core(number_examples, p0_p1_p2_p3)
-  list_of_columns_of_Ns = map(create_column_of_Ns, get_p0s_p1s_p2s_p3s(window, genome, model))
+  with pysam.FastaFile(model['genome']) as genome:
+    list_of_columns_of_Ns = map(create_column_of_Ns, get_p0s_p1s_p2s_p3s(window, genome, model))
   Ns = np.column_stack(list(list_of_columns_of_Ns))
   N = np.sum(Ns, axis=1)
   N_histogram = collections.Counter(N)    
@@ -162,7 +163,7 @@ def test():
   with pysam.FastaFile(model['genome']) as genome:
     windows = create_windows(model['windowSize'], args.window_stride, args.region, genome, region_contains_windows=True)      
     window = windows[0]
-    print_json(fetch_distribution_N(window, genome, model))
+  print_json(fetch_distribution_N(window, model))
 
 if __name__ == '__main__':
   test()
