@@ -224,7 +224,7 @@ export default {
           y: 0.4,
           // xanchor: 'right',
         },
-        height: 600,
+        height: 500,
         width: 1000,
         grid: {
           rows: 3, 
@@ -254,7 +254,7 @@ export default {
         },
         yaxis2: { 
           domain: [0.4, 0.75],
-          title: 'observed # SNVs <br>(per window)',
+          title: 'obs. # SNVs <br>(per window)',
           showgrid: false,
           showline: true,
           zeroline: true,

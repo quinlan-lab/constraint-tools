@@ -23,8 +23,6 @@ export default {
   name: 'PlotTimeSeries',
   data () {
     return {
-      yaxisMin: 1e-5, 
-      yaxisMax: 1 
     }
   },
   methods: {
@@ -39,6 +37,12 @@ export default {
     ...mapGetters([
       'fetchingDistributionData'
     ]),
+    yaxisMin () {
+      return Math.min(...this.distributionN['p(n)'])
+    },
+    yaxisMax () {
+      return Math.max(...this.distributionN['p(n)'])
+    },
     traces () {
       return [
         {
@@ -60,19 +64,12 @@ export default {
           yaxis: 'y',
           showlegend: false,
         }, 
-        {
-          x: [],
-          y: [],
-          name: 'Probability, p(k)',
-          xaxis: 'x2',
-          yaxis: 'y',
-        }, 
       ] 
     },
     layout () {
       return { 
         showlegend: true,
-        height: 300,
+        height: 250,
         width: 1000,
         grid: {
           rows: 1, 
@@ -104,16 +101,16 @@ export default {
           zeroline: false,
           autotick: true,
           showticklabels: true,
-          type: 'log',
-          // https://plotly.com/javascript/reference/layout/yaxis/#layout-yaxis-range
-          range: [this.yaxisMin, this.yaxisMax].map(Math.log10),
-          // showexponent: 'all',
-          exponentformat: 'e',
+          // type: 'log',
+          // // https://plotly.com/javascript/reference/layout/yaxis/#layout-yaxis-range
+          // range: [this.yaxisMin, this.yaxisMax].map(Math.log10),
+          // // showexponent: 'all',
+          // exponentformat: 'e',
         },
         responsive: true,
         font: {
           family: 'Roboto, sans-serif',
-          size: 10
+          size: 12
         },
         hovermode: 'closest',
         hoverlabel: {
