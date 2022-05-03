@@ -8,6 +8,7 @@ Vue.use(Vuex)
 
 export const store = new Vuex.Store({
   state: {
+    NObserved: null,  
     selectedGenomicPosition: null, 
     distributionN: null,
     fetchingDistributionN: false,
@@ -44,6 +45,9 @@ export const store = new Vuex.Store({
     }
   },
   mutations: {
+    setNObserved (state, NObserved) {
+      state.NObserved = NObserved
+    },
     setSelectedGenomicPosition (state, selectedGenomicPosition) {
       state.selectedGenomicPosition = selectedGenomicPosition
     },

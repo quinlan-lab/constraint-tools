@@ -1,8 +1,5 @@
 <template>
   <div>
-    <div v-if="fetchingDistributionData" class="progress-bar-container">
-      <md-progress-bar md-mode="indeterminate" />
-    </div>
     <!-- 
       Do not use "v-else" in the following element. 
       Otherwise the watcher callback will error
@@ -12,6 +9,9 @@
     <div class="plot-container md-elevation-3">
       <div ref="plot"> </div>
     </div> 
+    <div v-if="fetchingDistributionData" class="progress-bar-container">
+      <md-progress-bar md-mode="indeterminate" />
+    </div>
   </div>
 </template>
 
@@ -23,12 +23,15 @@ export default {
   name: 'PlotTimeSeries',
   data () {
     return {
+      yaxisMin: 1e-5, 
+      yaxisMax: 1 
     }
   },
   methods: {
   },
   computed: {
     ...mapState([
+      'NObserved',
       'selectedGenomicPosition',
       'distributionN',
       'modelParameters'
@@ -39,10 +42,23 @@ export default {
     traces () {
       return [
         {
+          x: [this.NObserved, this.NObserved],
+          y: [this.yaxisMin, this.yaxisMax],
+          name: 'observed # SNVs',
+          xaxis: 'x',
+          yaxis: 'y',
+          mode: 'lines',
+          line: {
+            color: 'black',
+            width: 1
+          }
+        },
+        {
           x: this.distributionN['n'],
           y: this.distributionN['p(n)'],
           xaxis: 'x',
           yaxis: 'y',
+          showlegend: false,
         }, 
         {
           x: [],
@@ -55,18 +71,17 @@ export default {
     },
     layout () {
       return { 
-        showlegend: false,
+        showlegend: true,
         height: 300,
         width: 1000,
         grid: {
           rows: 1, 
           columns: 2, 
           subplots: [['xy'], ['x2y']],
-          roworder: 'left to right'
         },
         xaxis: {
           domain: [0.0, 0.4],
-          title: `Number of ALT alleles, n, in ${this.modelParameters.windowSize}bp window`,
+          title: `# SNVs (per window), n`,
           showline: true,
           showgrid: false,
           zeroline: false,
@@ -90,8 +105,10 @@ export default {
           autotick: true,
           showticklabels: true,
           type: 'log',
+          // https://plotly.com/javascript/reference/layout/yaxis/#layout-yaxis-range
+          range: [this.yaxisMin, this.yaxisMax].map(Math.log10),
           // showexponent: 'all',
-          exponentformat: 'e'
+          exponentformat: 'e',
         },
         responsive: true,
         font: {

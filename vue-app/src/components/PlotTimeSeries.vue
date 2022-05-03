@@ -43,6 +43,8 @@ export default {
       cpgPositiveColor: 'rgba(0, 0, 255, 0.2)',
       exonColor: '#d3d3d3',
       neutralRegionColor: 'rgba(0, 255, 0, 0.3)',
+      y2axisMin: 0,
+      y2axisMax: 50,
       y3axisMin: -10,
       y3axisMax: 10,
       plotlyEventListenerAdded: false
@@ -53,6 +55,7 @@ export default {
       const [point] = eventData.points
       this.$store.commit('setSelectedGenomicPosition', point.x)
       const index = point.pointNumber
+
       const window = { 
         position: this.expectedObservedCounts.windowPositions[index], 
         region: this.expectedObservedCounts.windowRegions[index]
@@ -60,6 +63,11 @@ export default {
       console.log('window:')
       console.log(window)
       this.$store.dispatch('getDistributionN', window)
+
+      const NObserved = this.expectedObservedCounts.NObserveds[index]
+      console.log('NObserved:')
+      console.log(NObserved)
+      this.$store.commit('setNObserved', NObserved)
     },
     createRectangle (region, color) {
       return {
@@ -106,14 +114,19 @@ export default {
     },
   },
   computed: {
+    fetchingAnyData () {
+      return this.fetchingTimeSeriesData || this.fetchingDistributionData
+    },
     ...mapState([
       'expectedObservedCounts',
       'canonicalExons',
       'modelParameters',
-      'neutralRegions'
+      'neutralRegions',
+      'selectedGenomicPosition'
     ]),
     ...mapGetters([
-      'fetchingTimeSeriesData'
+      'fetchingTimeSeriesData',
+      'fetchingDistributionData'
     ]),
     semiMinorAxis () {
       const xaxisRange = this.expectedObservedCounts.end - this.expectedObservedCounts.start
@@ -154,6 +167,30 @@ export default {
     },
     traces () {
       return [
+        {
+          x: [this.selectedGenomicPosition, this.selectedGenomicPosition],
+          y: [this.y3axisMin, this.y3axisMax],
+          name: 'position at which null distributions <br>of N and K is evaluated',
+          xaxis: 'x',
+          yaxis: 'y3',
+          mode: 'lines',
+          line: {
+            color: 'black',
+            width: 1
+          }
+        },
+        {
+          x: [this.selectedGenomicPosition, this.selectedGenomicPosition],
+          y: [this.y2axisMin, this.y2axisMax],
+          showlegend: false,
+          xaxis: 'x',
+          yaxis: 'y2',
+          mode: 'lines',
+          line: {
+            color: 'black',
+            width: 1
+          }
+        },
         {
           x: this.expectedObservedCounts.windowPositions,
           y: this.expectedObservedCounts.NObserveds,
@@ -223,7 +260,7 @@ export default {
           zeroline: true,
           autotick: true,
           showticklabels: true,
-          range: [0, 50]
+          range: [this.y2axisMin, this.y2axisMax]
         },
         yaxis3: { 
           domain: [0, 0.35],
@@ -252,13 +289,13 @@ export default {
     }
   },
   watch: {
-    fetchingTimeSeriesData: {
+    fetchingAnyData: {
       handler: function (newValue, oldValue) {
         if ( newValue === true && oldValue === false ) { 
-          console.log('fetching data for time-series plot from one or more APIs')
+          console.log('fetching data from one or more APIs')
         }
         if ( newValue === false && oldValue === true ) {
-          console.log('data for time-series plot fetched from all APIs')
+          console.log('data fetched from all APIs')
           Plotly.react(this.$refs.plot, this.traces, this.layout)
           if ( !this.plotlyEventListenerAdded ) { 
             console.log('plotly event listener added')

@@ -84,7 +84,9 @@
 
         <md-card-expand-content>
           <md-card-content>
-            Exons from the canonical transcript are labeled with their rank in that transcript.          
+            Exons from the canonical transcript are labeled with their rank in that transcript.
+            <br> 
+            Click on the time series plots to compute the null distribution of N and K at the corresponding genomic position.           
           </md-card-content>
         </md-card-expand-content>
       </md-card-expand>
