@@ -18,7 +18,7 @@ model="/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/model-ge
 region="chr1:1,000,000-1,000,200"
 window_stride="25"
 
-python ${CONSTRAINT_TOOLS}/predict-constraint/germline-model/compute_expected_observed_counts.py \
+python ${CONSTRAINT_TOOLS}/predict-constraint/germline-model/null_distributions.py \
     --region ${region} \
     --model ${model} \
     --window-stride ${window_stride} 

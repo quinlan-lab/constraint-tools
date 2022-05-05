@@ -4,10 +4,8 @@ from flask import Flask, request, make_response
 from flask_cors import CORS # required for development of vue app
 import pyranges as pr
 
-from compute_expected_observed_counts import (
-  compute_expected_observed_counts,
-  fetch_distribution_N
-)
+from expected_observed_counts import compute_expected_observed_counts
+from null_distributions import fetch_distribution_N
 from colorize import print_string_as_error, print_string_as_info, print_json
 from read_model import read_model
 from pack_unpack import unpack 
