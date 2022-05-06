@@ -34,14 +34,15 @@ def pull_element(list_, index):
   except IndexError: 
     return []
 
-# TODO: implement get_K_observed() 
+def get_N_observed(window, genome, mutations, model):
+  return len(fetch_SNVs(mutations, genome, window['region'], meta=model))
 
-# TODO: check 
 def get_M(window, genome, mutations, model, number_chromosomes_min):
   return len(fetch_SNVs(mutations, genome, window['region'], meta=model, number_chromosomes_min=number_chromosomes_min))
 
-def get_N_observed(window, genome, mutations, model):
-  return len(fetch_SNVs(mutations, genome, window['region'], meta=model))
+def get_K_observed(window, genome, mutations, model, number_chromosomes_min):
+  SNVs = fetch_SNVs(mutations, genome, window['region'], meta=model, number_chromosomes_min=number_chromosomes_min)
+  return len([SNV for SNV in SNVs if SNV['number_ALT_chromosomes'] == 1])
 
 # https://github.com/quinlan-lab/constraint-tools/blob/main/define-model/germline-model.ipynb
 def get_N_mean_variance_null(window, genome, model, log): 
@@ -55,27 +56,22 @@ def get_N_mean_variance_null(window, genome, model, log):
 
   return mean_N, variance_N
 
-# TODO: 
-def get_K_mean_variance_null(window, model, mutations, genome, number_chromosomes_min): 
-  M_observed = get_M(window, genome, mutations, model, number_chromosomes_min)
+def get_K_mean_variance_null(M, model): 
+  possible_Ks = np.arange(0, M+1)
+  window_counts = model['singletonCounts'][M]
 
-  # RECALL TRAINING DOES THE FOLLOWING: 
-  # SNVs = fetch_SNVs(mutations, genome, window['region'], args.__dict__, args.number_chromosomes_min)
-  # SNV_count = len(SNVs)
-  # singleton_count = len([SNV for SNV in SNVs if SNV['number_ALT_chromosomes'] == 1])
-  # print_string_as_info_dim(f"{singleton_count} of {SNV_count} SNVs in {window['region']} are singletons")
-  # singleton_counts[SNV_count][singleton_count] += 1
+  # https://stackoverflow.com/a/50786849/6674256
+  K_mean_null = np.average(possible_Ks, weights=window_counts, returned=False)
+  K_variance_null = np.average((possible_Ks - K_mean_null)**2, weights=window_counts, returned=False)
 
-  print(model['singletonProbabilities'][M_observed]) 
-  1/0
-  return None, None
+  return K_mean_null, K_variance_null
 
-# TODO: 
-def compute_Kbar_Kobserved(window, model, mutations, genome, number_chromosomes_min):
-  K_mean_null, K_variance_null = get_K_mean_variance_null(window, model, mutations, genome, number_chromosomes_min)
-  # IMPORTANT: report total number of counts (number of windows) used to estimate mean_K_null and variance_K_null 
-  # Kbar = (K_observed - mean_K_null)/np.sqrt(variance_K_null)
-  pass
+def compute_Kbar_Kobserved_M(window, model, mutations, genome, number_chromosomes_min):
+  M = get_M(window, genome, mutations, model, number_chromosomes_min)
+  K_mean_null, K_variance_null = get_K_mean_variance_null(M, model)
+  K_observed = get_K_observed(window, genome, mutations, model, number_chromosomes_min)
+  K_bar = (K_observed - K_mean_null)/np.sqrt(K_variance_null) if M > 0 else None 
+  return K_bar, K_observed, M
 
 def compute_Nbar_Nobserved(window, model, mutations, genome, log):
   N_mean_null, N_variance_null = get_N_mean_variance_null(window, genome, model, log)
@@ -85,14 +81,14 @@ def compute_Nbar_Nobserved(window, model, mutations, genome, log):
 
 def compute_expected_observed_counts(region, model, window_stride, number_chromosomes_min, log=True):
   with pysam.TabixFile(model['mutations']) as mutations, pysam.FastaFile(model['genome']) as genome:
-    windows = create_windows(model['windowSize'], window_stride, region, genome, region_contains_windows=True)    
+    windows = create_windows(model['windowSize'], window_stride, region, genome, region_contains_windows=True)
     N_bars, N_observeds = zip(*[compute_Nbar_Nobserved(window, model, mutations, genome, log) for window in windows])
     (
       SNV_positions_frequencies_CpG_positive, 
       SNV_positions_frequencies_CpG_negative
      ) = compute_SNV_positions_frequencies(mutations, genome, region, model, number_chromosomes_min)
-    # TODO: finish: 
-    # zip(*[compute_Kbar_Kobserved(window, model, mutations, genome) for window in windows])
+    K_bars, K_observeds, Ms = zip(*[compute_Kbar_Kobserved_M(window, model, mutations, genome, number_chromosomes_min) 
+                                    for window in windows])
 
   chromosome, start, end = unpack(region)
 
@@ -108,7 +104,10 @@ def compute_expected_observed_counts(region, model, window_stride, number_chromo
     'snvCpGPositivePositions': pull_element(SNV_positions_frequencies_CpG_positive, index=0), 
     'snvCpGPositiveFrequencies': pull_element(SNV_positions_frequencies_CpG_positive, index=1), 
     'snvCpGNegativePositions': pull_element(SNV_positions_frequencies_CpG_negative, index=0),
-    'snvCpGNegativeFrequencies': pull_element(SNV_positions_frequencies_CpG_negative, index=1)
+    'snvCpGNegativeFrequencies': pull_element(SNV_positions_frequencies_CpG_negative, index=1),
+    'KBars': K_bars, 
+    'KObserveds': K_observeds, 
+    'Ms': Ms
   }
 
 def parse_arguments(): 

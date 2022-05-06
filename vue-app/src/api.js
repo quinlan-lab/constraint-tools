@@ -50,13 +50,13 @@ export async function getNeutralRegions(plotParameters) {
   }
 }
 
-export async function getDistributionN(window) {
+export async function getDistributions(payload) {
   try {
-    const response = await axiosInstance.post('/api/distribution-n', window)
-    const distributionN = response.data 
-    console.log('distributionN:')
-    console.log(distributionN)
-    return distributionN  
+    const response = await axiosInstance.post('/api/distributions', payload)
+    const distributions = response.data 
+    console.log('distributions:')
+    console.log(distributions)
+    return distributions  
   } catch (error) {
     console.error(error)
   }

@@ -8,10 +8,10 @@ Vue.use(Vuex)
 
 export const store = new Vuex.Store({
   state: {
-    NObserved: null,  
+    observedValues: null,  
     selectedGenomicPosition: null, 
-    distributionN: null,
-    fetchingDistributionN: false,
+    distributions: null,
+    fetchingDistributions: false,
 
     modelParameters: null, 
     fetchingModelParameters: false, 
@@ -38,24 +38,19 @@ export const store = new Vuex.Store({
         state.fetchingNeutralRegions 
       )
     },
-    fetchingDistributionData: state => {
-      return (
-        state.fetchingDistributionN // || state.fetchingDistributionK
-      )
-    }
   },
   mutations: {
-    setNObserved (state, NObserved) {
-      state.NObserved = NObserved
+    setObservedValues (state, observedValues) {
+      state.observedValues = observedValues
     },
     setSelectedGenomicPosition (state, selectedGenomicPosition) {
       state.selectedGenomicPosition = selectedGenomicPosition
     },
-    setDistributionN (state, distributionN) {
-      state.distributionN = distributionN
+    setDistributions (state, distributions) {
+      state.distributions = distributions
     },
-    setFetchingDistributionN (state, fetchingDistributionN) {
-      state.fetchingDistributionN = fetchingDistributionN
+    setFetchingDistributions (state, fetchingDistributions) {
+      state.fetchingDistributions = fetchingDistributions
     },
 
     setModelParameters (state, modelParameters) {
@@ -96,10 +91,10 @@ export const store = new Vuex.Store({
     },
   },
   actions: {
-    async getDistributionN ({ commit }, window) { 
-      commit('setFetchingDistributionN', true)
-      commit('setDistributionN', await api.getDistributionN(window))
-      commit('setFetchingDistributionN', false)
+    async getDistributions ({ commit }, payload) { 
+      commit('setFetchingDistributions', true)
+      commit('setDistributions', await api.getDistributions(payload))
+      commit('setFetchingDistributions', false)
     },
     async getModelParameters ({ commit }) { 
       commit('setFetchingModelParameters', true)

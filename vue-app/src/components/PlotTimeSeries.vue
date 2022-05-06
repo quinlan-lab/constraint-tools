@@ -12,14 +12,14 @@
     <div class="plot-container md-elevation-3">
       <div ref="plot" style="padding-left: 120px"> </div>
       <div class="legend-container" v-if="expectedObservedCounts">
-        <span class="annotation"># chroms > {{ modelParameters.numberChromosomesMin }}</span>
+        <span class="annotation"># chroms > {{ modelParameters.numberChromosomesMin.toLocaleString() }}</span>
         <br>
         <div class="cpg-box" :style="{ 'background-color': cpgNegativeColor }"></div>
         <span class="explanation">CpG-</span>
         <br>
         <div class="cpg-box" :style="{ 'background-color': cpgPositiveColor }"></div>
         <span class="explanation">CpG+</span>
-        <div style="padding-top: 250px">
+        <div style="padding-top: 200px">
           <div class="box" :style="{ 'background-color': exonColor }"></div>
           <span class="explanation">exon</span>
           <br>
@@ -51,23 +51,20 @@ export default {
     }
   },
   methods: {
-    getDistributionN (eventData) {
+    getDistributions (eventData) {
       const [point] = eventData.points
       this.$store.commit('setSelectedGenomicPosition', point.x)
       const index = point.pointNumber
 
-      const window = { 
-        position: this.expectedObservedCounts.windowPositions[index], 
-        region: this.expectedObservedCounts.windowRegions[index]
-      }
-      console.log('window:')
-      console.log(window)
-      this.$store.dispatch('getDistributionN', window)
+      this.$store.dispatch('getDistributions', {
+        'region': this.expectedObservedCounts.windowRegions[index],
+        'M': this.expectedObservedCounts.Ms[index]
+      })
 
-      const NObserved = this.expectedObservedCounts.NObserveds[index]
-      console.log('NObserved:')
-      console.log(NObserved)
-      this.$store.commit('setNObserved', NObserved)
+      this.$store.commit('setObservedValues', { 
+        'N': this.expectedObservedCounts.NObserveds[index],
+        'K': this.expectedObservedCounts.KObserveds[index]
+      })
     },
     createRectangle (region, color) {
       return {
@@ -115,18 +112,18 @@ export default {
   },
   computed: {
     fetchingAnyData () {
-      return this.fetchingTimeSeriesData || this.fetchingDistributionData
+      return this.fetchingTimeSeriesData || this.fetchingDistributions
     },
     ...mapState([
       'expectedObservedCounts',
       'canonicalExons',
       'modelParameters',
       'neutralRegions',
-      'selectedGenomicPosition'
+      'selectedGenomicPosition',
+      'fetchingDistributions'
     ]),
     ...mapGetters([
-      'fetchingTimeSeriesData',
-      'fetchingDistributionData'
+      'fetchingTimeSeriesData'
     ]),
     semiMinorAxis () {
       const xaxisRange = this.expectedObservedCounts.end - this.expectedObservedCounts.start
@@ -170,13 +167,13 @@ export default {
         {
           x: [this.selectedGenomicPosition, this.selectedGenomicPosition],
           y: [this.y3axisMin, this.y3axisMax],
-          name: 'position at which null distributions <br>of N and K is evaluated',
+          name: 'position at which null distributions of N and K are evaluated',
           xaxis: 'x',
           yaxis: 'y3',
           mode: 'lines',
           line: {
             color: 'black',
-            width: 1
+            width: 2
           }
         },
         {
@@ -188,22 +185,58 @@ export default {
           mode: 'lines',
           line: {
             color: 'black',
-            width: 1
+            width: 2
           }
         },
         {
           x: this.expectedObservedCounts.windowPositions,
           y: this.expectedObservedCounts.NObserveds,
-          name: 'N_observed (no constraint <br> on chromosome number)',
+          name: 'N_observed (no constraint on chromosome number)',
           xaxis: 'x',
           yaxis: 'y2',
+          line: {
+            width: 1
+          }
+        }, 
+        {
+          x: this.expectedObservedCounts.windowPositions,
+          y: this.expectedObservedCounts.Ms,
+          name: `M (# chroms > ${this.modelParameters.numberChromosomesMin.toLocaleString()})`,
+          xaxis: 'x',
+          yaxis: 'y2',
+          line: {
+            width: 1
+          }
+        }, 
+        {
+          x: this.expectedObservedCounts.windowPositions,
+          y: this.expectedObservedCounts.KObserveds,
+          name: `singletons (K_observed; # chroms > ${this.modelParameters.numberChromosomesMin.toLocaleString()})`,
+          xaxis: 'x',
+          yaxis: 'y2',
+          line: {
+            width: 1
+          }
         }, 
         { 
           x: this.expectedObservedCounts.windowPositions,
           y: this.expectedObservedCounts.NBars,
-          name: 'N_bar (no constraint <br> on chromosome number)',
+          name: 'N_bar (no constraint on chromosome number)',
           xaxis: 'x',
           yaxis: 'y3',
+          line: {
+            width: 1
+          }
+        },
+        { 
+          x: this.expectedObservedCounts.windowPositions,
+          y: this.expectedObservedCounts.KBars,
+          name: `K_bar (# chroms > ${this.modelParameters.numberChromosomesMin.toLocaleString()})`,
+          xaxis: 'x',
+          yaxis: 'y3',
+          line: {
+            width: 1
+          }
         },
         {
           x: this.exonRectangleLabelXPositions,
@@ -299,7 +332,7 @@ export default {
           Plotly.react(this.$refs.plot, this.traces, this.layout)
           if ( !this.plotlyEventListenerAdded ) { 
             console.log('plotly event listener added')
-            this.$refs.plot.on('plotly_click', this.getDistributionN)
+            this.$refs.plot.on('plotly_click', this.getDistributions)
             this.plotlyEventListenerAdded = true
           }
         }
@@ -326,7 +359,7 @@ export default {
 
   .legend-container {
     position: absolute;
-    top: 60px;
+    top: 30px;
     left: 10px;
   }
 

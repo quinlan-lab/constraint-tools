@@ -5,7 +5,7 @@ from flask_cors import CORS # required for development of vue app
 import pyranges as pr
 
 from expected_observed_counts import compute_expected_observed_counts
-from null_distributions import fetch_distribution_N
+from null_distributions import fetch_distribution_N, fetch_distribution_K
 from colorize import print_string_as_error, print_string_as_info, print_json
 from read_model import read_model
 from pack_unpack import unpack 
@@ -61,15 +61,18 @@ def internal_server_error():
   response.status_code = 500 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500
   return response
 
-@app.route('/api/distribution-n', methods=['POST'])
-def serve_api_distribution_N():
+@app.route('/api/distributions', methods=['POST'])
+def serve_api_distributions():
   if not request.is_json: 
     return bad_request()
   try: 
     # returning a dictionary makes flask respond with: 
     # "Content-Type: application/json" 
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
-    return fetch_distribution_N(window=request.json, model=model)
+    return { 
+      'N': fetch_distribution_N(request.json['region'], model),
+      'K': fetch_distribution_K(request.json['M'], model) 
+    }
   except Exception: 
     return internal_server_error() 
 
