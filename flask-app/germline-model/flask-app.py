@@ -88,7 +88,6 @@ def serve_api_expected_observed_counts():
       request.json['region'],
       model,
       int(request.json['windowStride']),
-      number_chromosomes_min=model['numberChromosomesMin'],
       log = False
     )
   except Exception: 

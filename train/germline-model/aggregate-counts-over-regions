@@ -25,6 +25,7 @@ from snvs import fetch_SNVs, reduce_SNVs
 from pack_unpack import bed_to_sam_string
 from timer import timer 
 from windows import create_windows 
+from get_M_K import get_M_K_trainingTime
 
 # using the "khmer" library might make this function a handful of times faster:
 # https://khmer.readthedocs.io/en/v0.6.1-0/ktable.html
@@ -83,11 +84,8 @@ def compute_singleton_counts(neutral_region, mutations, genome, args):
 
   singleton_counts = Singleton_Counts()
   for window in windows: 
-    SNVs = fetch_SNVs(mutations, genome, window['region'], args.__dict__, args.number_chromosomes_min)
-    SNV_count = len(SNVs)
-    singleton_count = len([SNV for SNV in SNVs if SNV['number_ALT_chromosomes'] == 1])
-    print_string_as_info_dim(f"{singleton_count} of {SNV_count} SNVs in {window['region']} are singletons")
-    singleton_counts[SNV_count][singleton_count] += 1
+    M, K = get_M_K_trainingTime(window, mutations, genome, args)
+    singleton_counts[M][K] += 1
 
   return singleton_counts
 
@@ -160,7 +158,8 @@ def main():
       aggregate_counts_over_regions(args, progress_bar=progress_bar)
 
   if args.test: 
-    test_compute_kmer_total_counts(args)  
+    test_compute_kmer_total_counts(args) 
+    test_compute_singleton_counts(args) 
 
 def test_compute_kmer_total_counts(args): 
   print('')
@@ -168,9 +167,8 @@ def test_compute_kmer_total_counts(args):
   print('')
   print_string_as_info('**** testing compute_kmer_total_counts(...) ***** ')
   print('')
-  genome_filename = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38/hg38.analysisSet.fa.gz'
   region = 'chr1:15320-15340'
-  with pysam.FastaFile(genome_filename) as genome: 
+  with pysam.FastaFile(args.genome) as genome: 
     kmer_counts = initialize_kmer_counts_germline(args)
     expected_kmer_total_counts = [('AAA', 2), ('AAG', 2), ('AGA', 1), ('AGC', 3), ('AGG', 1), ('CAA', 2), ('CAG', 1), ('GAG', 1), ('GCA', 3), ('GCG', 1), ('GGC', 1)]
     kmer_counts = compute_kmer_total_counts(region, genome, kmer_counts, args)
@@ -179,6 +177,20 @@ def test_compute_kmer_total_counts(args):
     assert observed_number_kmers == 20 - (args.kmer_size - 1) # 20 is the hard-coded sequence length
     assert observed_kmer_total_counts == expected_kmer_total_counts
     print_string_as_info('... compute_kmer_total_counts(...) passed test')
+
+def test_compute_singleton_counts(args): 
+  print('')
+  print('*************************************************')
+  print('')
+  print_string_as_info('**** testing compute_singleton_counts(...) ***** ')
+  print('')
+  region = 'chr1:15300-15900'
+  with pysam.TabixFile(args.mutations) as mutations, pysam.FastaFile(args.genome) as genome: 
+    expected_singleton_counts = {0: [2], 2: [0, 1, 2], 1: [1, 0], 9: [0, 0, 0, 1, 0, 0, 0, 0, 0, 0], 8: [0, 0, 0, 0, 1, 0, 0, 0, 0], 5: [0, 0, 1, 0, 0, 0], 3: [1, 0, 1, 0]}
+    observed_singleton_counts = compute_singleton_counts(region, mutations, genome, args)
+    observed_singleton_counts = make_serializable(observed_singleton_counts)
+    assert observed_singleton_counts == expected_singleton_counts
+    print_string_as_info('... compute_singleton_counts(...) passed test')
 
 if __name__ == '__main__':
   main() 
