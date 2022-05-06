@@ -20,7 +20,7 @@ import Plotly from 'plotly.js-dist'
 import { mapState } from 'vuex'
 
 export default {
-  name: 'PlotTimeSeries',
+  name: 'PlotIndividualDistributions',
   data () {
     return {
     }
