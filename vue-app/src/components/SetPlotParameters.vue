@@ -41,7 +41,7 @@
               kmerSize: {{ modelParameters.kmerSize }} 
             </div>  
             <div class="md-subhead">
-              numberChromosomesMin: {{ modelParameters.numberChromosomesMin }} 
+              numberChromosomesMin: {{ modelParameters.numberChromosomesMin.toLocaleString() }} 
             </div>  
             <div class="md-subhead">
               windowSize: {{ modelParameters.windowSize }} 
