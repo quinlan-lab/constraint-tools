@@ -136,7 +136,7 @@ export default {
         ],
         showlegend: true,
         height: 250,
-        width: 1000,
+        width: 750,
         grid: {
           rows: 1, 
           columns: 2, 
