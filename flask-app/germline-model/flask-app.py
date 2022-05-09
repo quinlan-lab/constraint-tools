@@ -2,13 +2,12 @@ import argparse
 import color_traceback
 from flask import Flask, request, make_response
 from flask_cors import CORS # required for development of vue app
-import pyranges as pr
 
 from expected_observed_counts import compute_expected_observed_counts
 from null_distributions import fetch_distribution_N, fetch_distribution_K
 from colorize import print_string_as_error, print_string_as_info, print_json
 from read_model import read_model
-from pack_unpack import unpack 
+from neutral_regions import get_neutral_regions
 
 def parse_arguments(): 
   parser = argparse.ArgumentParser(description='')
@@ -22,9 +21,6 @@ app = Flask(__name__, static_folder='static', static_url_path="/static") # WSGI 
 
 args = parse_arguments()
 model = read_model(args.model)
-
-# https://biocore-ntnu.github.io/pyranges/loadingcreating-pyranges.html
-neutral_regions = pr.read_bed(model['neutralRegions'])
 
 # https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
 # this line of code can be removed once the vue.js app is served from the same port as the flask app: 
@@ -115,11 +111,6 @@ def serve_api_model_parameters():
     'windowSize': model['windowSize']
   }
 
-def get_neutral_regions(region): 
-  chromosome, start, end = unpack(region)
-  # https://biocore-ntnu.github.io/pyranges/manipulating-the-data-in-pyranges.html
-  return neutral_regions[chromosome, start:end].df.to_dict(orient='records')
-
 @app.route('/api/neutral-regions', methods=['POST'])
 def serve_api_neutral_regions():
   if not request.is_json: 
@@ -129,7 +120,7 @@ def serve_api_neutral_regions():
     # "Content-Type: application/json" 
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
     return { 
-      'neutralRegions': get_neutral_regions(request.json['region'])
+      'neutralRegions': get_neutral_regions(request.json['region'], model)
     }
   except Exception: 
     return internal_server_error() 
