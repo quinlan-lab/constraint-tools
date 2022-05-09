@@ -1,9 +1,9 @@
 <template>
   <div style="padding: 10px;">
     <set-plot-parameters />
-    <div class="md-layout">
-      <plot-individual-distributions class="md-layout-item distribution"/>
-      <plot-joint-distribution class="md-layout-item distribution"/>
+    <div class="md-layout md-gutter">
+      <plot-individual-distributions class="md-layout-item"/>
+      <plot-joint-distribution class="md-layout-item"/>
     </div>
     <plot-time-series/>
   </div>
@@ -28,8 +28,4 @@ export default {
 </script>
 
 <style scoped>
-  .distribution { 
-    margin-left: 10px; 
-    margin-right: 10px; 
-  }
 </style>
