@@ -5,6 +5,8 @@ import numpy as np
 # https://github.com/pysam-developers/pysam/blob/b82cbcae22c088e64fdb58f8acaf1e9773c7b088/pysam/libctabix.pyx
 import pysam
 
+import pyranges as pr
+
 from colorize import print_json  
 from snvs import fetch_SNVs
 from pack_unpack import unpack
@@ -12,6 +14,8 @@ from kmer import CpG, not_CpG
 from windows import create_windows 
 from get_p0s_p1s_p2s_p3s import get_p0s_p1s_p2s_p3s
 from get_M_K import get_M_K_testTime 
+from neutral_regions import get_all_neutral_regions
+from exons import get_canonical_exons
 
 import color_traceback
 
@@ -72,6 +76,28 @@ def compute_Nbar_Nobserved(window, model, mutations, genome, log):
   N_bar = (N_observed - N_mean_null)/np.sqrt(N_variance_null)
   return N_bar, N_observed
 
+def filter_by_regions(windows, N_bars, K_bars, regions, how): 
+  chromosomes, starts, ends = tuple(zip(*[unpack(window['region']) for window in windows]))
+
+  # https://biocore-ntnu.github.io/pyranges/loadingcreating-pyranges.html
+  z_scores = pr.PyRanges(chromosomes=chromosomes, starts=starts, ends=ends)
+
+  # https://biocore-ntnu.github.io/pyranges/manipulating-the-data-in-pyranges.html
+  z_scores.windowPositions = [window['position'] for window in windows]
+  z_scores.NBars = N_bars
+  z_scores.KBars = K_bars
+  print(z_scores)
+  
+  # https://biocore-ntnu.github.io/pyranges/intersecting-ranges.html
+  z_scores_filtered = z_scores.intersect(regions, how=how)
+  print(z_scores_filtered)
+
+  return (
+    z_scores_filtered.windowPositions.tolist(),
+    z_scores_filtered.NBars.tolist(), 
+    z_scores_filtered.KBars.tolist()
+  )
+
 def compute_expected_observed_counts(region, model, window_stride, log=True):
   with pysam.TabixFile(model['mutations']) as mutations, pysam.FastaFile(model['genome']) as genome:
     windows = create_windows(model['windowSize'], window_stride, region, genome, region_contains_windows=True)
@@ -86,6 +112,17 @@ def compute_expected_observed_counts(region, model, window_stride, log=True):
     ])
 
   chromosome, start, end = unpack(region)
+
+  (
+    window_positions_neutral_regions, 
+    N_bars_neutral_regions, 
+    K_bars_neutral_regions
+  ) = filter_by_regions(windows, N_bars, K_bars, regions=get_all_neutral_regions(model), how='containment')
+  (
+    window_positions_exons, 
+    N_bars_exons, 
+    K_bars_exons
+  ) = filter_by_regions(windows, N_bars, K_bars, regions=get_canonical_exons(), how=None)
 
   return {
     'region': region,
@@ -102,7 +139,13 @@ def compute_expected_observed_counts(region, model, window_stride, log=True):
     'snvCpGNegativeFrequencies': pull_element(SNV_positions_frequencies_CpG_negative, index=1),
     'KBars': K_bars, 
     'KObserveds': K_observeds, 
-    'Ms': Ms
+    'Ms': Ms,
+    'windowPositionsNeutralRegions': window_positions_neutral_regions,
+    'NBarsNeutralRegions': N_bars_neutral_regions,
+    'KBarsNeutralRegions': K_bars_neutral_regions,
+    'windowPositionsExons': window_positions_exons,
+    'NBarsExons': N_bars_exons,
+    'KBarsExons': K_bars_exons,
   }
 
 def parse_arguments(): 
