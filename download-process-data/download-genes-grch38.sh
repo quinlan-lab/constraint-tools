@@ -5,7 +5,7 @@ set -o pipefail
 set -o xtrace
 set -o nounset 
 
-source download-data/set-environment-variables.sh 
+source download-process-data/set-environment-variables.sh 
 
 # gff3 format spec: 
 # https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md
@@ -28,5 +28,4 @@ zcat ${genes_path}/${genes}.gff3.gz \
   | awk --assign OFS='\t' '$3 == "exon" { print "chr"$1, $4, $5 }' \
   | get-regular-chromosomes \
   | sort-compress-index-bed --name ${genes_path}/exons.sorted
-
 
