@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
+set -o xtrace
+PS4='+ (${BASH_SOURCE[0]##*/} @ ${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+
+cd ${CONSTRAINT_TOOLS}/library 
+
+if [[ ! -d "mysql-8.0.22-linux-glibc2.12-x86_64" ]]; then 
+  wget https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.22-linux-glibc2.12-x86_64.tar
+  tar -xvf mysql-8.0.22-linux-glibc2.12-x86_64.tar
+  tar -xvf mysql-8.0.22-linux-glibc2.12-x86_64.tar.xz
+  ln -s ${CONSTRAINT_TOOLS}/library/mysql-8.0.22-linux-glibc2.12-x86_64/bin/mysql ${CONSTRAINT_TOOLS}/bin/mysql
+  rm mysql*tar*
+else 
+  info "skipping installation of mysql"
+fi 
+
+# no need to export PATH since it is already in the environment: 
+# `printenv | grep -w PATH` returns non-zero output 
+PATH="${CONSTRAINT_TOOLS}/bin:$PATH" 
+
+info "mysql version is:" "$(mysql --version)"
+info "mysql path is:" "$(which mysql)"
