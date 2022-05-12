@@ -1,0 +1,33 @@
++ set -o nounset
++ source download-process-data/set-environment-variables.sh
+++ set -o errexit
+++ set -o pipefail
+++ set -o nounset
+++++ dirname download-process-data/set-environment-variables.sh
++++ cd download-process-data
++++ pwd
+++ SCRIPT_DIR=/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/download-process-data
++++ dirname /scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/download-process-data
+++ export CONSTRAINT_TOOLS=/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools
+++ CONSTRAINT_TOOLS=/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools
+++ PATH=/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/utilities:/uufs/chpc.utah.edu/common/HIPAA/u6018199/.conda/envs/constraint-tools/bin:/uufs/chpc.utah.edu/sys/installdir/anaconda/2019.07/condabin:/uufs/chpc.utah.edu/common/HIPAA/u6018199/bin:/uufs/chpc.utah.edu/common/PE/proj_UCGD/apps/redwood.bridges/ucgd_utils/master/perl/script:/uufs/chpc.utah.edu/common/HIPAA/u6018199/.perl5/5.16.3/bin:/uufs/chpc.utah.edu/common/PE/proj_UCGD/apps/redwood.bridges/local-lib/5.16.3/bin:/uufs/chpc.utah.edu/sys/installdir/intel/compilers_and_libraries_2018.1.163/linux/bin/intel64:/uufs/chpc.utah.edu/sys/installdir/intel/compilers_and_libraries_2018.1.163/linux/mpi/intel64/bin:/uufs/chpc.utah.edu/common/HIPAA/u6018199/.vscode-server/bin/da15b6fd3ef856477bf6f4fb29ba1b7af717770d/bin/remote-cli:/uufs/chpc.utah.edu/common/HIPAA/u6018199/bin:/usr/lib64/qt-3.3/bin:/usr/kerberos/sbin:/usr/kerberos/bin:/uufs/chpc.utah.edu/sys/bin:/usr/lib64/ccache:/usr/local/bin:/usr/bin:/uufs/redwood.bridges/sys/installdir/slurm/std/bin:/usr/local/sbin:/usr/sbin:.:/uufs/chpc.utah.edu/common/HIPAA/u6018199/.local/bin:/uufs/chpc.utah.edu/common/HIPAA/u6018199/bin
+++ PATH=/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/bin:/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/utilities:/uufs/chpc.utah.edu/common/HIPAA/u6018199/.conda/envs/constraint-tools/bin:/uufs/chpc.utah.edu/sys/installdir/anaconda/2019.07/condabin:/uufs/chpc.utah.edu/common/HIPAA/u6018199/bin:/uufs/chpc.utah.edu/common/PE/proj_UCGD/apps/redwood.bridges/ucgd_utils/master/perl/script:/uufs/chpc.utah.edu/common/HIPAA/u6018199/.perl5/5.16.3/bin:/uufs/chpc.utah.edu/common/PE/proj_UCGD/apps/redwood.bridges/local-lib/5.16.3/bin:/uufs/chpc.utah.edu/sys/installdir/intel/compilers_and_libraries_2018.1.163/linux/bin/intel64:/uufs/chpc.utah.edu/sys/installdir/intel/compilers_and_libraries_2018.1.163/linux/mpi/intel64/bin:/uufs/chpc.utah.edu/common/HIPAA/u6018199/.vscode-server/bin/da15b6fd3ef856477bf6f4fb29ba1b7af717770d/bin/remote-cli:/uufs/chpc.utah.edu/common/HIPAA/u6018199/bin:/usr/lib64/qt-3.3/bin:/usr/kerberos/sbin:/usr/kerberos/bin:/uufs/chpc.utah.edu/sys/bin:/usr/lib64/ccache:/usr/local/bin:/usr/bin:/uufs/redwood.bridges/sys/installdir/slurm/std/bin:/usr/local/sbin:/usr/sbin:.:/uufs/chpc.utah.edu/common/HIPAA/u6018199/.local/bin:/uufs/chpc.utah.edu/common/HIPAA/u6018199/bin
++++ printenv
++++ grep CONSTRAINT_TOOLS
+++ info CONSTRAINT_TOOLS=/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools
+[0;36mCONSTRAINT_TOOLS=/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools[0m
+++ export CONSTRAINT_TOOLS_DATA=/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools
+++ CONSTRAINT_TOOLS_DATA=/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools
++ export PYTHONPATH=/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/utilities
++ PYTHONPATH=/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/utilities
++ script_path=/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/download-process-data
++ genes_path=/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/genes/grch38
++ mkdir --parents /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/genes/grch38
++ python /scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/download-process-data/download-biomart.py /scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/download-process-data/constitutive-exons.xml
++ awk --assign 'OFS=\t' '$5 == "1" { print "chr"$1, $2, $3, $4 }'
++ sort-compress-index-bed --name /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/genes/grch38/constitutive-exons.sorted
++ get-regular-chromosomes
++ sort --version-sort -k1,1 -k2,2 /dev/stdin
++ bgzip --force --stdout
+[36mBioMart download is complete.[0m
++ tabix --force --preset bed /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/genes/grch38/constitutive-exons.sorted.bed.gz

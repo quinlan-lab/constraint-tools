@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Query>
+<Query 
+  virtualSchemaName = "default" 
+  formatter = "TSV" 
+  header = "0" 
+  uniqueRows = "0" 
+  count = "" 
+  datasetConfigVersion = "0.6" 
+  completionStamp = "1" 
+>
+  <Dataset name = "hsapiens_gene_ensembl" interface = "default" >
+    <Filter name = "chromosome_name" value = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y" />
+    <!-- <Filter name = "chromosome_name" value = "1,2"/>
+    <Filter name = "start" value = "1"/>
+    <Filter name = "end" value = "100000"/> -->
+    <Attribute name = "chromosome_name" />
+    <Attribute name = "exon_chrom_start" />
+    <Attribute name = "exon_chrom_end" />
+    <Attribute name = "ensembl_exon_id" />
+    <Attribute name = "is_constitutive" />
+  </Dataset>
+</Query>
