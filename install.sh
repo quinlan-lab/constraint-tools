@@ -21,27 +21,27 @@ fi
 
 ########################## 
 
-# if ! which conda; then 
-#   error "please install conda"
-#   exit 1
-# fi 
+if ! which conda; then 
+  error "please install conda"
+  exit 1
+fi 
 
-# conda_environment_configuration="conda-environment.yml"
+conda_environment_configuration="conda-environment.yml"
 
-# # assume that the conda environment is the first line of the conda environment configuration file
-# first_line=$(cat ${conda_environment_configuration} | head -1) 
-# IFS=: read key value <<< "${first_line}"
-# conda_environment_name=$(echo "${value}" | tr -d '[:space:]')
+# assume that the conda environment is the first line of the conda environment configuration file
+first_line=$(cat ${conda_environment_configuration} | head -1) 
+IFS=: read key value <<< "${first_line}"
+conda_environment_name=$(echo "${value}" | tr -d '[:space:]')
 
-# info "testing to see if a conda environment with name '${conda_environment_name}' exists..."
-# if conda info --envs | grep "${conda_environment_name}"; then 
-#   error "conda environment with name '${conda_environment_name}' already exists!"
-#   error "exiting..." 
-#   exit 1
-# fi 
+info "testing to see if a conda environment with name '${conda_environment_name}' exists..."
+if conda info --envs | grep "${conda_environment_name}"; then 
+  error "conda environment with name '${conda_environment_name}' already exists!"
+  error "exiting..." 
+  exit 1
+fi 
 
-# info "creating a conda environment called ${conda_environment_name} using ${conda_environment_configuration}..."
-# conda env create -f ${conda_environment_configuration}
+info "creating a conda environment called ${conda_environment_name} using ${conda_environment_configuration}..."
+conda env create -f ${conda_environment_configuration}
 
 ########################## 
 
