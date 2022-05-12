@@ -104,12 +104,13 @@ export async function getCanonicalTranscript(transcriptIDs, genomeBuild) {
       console.log('no gene overlaps the region of interest')
       return {}
     } 
-    if ( canonicalTranscript.length == 1 ) {
-      // only one gene overlaps the region of interest
-      canonicalTranscript = canonicalTranscript[0][1]
-      return canonicalTranscript
-    } 
-    console.error('There is more than one canonical transcript in region.')
+    if ( canonicalTranscript.length > 1 ) {
+      console.error('There is more than one canonical transcript in region:')
+      console.error('canonicalTranscript:')
+      console.error(canonicalTranscript)
+    }
+    canonicalTranscript = canonicalTranscript[0][1]
+    return canonicalTranscript
   } catch (error) {
     console.error(error)
   }
