@@ -92,11 +92,14 @@ def filter_by_regions(windows, N_bars, K_bars, regions, how):
   z_scores_filtered = z_scores.intersect(regions, how=how)
   print(z_scores_filtered)
 
-  return (
-    z_scores_filtered.windowPositions.tolist(),
-    z_scores_filtered.NBars.tolist(), 
-    z_scores_filtered.KBars.tolist()
-  )
+  try:
+    return (
+      z_scores_filtered.windowPositions.tolist(),
+      z_scores_filtered.NBars.tolist(), 
+      z_scores_filtered.KBars.tolist()
+    )
+  except AttributeError: 
+    return None, None, None
 
 def compute_expected_observed_counts(region, model, window_stride, log=True):
   with pysam.TabixFile(model['mutations']) as mutations, pysam.FastaFile(model['genome']) as genome:
