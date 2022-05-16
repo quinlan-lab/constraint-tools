@@ -86,11 +86,9 @@ def filter_by_regions(windows, N_bars, K_bars, regions, how):
   z_scores.windowPositions = [window['position'] for window in windows]
   z_scores.NBars = N_bars
   z_scores.KBars = K_bars
-  print(z_scores)
   
   # https://biocore-ntnu.github.io/pyranges/intersecting-ranges.html
   z_scores_filtered = z_scores.intersect(regions, how=how)
-  print(z_scores_filtered)
 
   try:
     return (
