@@ -41,8 +41,6 @@ export default {
     return {
       cpgNegativeColor: 'rgba(255, 0, 0, 0.2)',
       cpgPositiveColor: 'rgba(0, 0, 255, 0.2)',
-      exonColor: '#d3d3d3',
-      neutralRegionColor: 'rgba(0, 255, 0, 0.3)',
       y2axisMin: 0,
       y2axisMax: 50,
       y3axisMin: -10,
@@ -120,7 +118,9 @@ export default {
       'modelParameters',
       'neutralRegions',
       'selectedGenomicPosition',
-      'fetchingDistributions'
+      'fetchingDistributions',
+      'exonColor',
+      'neutralRegionColor'
     ]),
     ...mapGetters([
       'fetchingTimeSeriesData'

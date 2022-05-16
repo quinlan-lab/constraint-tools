@@ -84,7 +84,7 @@ function getDomain(genomeBuild) {
   throw `genome build ${genomeBuild} not supported!`
 }
 
-export async function getCanonicalTranscript(transcriptIDs, genomeBuild) {
+export async function getCanonicalTranscripts(transcriptIDs, genomeBuild) {
   try { 
     // https://rest.ensembl.org/documentation/info/lookup_post
     // https://github.com/Ensembl/ensembl-rest/wiki/Getting-Started
@@ -99,18 +99,19 @@ export async function getCanonicalTranscript(transcriptIDs, genomeBuild) {
 
     // https://uswest.ensembl.org/info/genome/genebuild/canonical.html
     // eslint-disable-next-line no-unused-vars
-    let canonicalTranscript = Object.entries(transcripts).filter(([transcriptID, transcriptObject]) => transcriptObject.is_canonical == 1)
-    if ( canonicalTranscript.length == 0 ) {
-      console.log('no gene overlaps the region of interest')
-      return {}
+    let canonicalTranscripts = Object.entries(transcripts).filter(([transcriptID, transcriptObject]) => transcriptObject.is_canonical == 1)
+    // eslint-disable-next-line no-unused-vars
+    canonicalTranscripts = canonicalTranscripts.map(([transcriptID, transcriptObject]) => transcriptObject)
+    if ( canonicalTranscripts.length == 0 ) {
+      console.error('no gene overlaps the region of interest')
+      return []
     } 
-    if ( canonicalTranscript.length > 1 ) {
+    if ( canonicalTranscripts.length > 1 ) {
       console.error('There is more than one canonical transcript in region:')
-      console.error('canonicalTranscript:')
-      console.error(canonicalTranscript)
+      console.error('canonicalTranscripts:')
+      console.error(canonicalTranscripts)
     }
-    canonicalTranscript = canonicalTranscript[0][1]
-    return canonicalTranscript
+    return canonicalTranscripts
   } catch (error) {
     console.error(error)
   }

@@ -24,11 +24,14 @@ export const store = new Vuex.Store({
     expectedObservedCounts: null,
     fetchingExpectedObservedCounts: false,
 
-    canonicalTranscript: null,
+    canonicalTranscripts: null,
     canonicalExons: null,
 
     fetchingCanonicalData: false, 
     canonicalDataSet: false,
+
+    exonColor: 'rgba(255, 0, 0, 0.3)',
+    neutralRegionColor: 'rgba(0, 0, 0, 0.1)', // '#d3d3d3', 
   },
   getters: {
     fetchingTimeSeriesData: state => {
@@ -76,8 +79,8 @@ export const store = new Vuex.Store({
       state.fetchingExpectedObservedCounts = fetchingExpectedObservedCounts
     },
 
-    setCanonicalTranscript (state, canonicalTranscript) {
-      state.canonicalTranscript = canonicalTranscript
+    setCanonicalTranscripts (state, canonicalTranscripts) {
+      state.canonicalTranscripts = canonicalTranscripts
     },
     setCanonicalExons (state, canonicalExons) {
       state.canonicalExons = canonicalExons
@@ -123,12 +126,13 @@ export const store = new Vuex.Store({
       const transcriptIDs = [...new Set(exons.map(exon => exon.Parent))]
       console.log('transcriptIDs:')
       console.log(transcriptIDs)
-      const canonicalTranscript = await api.getCanonicalTranscript(transcriptIDs, payload.genomeBuild)
-      console.log('canonicalTranscript:')
-      console.log(canonicalTranscript)
-      commit('setCanonicalTranscript', canonicalTranscript)
+      const canonicalTranscripts = await api.getCanonicalTranscripts(transcriptIDs, payload.genomeBuild)
+      console.log('canonicalTranscripts:')
+      console.log(canonicalTranscripts)
+      commit('setCanonicalTranscripts', canonicalTranscripts)
 
-      const canonicalExons = exons.filter(exon => exon.Parent == canonicalTranscript.id)
+      const canonicalTranscriptIDs = new Set(canonicalTranscripts.map(canonicalTranscript => canonicalTranscript.id))
+      const canonicalExons = exons.filter(exon => canonicalTranscriptIDs.has(exon.Parent))
       console.log('canonicalExons')
       console.log(canonicalExons)
       commit('setCanonicalExons', canonicalExons)

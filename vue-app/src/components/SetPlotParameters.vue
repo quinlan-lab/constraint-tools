@@ -12,28 +12,32 @@
     
       <md-card-content>
         <div class="md-layout md-gutter">
-          <div class="md-layout-item header-item" v-if="canonicalTranscriptExists">
+          <div class="md-layout-item header-item" v-if="atLeastOneCanonicalTranscript">
             <div class="md-head">
-              Canonical Transcript
+              Canonical Transcripts
             </div>
-            <div class="md-subhead">
-              Name: {{ canonicalTranscript.display_name }}
-            </div>
-            <div class="md-subhead">
-              Ensemble ID: 
-              <a :href="canonicalTranscriptEnsembleUI" target="_blank">
-                {{ canonicalTranscript.id }}
-              </a>  
-            </div>  
-            <div class="md-subhead">
-              Strand: {{ canonicalTranscript.strand }}
-            </div>
+              <div v-for="canonicalTranscript in canonicalTranscripts" :key="canonicalTranscript.id"> 
+                <md-divider></md-divider>
+                <div class="md-subhead">
+                  Name: {{ canonicalTranscript.display_name }}
+                </div>
+                <div class="md-subhead">
+                  Ensemble ID: 
+                  <a :href="getEnsembleUI(canonicalTranscript)" target="_blank">
+                    {{ canonicalTranscript.id }}
+                  </a>  
+                </div>  
+                <div class="md-subhead">
+                  Strand: {{ canonicalTranscript.strand }}
+                </div>
+              </div>
           </div>
 
           <div class="md-layout-item header-item">
             <div class="md-head">
               Model 
             </div>
+            <md-divider></md-divider>
             <div class="md-subhead">
               genomeBuild: {{ modelParameters.genomeBuild }} 
             </div>  
@@ -75,7 +79,7 @@
             <md-icon>refresh</md-icon>
           </md-button>      
 
-          <md-card-expand-trigger v-if="canonicalTranscriptExists">
+          <md-card-expand-trigger>
             <md-button  class="md-icon-button">
               <md-icon>keyboard_arrow_down</md-icon>
             </md-button>
@@ -84,7 +88,7 @@
 
         <md-card-expand-content>
           <md-card-content>
-            Exons from the canonical transcript are labeled with their rank in that transcript.
+            <span v-if="atLeastOneCanonicalTranscript">Exons from the canonical transcript are labeled with their rank in that transcript.</span>
             <br> 
             Click on the time series plots to compute the null distribution of N and K at the corresponding genomic position.           
           </md-card-content>
@@ -129,6 +133,9 @@ export default {
     }
   }, 
   methods: {
+    getEnsembleUI (canonicalTranscript) {
+      return `https://uswest.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=${canonicalTranscript.id}`
+    },
     getChromosomeStartEnd (region) {
       const [chromosome, start_end] = region.split(':')
       const [start, end] = start_end.replaceAll(',', '').split('-')
@@ -184,7 +191,7 @@ export default {
   },
   computed: {
     ...mapState([
-      'canonicalTranscript',
+      'canonicalTranscripts',
       'canonicalExons',
       'canonicalDataSet',
       'modelParameters',
@@ -193,11 +200,8 @@ export default {
     ...mapGetters([
       'fetchingTimeSeriesData'
     ]),
-    canonicalTranscriptEnsembleUI () {
-      return `https://uswest.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=${this.canonicalTranscript.id}`
-    },
-    canonicalTranscriptExists () {
-      return this.canonicalDataSet && Object.keys(this.canonicalTranscript).length > 0
+    atLeastOneCanonicalTranscript () {
+      return this.canonicalDataSet && Object.keys(this.canonicalTranscripts).length > 0
     }
   },
   async created () { 

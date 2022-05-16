@@ -21,6 +21,8 @@ export default {
   computed: {
     ...mapState([
       'expectedObservedCounts',
+      'exonColor',
+      'neutralRegionColor'
     ]),
     ...mapGetters([
       'fetchingTimeSeriesData'
@@ -28,30 +30,45 @@ export default {
     traces () {
       return [
         { 
-          x: this.expectedObservedCounts.NBars,
-          y: this.expectedObservedCounts.KBars,
-          name: '',
+          x: this.expectedObservedCounts.NBarsNeutralRegions,
+          y: this.expectedObservedCounts.KBarsNeutralRegions,
+          name: 'neutral region',
           xaxis: 'x',
           yaxis: 'y',
           mode: 'markers',
           type: 'scatter',
           marker: { 
             size: 5,
-            color: 'black'
-          }
+            color: this.neutralRegionColor
+          },
+          showlegend: true,
+        },
+        { 
+          x: this.expectedObservedCounts.NBarsExons,
+          y: this.expectedObservedCounts.KBarsExons,
+          name: 'exon',
+          xaxis: 'x',
+          yaxis: 'y',
+          mode: 'markers',
+          type: 'scatter',
+          marker: { 
+            size: 5,
+            color: this.exonColor
+          },
+          showlegend: true,
         },
       ] 
     },
     layout () {
       return { 
-        showlegend: false,
+        showlegend: true,
         legend: {
           x: 1.05,
           y: 0.4,
           // xanchor: 'right',
         },
         height: 300,
-        width: 300,
+        width: 500,
         xaxis: {
           title: `Z-score for <br># SNVs (per window), <br>N_bar`,
           showline: true,
@@ -68,7 +85,10 @@ export default {
           zeroline: false,
           autotick: true,
           showticklabels: true,
-          // range: [-2, 2]
+          // range: [-5, 5],
+          scaleanchor: "x",
+          scaleratio: 1,
+
         },
         responsive: true,
         font: {
