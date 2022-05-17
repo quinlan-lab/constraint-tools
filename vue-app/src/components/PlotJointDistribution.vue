@@ -129,10 +129,6 @@ export default {
   .plot-container { 
     margin: 10px auto; 
     background-color: white;
-    position: relative;
   }
 
-  .progress-bar-container {
-    height: 10px;
-  }
 </style>
