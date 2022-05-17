@@ -14,7 +14,7 @@
         <div class="md-layout md-gutter">
           <div class="md-layout-item header-item" v-if="atLeastOneCanonicalTranscript">
             <div class="md-head">
-              Canonical Transcripts
+              Canonical Transcript<span v-if="moreThanOneCanonicalTranscript">s</span>
             </div>
               <div v-for="canonicalTranscript in canonicalTranscripts" :key="canonicalTranscript.id"> 
                 <md-divider></md-divider>
@@ -136,10 +136,27 @@ export default {
     getEnsembleUI (canonicalTranscript) {
       return `https://uswest.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=${canonicalTranscript.id}`
     },
-    getChromosomeStartEnd (region) {
+    hasWhiteSpace (s) {
+      return /\s/g.test(s)
+    },
+    getChromosomeStartEndFromTabDelimitedString (region) { 
+      return region.split(/[ ]+/)
+    },
+    getChromosomeStartEndFromColonHyphenDelimitedString (region) { 
       const [chromosome, start_end] = region.split(':')
       const [start, end] = start_end.replaceAll(',', '').split('-')
       return [chromosome, start, end]
+    },
+    getChromosomeStartEnd (region) {
+      if (this.hasWhiteSpace(region)) { 
+        return this.getChromosomeStartEndFromTabDelimitedString(region)
+      } else { 
+        return this.getChromosomeStartEndFromColonHyphenDelimitedString(region)
+      }
+    },
+    convertToColonHyphenDelimitedString (region) { 
+      const [chromosome, start, end] = this.getChromosomeStartEnd(region)
+      return `${chromosome}:${parseInt(start).toLocaleString()}-${parseInt(end).toLocaleString()}`
     },
     intervalSizeTooSmall (region) { 
       const [, start, end] = this.getChromosomeStartEnd(region)
@@ -152,6 +169,8 @@ export default {
       return [parseInt(end), parseInt(chromosomeLength)]
     },
     async validateParameters () {
+      this.plotParameters.region = this.convertToColonHyphenDelimitedString(this.plotParameters.region)
+
       this.errors = []
 
       if (!this.plotParameters.region) {
@@ -202,6 +221,9 @@ export default {
     ]),
     atLeastOneCanonicalTranscript () {
       return this.canonicalDataSet && Object.keys(this.canonicalTranscripts).length > 0
+    },
+    moreThanOneCanonicalTranscript () {
+      return this.canonicalDataSet && Object.keys(this.canonicalTranscripts).length > 1
     }
   },
   async created () { 
