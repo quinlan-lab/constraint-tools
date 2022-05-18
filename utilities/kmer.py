@@ -194,6 +194,26 @@ def test_fetch_kmers():
     except AssertionError: 
       print_string_as_error('number fetched kmers differs from expected number of kmers!')
 
+def test_fetch_kmer_from_genome(): 
+  print('')
+  print_string_as_info('**** testing fetch_kmer_from_genome(...) ***** ')
+
+  import pysam 
+
+  genome_filename = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38/hg38.analysisSet.fa.gz'
+  positions = [63442000, 63442001, 63442002, 63442003, 63442004]
+  expected_kmers = ['A', 'G', 'A', 'G', 'T']
+  observed_kmers = []
+  with pysam.FastaFile(genome_filename) as genome: 
+    for position in positions:
+      kmer = fetch_kmer_from_genome(genome, chromosome='chr20', position=position, kmer_size=1) 
+      print(f'nucleotide at position {position} is {kmer}')
+      observed_kmers.append(kmer)
+    try: 
+      assert observed_kmers == expected_kmers
+    except AssertionError:
+      print_string_as_error('nucleotides are unexpected!')
+
 if __name__ == '__main__': 
   # print(compute_kmers(3))
   print("possible ALT states of 'AGTAT':", compute_possible_ALT_states('AGTAT'))
@@ -209,4 +229,5 @@ if __name__ == '__main__':
   test_get_complement('AGTAT')
   test_get_complement('AGCGT')
   test_fetch_kmers()
+  test_fetch_kmer_from_genome()
   
