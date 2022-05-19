@@ -45,10 +45,49 @@ export default {
       y2axisMax: 50,
       y3axisMin: -10,
       y3axisMax: 10,
-      plotlyEventListenerAdded: false
+      plotlyEventListenersAdded: false,
+      viewBreakpoint: 150
     }
   },
   methods: {
+    getLayoutShowSequence () {
+      return { ...this.layoutCore, xaxis: this.xaxisShowSequence }
+    },
+    getLayoutShowCoordinates () {
+      // converting this to a method results in a bug:
+      // the "xaxis" property sporadically changes to the value of "this.xaxisShowSequence" 
+      return { ...this.layoutCore, xaxis: this.xaxisShowCoordinates }
+    },
+    relayout (start, end) { 
+      const length = end - start
+      Plotly.relayout(
+        this.$refs.plot, 
+        length < this.viewBreakpoint ? this.getLayoutShowSequence() : this.getLayoutShowCoordinates()
+      )
+    },
+    hasProperty (object, property) {
+      return Object.prototype.hasOwnProperty.call(object, property)
+    },
+    handleRelayoutEvent (eventData) {
+      // event-data definition: https://plotly.com/javascript/plotlyjs-events/#update-data
+      console.log('relayout-event data:')
+      console.log(eventData)
+
+      if (this.hasProperty(eventData, 'xaxis.autorange')) {
+        this.relayout(this.xaxisMin, this.xaxisMax)
+        return
+      }
+
+      if (
+        this.hasProperty(eventData, 'xaxis.range[0]') &&
+        this.hasProperty(eventData, 'xaxis.range[1]')
+      ) {
+        const start = parseInt(eventData['xaxis.range[0]'])
+        const end = parseInt(eventData['xaxis.range[1]'])
+        this.relayout(start, end)
+        return
+      }
+    },
     getDistributions (eventData) {
       const [point] = eventData.points
       this.$store.commit('setSelectedGenomicPosition', point.x)
@@ -109,6 +148,16 @@ export default {
     },
   },
   computed: {
+    nucleotides () {
+      return [...this.sequenceData.sequence]
+    },
+    nucleotidePositions () {
+      const xs = []
+      for (let x = this.sequenceData.start; x < this.sequenceData.end; x++) {
+        xs.push(x)
+      }      
+      return xs
+    },
     fetchingAnyData () {
       return this.fetchingTimeSeriesData || this.fetchingDistributions
     },
@@ -117,6 +166,7 @@ export default {
       'canonicalExons',
       'modelParameters',
       'neutralRegions',
+      'sequenceData',
       'selectedGenomicPosition',
       'fetchingDistributions',
       'exonColor',
@@ -249,7 +299,34 @@ export default {
         },      
       ] 
     },
-    layout () {
+    xaxisCore () {
+      return {
+        title: `Position (bps) along ${this.expectedObservedCounts.chromosome}`,
+        showline: true,
+        showgrid: false,
+        zeroline: false,
+        showticklabels: true,
+        range: [this.xaxisMin, this.xaxisMax],
+      }
+    },
+    xaxisShowSequence () {
+      return {
+        ...this.xaxisCore,  
+        tickmode: 'array',
+        ticktext: this.nucleotides,
+        tickvals: this.nucleotidePositions,
+        tickangle: 0,
+      }
+    },
+    xaxisShowCoordinates () {
+      return {
+        ...this.xaxisCore,  
+        tickmode: 'auto',
+        tickformat: ",.0f",
+        autotick: true,
+      }
+    },
+    layoutCore () {
       return { 
         showlegend: true,
         legend: {
@@ -258,7 +335,7 @@ export default {
           // xanchor: 'right',
         },
         height: 500,
-        width: 1000,
+        width: 1400,
         grid: {
           rows: 3, 
           columns: 1, 
@@ -266,16 +343,6 @@ export default {
           roworder: 'top to bottom'
         },
         // https://codepen.io/plotly/pen/KpLVzv ...
-        xaxis: {
-          title: `Position (bps) along ${this.expectedObservedCounts.chromosome}`,
-          showline: true,
-          showgrid: false,
-          zeroline: false,
-          autotick: true,
-          showticklabels: true,
-          tickformat: ",.0f",
-          range: [this.xaxisMin, this.xaxisMax]
-        },
         yaxis: { 
           domain: [0.8, 1.0],
           title: '1 + log(# ALT chroms) <br>(semi-major axis)',
@@ -319,7 +386,7 @@ export default {
         },
         shapes: [...this.exonRectangles, ...this.neutralRegionRectangles, ...this.cpgNegativeEllipses, ...this.cpgPositiveEllipses]
       }
-    }
+    },
   },
   watch: {
     fetchingAnyData: {
@@ -329,11 +396,19 @@ export default {
         }
         if ( newValue === false && oldValue === true ) {
           console.log('data fetched from all APIs')
-          Plotly.react(this.$refs.plot, this.traces, this.layout)
-          if ( !this.plotlyEventListenerAdded ) { 
-            console.log('plotly event listener added')
+
+          const xaxisLength = this.xaxisMax - this.xaxisMin
+          Plotly.react(
+            this.$refs.plot, 
+            this.traces, 
+            xaxisLength < this.viewBreakpoint ? this.getLayoutShowSequence() : this.getLayoutShowCoordinates()
+          )
+
+          if ( !this.plotlyEventListenersAdded ) { 
             this.$refs.plot.on('plotly_click', this.getDistributions)
-            this.plotlyEventListenerAdded = true
+            this.$refs.plot.on('plotly_relayout', this.handleRelayoutEvent)
+            console.log('plotly event listeners added')
+            this.plotlyEventListenersAdded = true
           }
         }
       },

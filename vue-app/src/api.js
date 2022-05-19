@@ -50,6 +50,20 @@ export async function getNeutralRegions(plotParameters) {
   }
 }
 
+export async function getSequenceData(plotParameters) {
+  try {
+    const response = await axiosInstance.post('/api/sequence', plotParameters)
+    const sequenceData = response.data
+    console.log('sequenceData:')
+    console.log(sequenceData)
+    console.log('sequence:')
+    console.log(sequenceData.sequence)
+    return sequenceData
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 export async function getDistributions(payload) {
   try {
     const response = await axiosInstance.post('/api/distributions', payload)

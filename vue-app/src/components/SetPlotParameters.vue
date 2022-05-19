@@ -203,6 +203,9 @@ export default {
           genomeBuild: this.modelParameters.genomeBuild
         })
         this.$store.dispatch('getNeutralRegions', this.plotParameters)
+        this.$store.dispatch('getSequenceData', {
+          region: this.plotParameters.region
+        })
       } else { 
         this.showSnackbar = true
       }

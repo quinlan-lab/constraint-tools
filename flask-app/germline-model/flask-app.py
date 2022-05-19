@@ -8,6 +8,8 @@ from null_distributions import fetch_distribution_N, fetch_distribution_K
 from colorize import print_string_as_error, print_string_as_info, print_json
 from read_model import read_model
 from neutral_regions import get_neutral_regions
+from sequence import get_sequence
+from pack_unpack import unpack
 
 def parse_arguments(): 
   parser = argparse.ArgumentParser(description='')
@@ -121,6 +123,25 @@ def serve_api_neutral_regions():
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
     return { 
       'neutralRegions': get_neutral_regions(request.json['region'], model)
+    }
+  except Exception: 
+    return internal_server_error() 
+
+@app.route('/api/sequence', methods=['POST'])
+def serve_api_sequence():
+  if not request.is_json: 
+    return bad_request()
+  try: 
+    region = request.json['region']
+    chromosome, start, end = unpack(region)
+    # returning a dictionary makes flask respond with: 
+    # "Content-Type: application/json" 
+    # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
+    return {
+      'chromosome': chromosome,
+      'start': start, 
+      'end': end,
+      'sequence': get_sequence(region, model)
     }
   except Exception: 
     return internal_server_error() 

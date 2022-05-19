@@ -21,6 +21,10 @@ export const store = new Vuex.Store({
     fetchingNeutralRegions: false, 
     neutralRegionsSet: false,
 
+    sequenceData: null, 
+    fetchingSequenceData: false, 
+    sequenceDataSet: false,
+
     expectedObservedCounts: null,
     fetchingExpectedObservedCounts: false,
 
@@ -38,7 +42,8 @@ export const store = new Vuex.Store({
       return (
         state.fetchingExpectedObservedCounts || 
         state.fetchingCanonicalData || 
-        state.fetchingNeutralRegions 
+        state.fetchingNeutralRegions ||
+        state.fetchingSequenceData 
       )
     },
   },
@@ -70,6 +75,14 @@ export const store = new Vuex.Store({
     },
     setFetchingNeutralRegions (state, fetchingNeutralRegions) {
       state.fetchingNeutralRegions = fetchingNeutralRegions
+    },
+
+    setSequenceData (state, sequenceData) {
+      state.sequenceData = sequenceData
+      state.SequenceDataSet = true
+    },
+    setFetchingSequenceData (state, fetchingSequenceData) {
+      state.fetchingSequenceData = fetchingSequenceData
     },
 
     setExpectedObservedCounts (state, expectedObservedCounts) {
@@ -108,6 +121,11 @@ export const store = new Vuex.Store({
       commit('setFetchingNeutralRegions', true)
       commit('setNeutralRegions', await api.getNeutralRegions(plotParameters))
       commit('setFetchingNeutralRegions', false)
+    },
+    async getSequenceData ({ commit }, plotParameters) { 
+      commit('setFetchingSequenceData', true)
+      commit('setSequenceData', await api.getSequenceData(plotParameters))
+      commit('setFetchingSequenceData', false)
     },
     async getExpectedObservedCounts ({ commit }, plotParameters) { 
       commit('setFetchingExpectedObservedCounts', true)
