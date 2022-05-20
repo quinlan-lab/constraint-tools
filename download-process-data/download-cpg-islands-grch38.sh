@@ -19,6 +19,9 @@ mkdir --parents ${cpg_islands_path}
 database="hg38"
 table="cpgIslandExt"
 
+# schema: 
+# http://genome.ucsc.edu/cgi-bin/hgTables?db=hg38&hgta_group=regulation&hgta_track=cpgIslandExt&hgta_table=cpgIslandExt&hgta_doSchema=describe+table+schema
+
 # https://genome.ucsc.edu/goldenPath/help/mysql.html
 # https://genome.ucsc.edu/cgi-bin/hgTables
 mysql \
