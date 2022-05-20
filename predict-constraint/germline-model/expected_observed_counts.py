@@ -90,14 +90,16 @@ def filter_by_regions(windows, N_bars, K_bars, regions, how):
   # https://biocore-ntnu.github.io/pyranges/intersecting-ranges.html
   z_scores_filtered = z_scores.intersect(regions, how=how)
 
-  try:
-    return (
-      z_scores_filtered.windowPositions.tolist(),
-      z_scores_filtered.NBars.tolist(), 
-      z_scores_filtered.KBars.tolist()
-    )
-  except AttributeError: 
+  if z_scores_filtered.df.empty: 
     return None, None, None
+
+  z_scores_filtered.KBars = z_scores_filtered.KBars.replace({np.nan: None})
+
+  return (
+    z_scores_filtered.windowPositions.tolist(),
+    z_scores_filtered.NBars.tolist(), 
+    z_scores_filtered.KBars.tolist()
+  )
 
 def compute_expected_observed_counts(region, model, window_stride, log=True):
   with pysam.TabixFile(model['mutations']) as mutations, pysam.FastaFile(model['genome']) as genome:
