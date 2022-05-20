@@ -56,8 +56,6 @@ export async function getSequenceData(plotParameters) {
     const sequenceData = response.data
     console.log('sequenceData:')
     console.log(sequenceData)
-    console.log('sequence:')
-    console.log(sequenceData.sequence)
     return sequenceData
   } catch (error) {
     console.error(error)
