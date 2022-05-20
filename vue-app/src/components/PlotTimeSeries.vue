@@ -60,6 +60,7 @@ export default {
     },
     relayout (start, end) { 
       const length = end - start
+      // https://github.com/plotly/plotly.js/issues/1010#issuecomment-252952758
       Plotly.relayout(
         this.$refs.plot, 
         length < this.viewBreakpoint ? this.getLayoutShowSequence() : this.getLayoutShowCoordinates()
