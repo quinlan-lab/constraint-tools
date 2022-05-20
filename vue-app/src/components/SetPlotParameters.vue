@@ -88,9 +88,20 @@
 
         <md-card-expand-content>
           <md-card-content>
-            <span v-if="atLeastOneCanonicalTranscript">Exons from the canonical transcript are labeled with their rank in that transcript.</span>
+            <!-- <span v-if="atLeastOneCanonicalTranscript">Exons from the canonical transcript are labeled with their rank in that transcript.</span>
             <br> 
             Click on the time series plots to compute the null distribution of N and K at the corresponding genomic position.           
+            <br>  -->
+            <div class="md-head">
+              DNA sequence
+            </div>
+            <md-divider></md-divider>
+            <div 
+              v-if="!fetchingTimeSeriesData && sequenceDataSet" 
+              style="margin-top: 10px; width: 1500px; overflow-wrap: break-word;"
+            >
+              {{ sequenceData.sequence }}
+            </div>
           </md-card-content>
         </md-card-expand-content>
       </md-card-expand>
@@ -217,7 +228,9 @@ export default {
       'canonicalExons',
       'canonicalDataSet',
       'modelParameters',
-      'modelParametersSet'
+      'modelParametersSet',
+      'sequenceData',
+      'sequenceDataSet'
     ]),
     ...mapGetters([
       'fetchingTimeSeriesData'

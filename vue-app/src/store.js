@@ -79,7 +79,7 @@ export const store = new Vuex.Store({
 
     setSequenceData (state, sequenceData) {
       state.sequenceData = sequenceData
-      state.SequenceDataSet = true
+      state.sequenceDataSet = true
     },
     setFetchingSequenceData (state, fetchingSequenceData) {
       state.fetchingSequenceData = fetchingSequenceData
