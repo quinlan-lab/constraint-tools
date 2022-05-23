@@ -66,8 +66,11 @@ def get_K_mean_variance_null(M, model):
 
 def compute_Kbar_Kobserved_M(window, model, mutations, genome):
   M, K_observed = get_M_K_testTime(window, mutations, genome, model)
-  K_mean_null, K_variance_null = get_K_mean_variance_null(M, model)
-  K_bar = (K_observed - K_mean_null)/np.sqrt(K_variance_null) if M > 0 else None 
+  if M > 0 and M in model['singletonCounts'].keys(): 
+    K_mean_null, K_variance_null = get_K_mean_variance_null(M, model)
+    K_bar = (K_observed - K_mean_null)/np.sqrt(K_variance_null)
+  else: 
+    K_bar = None 
   return K_bar, K_observed, M
 
 def compute_Nbar_Nobserved(window, model, mutations, genome, log):
