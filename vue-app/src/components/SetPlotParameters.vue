@@ -55,14 +55,24 @@
           <div class="md-layout-item header-item">
             <md-field>
               <label for="region">Region</label>
-              <md-input id="region" v-model="plotParameters.region" :disabled="fetchingTimeSeriesData" />
+              <md-input
+                id="region" 
+                v-on:keyup.enter="getAPIData" 
+                v-model="plotParameters.region" 
+                :disabled="fetchingTimeSeriesData"
+              />
             </md-field>
           </div>    
 
           <div class="md-layout-item" style="max-width: 150px;">
             <md-field>
               <label for="window-stride">Window stride</label>
-              <md-input id="window-stride" v-model="plotParameters.windowStride" :disabled="fetchingTimeSeriesData" />
+              <md-input 
+                id="window-stride" 
+                v-on:keyup.enter="getAPIData" 
+                v-model="plotParameters.windowStride" 
+                :disabled="fetchingTimeSeriesData"
+              />
             </md-field>
           </div> 
         </div>
