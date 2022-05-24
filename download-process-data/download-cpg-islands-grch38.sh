@@ -39,3 +39,4 @@ mysql \
     ${database} \
   | get-regular-chromosomes \
   | sort-compress-index-bed --name ${cpg_islands_path}/cpg-islands.sorted
+
