@@ -66,11 +66,17 @@ def get_K_mean_variance_null(M, model):
 
 def compute_Kbar_Kobserved_M(window, model, mutations, genome):
   M, K_observed = get_M_K_testTime(window, mutations, genome, model)
-  if M > 0 and M in model['singletonCounts'].keys(): 
-    K_mean_null, K_variance_null = get_K_mean_variance_null(M, model)
-    K_bar = (K_observed - K_mean_null)/np.sqrt(K_variance_null)
-  else: 
-    K_bar = None 
+
+  if M == 0: 
+    return None, K_observed, M
+  if M not in model['singletonCounts'].keys(): 
+    return None, K_observed, M
+  number_null_windows = np.sum(model['singletonCounts'][M])
+  if number_null_windows < 50: 
+    return None, K_observed, M
+
+  K_mean_null, K_variance_null = get_K_mean_variance_null(M, model)
+  K_bar = (K_observed - K_mean_null)/np.sqrt(K_variance_null)
   return K_bar, K_observed, M
 
 def compute_Nbar_Nobserved(window, model, mutations, genome, log):
@@ -117,6 +123,8 @@ def compute_expected_observed_counts(region, model, window_stride, log=True):
       for window in windows
     ])
 
+  # print([K_bar for K_bar in K_bars if not K_bar])
+  # 1/0
   chromosome, start, end = unpack(region)
 
   (
