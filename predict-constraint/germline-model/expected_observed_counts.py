@@ -85,7 +85,7 @@ def compute_Nbar_Nobserved(window, model, mutations, genome, log):
   N_bar = (N_observed - N_mean_null)/np.sqrt(N_variance_null)
   return N_bar, N_observed
 
-def filter_by_regions(windows, N_bars, K_bars, regions, how): 
+def filter_by_regions(windows, N_bars, N_observeds, K_bars, K_observeds, regions, how): 
   chromosomes, starts, ends = tuple(zip(*[unpack(window['region']) for window in windows]))
 
   # https://biocore-ntnu.github.io/pyranges/loadingcreating-pyranges.html
@@ -94,20 +94,24 @@ def filter_by_regions(windows, N_bars, K_bars, regions, how):
   # https://biocore-ntnu.github.io/pyranges/manipulating-the-data-in-pyranges.html
   z_scores.windowPositions = [window['position'] for window in windows]
   z_scores.NBars = N_bars
+  z_scores.NObserveds = N_observeds
   z_scores.KBars = K_bars
+  z_scores.KObserveds = K_observeds
   
   # https://biocore-ntnu.github.io/pyranges/intersecting-ranges.html
   z_scores_filtered = z_scores.intersect(regions, how=how)
 
   if z_scores_filtered.df.empty: 
-    return None, None, None
+    return None, None, None, None, None
 
   z_scores_filtered.KBars = z_scores_filtered.KBars.replace({np.nan: None})
 
   return (
     z_scores_filtered.windowPositions.tolist(),
     z_scores_filtered.NBars.tolist(), 
-    z_scores_filtered.KBars.tolist()
+    z_scores_filtered.NObserveds.tolist(), 
+    z_scores_filtered.KBars.tolist(),
+    z_scores_filtered.KObserveds.tolist()
   )
 
 def compute_expected_observed_counts(region, model, window_stride, log=True):
@@ -130,13 +134,33 @@ def compute_expected_observed_counts(region, model, window_stride, log=True):
   (
     window_positions_neutral_regions, 
     N_bars_neutral_regions, 
-    K_bars_neutral_regions
-  ) = filter_by_regions(windows, N_bars, K_bars, regions=get_all_neutral_regions(model), how='containment')
+    N_observeds_neutral_regions,
+    K_bars_neutral_regions,
+    K_observeds_neutral_regions
+  ) = filter_by_regions(
+    windows, 
+    N_bars, 
+    N_observeds, 
+    K_bars, 
+    K_observeds, 
+    regions=get_all_neutral_regions(model), 
+    how='containment'
+  )
   (
     window_positions_exons, 
     N_bars_exons, 
-    K_bars_exons
-  ) = filter_by_regions(windows, N_bars, K_bars, regions=get_canonical_exons(), how=None)
+    N_observeds_exons,
+    K_bars_exons,
+    K_observeds_exons
+  ) = filter_by_regions(
+    windows, 
+    N_bars, 
+    N_observeds, 
+    K_bars, 
+    K_observeds, 
+    regions=get_canonical_exons(), 
+    how=None
+  )
 
   return {
     'region': region,
@@ -156,10 +180,14 @@ def compute_expected_observed_counts(region, model, window_stride, log=True):
     'Ms': Ms,
     'windowPositionsNeutralRegions': window_positions_neutral_regions,
     'NBarsNeutralRegions': N_bars_neutral_regions,
+    'NObservedsNeutralRegions': N_observeds_neutral_regions,
     'KBarsNeutralRegions': K_bars_neutral_regions,
+    'KObservedsNeutralRegions': K_observeds_neutral_regions,
     'windowPositionsExons': window_positions_exons,
     'NBarsExons': N_bars_exons,
+    'NObservedsExons': N_observeds_exons,
     'KBarsExons': K_bars_exons,
+    'KObservedsExons': K_observeds_exons
   }
 
 def parse_arguments(): 
