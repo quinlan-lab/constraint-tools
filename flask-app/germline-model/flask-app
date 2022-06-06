@@ -2,9 +2,9 @@
 
 # set -o xtrace 
 
-model="${CONSTRAINT_TOOLS}/$(read-config dashboardGermlineModel model)"
-region=$(read-config dashboardGermlineModel region)
-window_stride=$(read-config dashboardGermlineModel windowStride)
+model="${CONSTRAINT_TOOLS}/$(read-config browserGermlineModel model)"
+region=$(read-config browserGermlineModel region)
+window_stride=$(read-config browserGermlineModel windowStride)
 
 # https://devhints.io/bash#miscellaneous
 # put option-fetching before "set -o nounset" so that we can detect flags without arguments

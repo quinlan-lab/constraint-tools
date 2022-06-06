@@ -5,7 +5,7 @@
     "numberOfJobs": "500",
     "maxNeutralRegionLength": "100000"
   },
-  "dashboardGermlineModel": {
+  "browserGermlineModel": {
     "model": "dist/model-germline-grch38.json",
     "region": "chr20:63,442,000-63,446,000", 
     "windowStride": "10"

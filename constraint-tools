@@ -33,7 +33,7 @@ info "Tool arguments: " "${args}"
 if [[ ${tool} == "train-germline-model" ]]; then 
   PATH="${CONSTRAINT_TOOLS}/train/germline-model:$PATH" 
   train-map-reduce ${args}
-elif [[ ${tool} == "dashboard-germline-model" ]]; then 
+elif [[ ${tool} == "browser-germline-model" ]]; then 
   PYTHONPATH="${CONSTRAINT_TOOLS}/predict-constraint/germline-model:${PYTHONPATH}"
   PATH="${CONSTRAINT_TOOLS}/flask-app/germline-model:${PATH}"
   flask-app ${args} 

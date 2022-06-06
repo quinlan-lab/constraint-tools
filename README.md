@@ -26,9 +26,9 @@ one can do a prototype training using:
 bash tests/germline-model/train-germline-model-fast.sh
 ```
 
-One can render a prototype dashboard using: 
+One can render a prototype browser using: 
 ```
-bash tests/germline-model/dashboard.sh
+bash tests/germline-model/browser.sh
 ```
 
 Follow the instructions at the command line to view a web app that visualizes observed SNV and singleton counts, and those expected under a null model of sequence-dependent mutation (see `define-model` folder), as a function of genomic coordinate.  
@@ -45,7 +45,7 @@ Valid values for `SUB_COMMAND` are:
 train-germline-model 
       Estimate kmer-dependent SNV probabilities and singleton-count probabilities 
       (see the model defined in the "define-model" folder)
-dashboard-germline-model
+browser-germline-model
       Start a web app that visualizes observed and expected 
       SNV and singleton counts as a function of genomic coordinate
 predict-germline-constraint
@@ -109,14 +109,14 @@ model in json format, viewable using, e.g.,
 ${CONSTRAINT_TOOLS}/bin/jq . <model> 
 ```
 
-Required arguments for `dashboard-germline-model` are:
+Required arguments for `browser-germline-model` are:
 
 ```
 --port INT 
       The port to serve the web-app on
 ```
 
-By default the `dashboard-germline-model` subcommand uses a pre-computed model
+By default the `browser-germline-model` subcommand uses a pre-computed model
 corresponding to a pre-computed set of putatively neutral regions. 
 Optionally, the user may change this by specifying the `--model` argument: 
 
