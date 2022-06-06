@@ -160,7 +160,7 @@ export default {
     hasWhiteSpace (s) {
       return /\s/g.test(s)
     },
-    getChromosomeStartEndFromTabDelimitedString (region) { 
+    getChromosomeStartEndFromWhiteSpaceDelimitedString (region) { 
       return region.split(/[ ]+/)
     },
     getChromosomeStartEndFromColonHyphenDelimitedString (region) { 
@@ -170,7 +170,7 @@ export default {
     },
     getChromosomeStartEnd (region) {
       if (this.hasWhiteSpace(region)) { 
-        return this.getChromosomeStartEndFromTabDelimitedString(region)
+        return this.getChromosomeStartEndFromWhiteSpaceDelimitedString(region)
       } else { 
         return this.getChromosomeStartEndFromColonHyphenDelimitedString(region)
       }
