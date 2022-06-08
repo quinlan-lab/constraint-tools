@@ -43,8 +43,8 @@ export default {
       cpgPositiveColor: 'rgba(0, 0, 255, 0.2)',
       y2axisMin: 0,
       y2axisMax: 50,
-      y3axisMin: -10,
-      y3axisMax: 10,
+      y3axisMin: -5,
+      y3axisMax: 5,
       plotlyEventListenersAdded: false,
       viewBreakpoint: 150
     }

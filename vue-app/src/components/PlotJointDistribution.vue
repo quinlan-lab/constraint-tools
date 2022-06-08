@@ -71,23 +71,23 @@ export default {
         width: 500,
         xaxis: {
           title: `Z-score for <br># SNVs (per window), <br>N_bar`,
-          showline: true,
+          showline: false,
           showgrid: false,
-          zeroline: false,
+          zeroline: true,
           autotick: true,
           showticklabels: true,
-          // range: [-5, 5]
+          range: [-5, 5]
         },
         yaxis: { 
           title: 'Z-score for <br># singletons (per window), <br>K_bar',
           showgrid: false,
-          showline: true,
-          zeroline: false,
+          showline: false,
+          zeroline: true,
           autotick: true,
           showticklabels: true,
-          // range: [-5, 5],
-          scaleanchor: "x",
-          scaleratio: 1,
+          range: [-5, 5],
+          // scaleanchor: "x",
+          // scaleratio: 1,
 
         },
         responsive: true,
