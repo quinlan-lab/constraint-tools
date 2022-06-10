@@ -1,4 +1,4 @@
-## Steps to complete this experiment 
+## Steps to complete promoter-train-test-split experiment 
 
 - [x] Run `experiments/germline-model/promoters-test-train-split/train_test_split.ipynb` to split promoters into train and test subsets
 - [ ] Run `download-process-data/compute-neutral-regions.sh` to exclude test promoters (`download-process-data/promoters/promoters.grch38.test.csv`) from set of neutral regions (`dist/neutral-regions-germline-grch38-exclude-test-promoters.bed`) on which substitution probabilities, etc, are to be estimated 
