@@ -1,7 +1,7 @@
 ## Remove test promoters from neutral regions used to estimate substitution probabilities
 
 - [x] Run scripts in `experiments/germline-model/promoters-windowSize/` to split promoters into train and test subsets
-- [ ] Run `download-process-data/compute-neutral-regions.sh` to exclude test promoters (`download-process-data/promoters/promoters.grch38.test.sorted.bed.gz`) from set of neutral regions (`dist/neutral-regions-germline-grch38-exclude-test-promoters.bed`) on which substitution probabilities, etc, are to be estimated 
+- [x] Run `download-process-data/compute-neutral-regions.sh` to exclude test promoters (`download-process-data/promoters/promoters.grch38.test.sorted.bed.gz`) from set of neutral regions (`dist/neutral-regions-germline-grch38-exclude-test-promoters.bed`) on which substitution probabilities, etc, are to be estimated 
 
 ## Retrain constraint model not just on new neutral regions, but also using various window sizes 
 
