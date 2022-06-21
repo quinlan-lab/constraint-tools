@@ -7,8 +7,14 @@
 
 - [x] Use line 82 in `train-germline-model.sh` as a starting point in a new batch script (call it `train-germline-model.exclude-test-promoters.sh`) that trains multiple models (windowSize = 101, 501, 1001, etc) with a new `work` directory, a new `neutral_regions` file (`dist/neutral-regions-germline-grch38-exclude-test-promoters.bed.gz`), producing multiple new `model` files (e.g., `dist/model-germline-grch38-exclude-test-promoters.windowSize-101.json`). 
 
+## Re-do sanity checks
+
+- [ ] re-run `experiments/germline-model/sanity-check-*.ipynb` 
+
+
 ## Recompute promoter z-scores and make loeuf predictions from them 
 
-- [ ] copy `experiments/germline-model/promoters/promoters-compute-zscores.ipynb` to `experiments/germline-model/promoters-windowSize/compute-zscores-on-test-promoters.ipynb`. Then do `model = read_model('/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/model-germline-grch38-exclude-test-promoters.windowSize-101.json')`, and do `promoters_filename = f'{CONSTRAINT_TOOLS}/download-process-data/promoters/promoters.grch38.test.csv’` and then use that model to make predictions on those promoters
+- [ ] copy `experiments/germline-model/promoters/promoters-compute-zscores.ipynb` to `experiments/germline-model/promoters-windowSize/compute-zscores-on-test-promoters.ipynb`. Then do `model = read_model('/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/model-germline-grch38-exclude-test-promoters.windowSize-101.json')`, and do `promoters_filename = f'{CONSTRAINT_TOOLS}/download-process-data/promoters/promoters.grch38.test.csv’` and then use that model to make predictions on those promoters. See lab meeting. Also, Re-do John Chamberlain’s hypothesis regarding expression variation 
+
 
  
