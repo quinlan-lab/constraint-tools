@@ -5,7 +5,7 @@
 
 ## Retrain constraint model not just on new neutral regions, but also using various window sizes 
 
-- [ ] Use line 82 in `train-germline-model.sh` as a starting point in a new batch script (call it `train-germline-model-production.exclude-test-promoters.sh`) that trains three models (windowSize = 101, 501, 1001) with a new `work` directory, a new `neutral_regions` file (`dist/neutral-regions-germline-grch38-exclude-test-promoters.bed`), producing three new `model` files (e.g., `dist/model-germline-grch38-exclude-test-promoters.windowSize-101.json`). Also see `train-germline-model-production.sh`. Also see `train/germline-model/train-map-reduce`. 
+- [x] Use line 82 in `train-germline-model.sh` as a starting point in a new batch script (call it `train-germline-model.exclude-test-promoters.sh`) that trains multiple models (windowSize = 101, 501, 1001, etc) with a new `work` directory, a new `neutral_regions` file (`dist/neutral-regions-germline-grch38-exclude-test-promoters.bed.gz`), producing multiple new `model` files (e.g., `dist/model-germline-grch38-exclude-test-promoters.windowSize-101.json`). 
 
 ## Recompute promoter z-scores and make loeuf predictions from them 
 

@@ -137,15 +137,15 @@ then data files can be found at:
 /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools
 ```
 
-## Production model
+## Production models
 
-In the `/dist` directory, we distribute a model 
-that was trained on a genome-wide set of putatively neutral regions
+In the `/dist` directory, we distribute models 
+that were trained on a genome-wide set of putatively neutral regions
 (also located in the `/dist` directory).
-The bash script that was used to generate this model is:
+The bash script that was used to generate these models is:
 
 ```
-train-germline-model-production.sh
+train-germline-models-production.sh
 ```
 
 ## Sanity checks

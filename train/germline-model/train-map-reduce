@@ -89,7 +89,7 @@ clean_up () {
 # https://medium.com/@dirk.avery/the-bash-trap-trap-ce6083f36700
 trap 'clean_up $?' EXIT
 
-parent_slurm_job="batch-regions"
+parent_slurm_job="batch-regions.window-size-${window_size}"
 info "Submitting slurm job array with parent-job name:" ${parent_slurm_job}
 
 slurm_logs_directory="${work}/slurm_logs"
