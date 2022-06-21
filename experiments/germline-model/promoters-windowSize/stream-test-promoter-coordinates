@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+
+import sys
+sys.path.append('/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/utilities')
+
+from pack_unpack import unpack
+
+def add_chromosome_start_end(row): 
+    region = row['region_grch38'] 
+    row['Chromosome'], row['Start'], row['End'] = unpack(region)
+    return row
+
+def stream_coordinates(promoters_subset): 
+    promoters_subset = promoters_subset.apply(add_chromosome_start_end, axis=1)
+    promoters_subset = promoters_subset[['Chromosome', 'Start', 'End']]
+    promoters_subset.to_csv(sys.stdout, index=False, header=False, sep='\t')
+
+import pandas as pd 
+
+CONSTRAINT_TOOLS = '/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools'
+test_promoters_filename = f'{CONSTRAINT_TOOLS}/download-process-data/promoters/promoters.grch38.test.csv'
+promoters_test = pd.read_csv(test_promoters_filename, sep=',')
+
+stream_coordinates(promoters_test)

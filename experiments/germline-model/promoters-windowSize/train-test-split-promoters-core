@@ -13,19 +13,6 @@ promoters_train, promoters_test = train_test_split(promoters, test_size=0.2)
 test_promoters_filename = f'{CONSTRAINT_TOOLS}/download-process-data/promoters/promoters.grch38.test.csv'
 promoters_test.to_csv(test_promoters_filename, index=False)
 
-import sys
-sys.path.append('/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/utilities')
+train_promoters_filename = f'{CONSTRAINT_TOOLS}/download-process-data/promoters/promoters.grch38.train.csv'
+promoters_train.to_csv(train_promoters_filename, index=False)
 
-from pack_unpack import unpack
-
-def add_chromosome_start_end(row): 
-    region = row['region_grch38'] 
-    row['Chromosome'], row['Start'], row['End'] = unpack(region)
-    return row
-
-def stream_coordinates(promoters_subset): 
-    promoters_subset = promoters_subset.apply(add_chromosome_start_end, axis=1)
-    promoters_subset = promoters_subset[['Chromosome', 'Start', 'End']]
-    promoters_subset.to_csv(sys.stdout, index=False, header=False, sep='\t')
-
-stream_coordinates(promoters_train)

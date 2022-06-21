@@ -10,5 +10,7 @@ source set-environment-variables.sh
 # `printenv | grep -w PATH` returns non-zero output 
 PATH="${CONSTRAINT_TOOLS}/experiments/germline-model/promoters-windowSize:$PATH" 
 
-train-test-split-promoters-core \
-  | sort-compress-index-bed --name ${CONSTRAINT_TOOLS}/download-process-data/promoters/promoters.grch38.train.sorted
+train-test-split-promoters-core
+
+stream-test-promoter-coordinates \
+  | sort-compress-index-bed --name ${CONSTRAINT_TOOLS}/download-process-data/promoters/promoters.grch38.test.sorted
