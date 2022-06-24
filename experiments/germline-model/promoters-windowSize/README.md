@@ -9,8 +9,7 @@
 
 ## Re-do sanity checks
 
-- [ ] re-run `experiments/germline-model/sanity-check-*.ipynb` 
-
+- [x] re-run `experiments/germline-model/sanity-check-*.ipynb` 
 
 ## Recompute promoter z-scores and make loeuf predictions from them 
 
