@@ -1,0 +1,96 @@
+[0;36mwindow_size: [0m2001
+[0;36mwindow_stride: [0m80
+Input Notebook:  /scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/experiments/germline-model/promoters-windowSize/compute-zscores-on-test-promoters.ipynb
+Output Notebook: /scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/experiments/germline-model/promoters-windowSize/compute-zscores-on-test-promoters.windowSize-2001.windowStride-80.ipynb
+Black is not installed, parameters wont be formatted
+Executing:   0%|                                                                                                   | 0/21 [00:00<?, ?cell/s]Executing notebook with kernel: python3
+Executing:   5%|████▎                                                                                      | 1/21 [00:01<00:30,  1.51s/cell]Executing:  14%|█████████████                                                                              | 3/21 [00:02<00:10,  1.66cell/s]Executing:  19%|█████████████████▎                                                                         | 4/21 [00:06<00:31,  1.87s/cell]Executing:  24%|█████████████████████▋                                                                     | 5/21 [00:07<00:26,  1.66s/cell]Executing:  29%|██████████████████████████                                                                 | 6/21 [00:07<00:18,  1.22s/cell]Executing:  33%|██████████████████████████████▎                                                            | 7/21 [00:08<00:12,  1.09cell/s]Executing:  38%|██████████████████████████████████▋                                                        | 8/21 [00:08<00:09,  1.36cell/s]Executing:  48%|██████████████████████████████████████████▊                                               | 10/21 [00:08<00:05,  2.11cell/s]Executing:  57%|███████████████████████████████████████████████████▍                                      | 12/21 [00:08<00:02,  3.22cell/s]Executing:  67%|████████████████████████████████████████████████████████████                              | 14/21 [00:09<00:01,  4.34cell/s]Executing:  71%|████████████████████████████████████████████████████████████████▎                         | 15/21 [00:09<00:01,  3.18cell/s]Executing:  81%|████████████████████████████████████████████████████████████████████████▊                 | 17/21 [00:09<00:00,  4.52cell/s]Executing COMPUTE_ZSCORES:  81%|███████████████████████████████████████████████████████████▉              | 17/21 [00:09<00:00,  4.52cell/s]Executing COMPUTE_ZSCORES:  86%|██████████████████████████████████████████████████████████████▌          | 18/21 [34:35<21:39, 433.03s/cell]Executing COMPUTE_ZSCORES:  86%|██████████████████████████████████████████████████████████████▌          | 18/21 [34:35<05:45, 115.33s/cell]
+Traceback (most recent call last):
+  File "/uufs/chpc.utah.edu/common/HIPAA/u6018199/.conda/envs/constraint-tools/bin/papermill", line 8, in <module>
+    sys.exit(papermill())
+  File "/uufs/chpc.utah.edu/common/HIPAA/u6018199/.conda/envs/constraint-tools/lib/python3.9/site-packages/click/core.py", line 1137, in __call__
+    return self.main(*args, **kwargs)
+  File "/uufs/chpc.utah.edu/common/HIPAA/u6018199/.conda/envs/constraint-tools/lib/python3.9/site-packages/click/core.py", line 1062, in main
+    rv = self.invoke(ctx)
+  File "/uufs/chpc.utah.edu/common/HIPAA/u6018199/.conda/envs/constraint-tools/lib/python3.9/site-packages/click/core.py", line 1404, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/uufs/chpc.utah.edu/common/HIPAA/u6018199/.conda/envs/constraint-tools/lib/python3.9/site-packages/click/core.py", line 763, in invoke
+    return __callback(*args, **kwargs)
+  File "/uufs/chpc.utah.edu/common/HIPAA/u6018199/.conda/envs/constraint-tools/lib/python3.9/site-packages/click/decorators.py", line 26, in new_func
+    return f(get_current_context(), *args, **kwargs)
+  File "/uufs/chpc.utah.edu/common/HIPAA/u6018199/.conda/envs/constraint-tools/lib/python3.9/site-packages/papermill/cli.py", line 250, in papermill
+    execute_notebook(
+  File "/uufs/chpc.utah.edu/common/HIPAA/u6018199/.conda/envs/constraint-tools/lib/python3.9/site-packages/papermill/execute.py", line 122, in execute_notebook
+    raise_for_execution_errors(nb, output_path)
+  File "/uufs/chpc.utah.edu/common/HIPAA/u6018199/.conda/envs/constraint-tools/lib/python3.9/site-packages/papermill/execute.py", line 234, in raise_for_execution_errors
+    raise error
+papermill.exceptions.PapermillExecutionError: 
+---------------------------------------------------------------------------
+Exception encountered at "In [18]":
+---------------------------------------------------------------------------
+ValueError                                Traceback (most recent call last)
+<ipython-input-18-8e212e2f718d> in <module>
+     50 tqdm.pandas()
+     51 logging.info('Computing z-scores for promoters...')
+---> 52 promoters_with_zscores = promoters.progress_apply(compute_neutral_zscores, axis=1)
+     53 logging.info('...finished computing z-scores for promoters...')
+     54 
+
+~/.conda/envs/constraint-tools/lib/python3.9/site-packages/tqdm/std.py in inner(df, func, *args, **kwargs)
+    812                 # on the df using our wrapper (which provides bar updating)
+    813                 try:
+--> 814                     return getattr(df, df_function)(wrapper, **kwargs)
+    815                 finally:
+    816                     t.close()
+
+~/.conda/envs/constraint-tools/lib/python3.9/site-packages/pandas/core/frame.py in apply(self, func, axis, raw, result_type, args, **kwargs)
+   8738             kwargs=kwargs,
+   8739         )
+-> 8740         return op.apply()
+   8741 
+   8742     def applymap(
+
+~/.conda/envs/constraint-tools/lib/python3.9/site-packages/pandas/core/apply.py in apply(self)
+    686             return self.apply_raw()
+    687 
+--> 688         return self.apply_standard()
+    689 
+    690     def agg(self):
+
+~/.conda/envs/constraint-tools/lib/python3.9/site-packages/pandas/core/apply.py in apply_standard(self)
+    810 
+    811     def apply_standard(self):
+--> 812         results, res_index = self.apply_series_generator()
+    813 
+    814         # wrap results
+
+~/.conda/envs/constraint-tools/lib/python3.9/site-packages/pandas/core/apply.py in apply_series_generator(self)
+    826             for i, v in enumerate(series_gen):
+    827                 # ignore SettingWithCopy here in case the user mutates
+--> 828                 results[i] = self.f(v)
+    829                 if isinstance(results[i], ABCSeries):
+    830                     # If we have a view on v, we need to make a copy because
+
+~/.conda/envs/constraint-tools/lib/python3.9/site-packages/tqdm/std.py in wrapper(*args, **kwargs)
+    807                     # take a fast or slow code path; so stop when t.total==t.n
+    808                     t.update(n=1 if not t.total or t.n < t.total else 0)
+--> 809                     return func(*args, **kwargs)
+    810 
+    811                 # Apply the provided function (in **kwargs)
+
+<ipython-input-18-8e212e2f718d> in compute_neutral_zscores(row)
+     21 def compute_neutral_zscores(row):
+     22     region = pack(row['Chromosome'], row['Start'], row['End'])
+---> 23     expected_observed_counts = compute_expected_observed_counts(region, model, window_stride, log=False)
+     24     (
+     25         window_positions_neutral_regions,
+
+/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/predict-constraint/germline-model/expected_observed_counts.py in compute_expected_observed_counts(region, model, window_stride, log)
+    118   with pysam.TabixFile(model['mutations']) as mutations, pysam.FastaFile(model['genome']) as genome:
+    119     windows = create_windows(model['windowSize'], window_stride, region, genome, region_contains_windows=True)
+--> 120     N_bars, N_observeds = zip(*[compute_Nbar_Nobserved(window, model, mutations, genome, log) for window in windows])
+    121     (
+    122       SNV_positions_frequencies_CpG_positive,
+
+ValueError: not enough values to unpack (expected 2, got 0)
+

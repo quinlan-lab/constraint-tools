@@ -11,9 +11,17 @@
 
 - [x] re-run `experiments/germline-model/sanity-check-*.ipynb` 
 
-## Recompute promoter z-scores and make loeuf predictions from them 
+## Recompute promoter z-scores and make predictions from them 
 
-- [ ] copy `experiments/germline-model/promoters/promoters-compute-zscores.ipynb` to `experiments/germline-model/promoters-windowSize/compute-zscores-on-test-promoters.ipynb`. Then do `model = read_model('/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/model-germline-grch38-exclude-test-promoters.windowSize-101.json')`, and do `promoters_filename = f'{CONSTRAINT_TOOLS}/download-process-data/promoters/promoters.grch38.test.csv’` and then use that model to make predictions on those promoters. See lab meeting. Also, Re-do John Chamberlain’s hypothesis regarding expression variation 
+- [x] copy `experiments/germline-model/promoters/promoters-compute-zscores.ipynb` to `experiments/germline-model/promoters-windowSize/compute-zscores-on-test-promoters.ipynb`. Then do `model = read_model('/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/model-germline-grch38-exclude-test-promoters.windowSize-101.json')`, and do `promoters_filename = f'{CONSTRAINT_TOOLS}/download-process-data/promoters/promoters.grch38.test.csv’` and then use that model to make predictions on those promoters. 
+
+- [x] use `experiments/germline-model/promoters/promoters-batch.sh` and `experiments/germline-model/promoters/promoters-execute-notebook.sh` as templates to run each model (one for each windowSize-windowStride combination) on the test promoters. 
+
+- [ ] use `experiments/germline-model/promoters/promoter-constraint-does-not-predict-gene-constraint.ipynb` as a template to hopefully show that promoter constraint does predict gene constraint, when window-size is large enough 
+
+- [ ] use `experiments/germline-model/promoters/promoter-constraint-does-not-predict-gene-expression-variance.ipynb` as a template to hopefully show that promoter constraint does predict gene expression variance, when window-size is large enough 
+
+
 
 
  

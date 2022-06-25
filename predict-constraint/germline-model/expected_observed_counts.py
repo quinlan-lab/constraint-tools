@@ -169,6 +169,7 @@ def compute_expected_observed_counts(region, model, window_stride, log=True):
     'end': end,
     'windowPositions': [window['position'] for window in windows], 
     'windowRegions': [window['region'] for window in windows], 
+    'windows': windows,
     'NBars': N_bars, 
     'NObserveds': N_observeds, 
     'snvCpGPositivePositions': pull_element(SNV_positions_frequencies_CpG_positive, index=0), 
