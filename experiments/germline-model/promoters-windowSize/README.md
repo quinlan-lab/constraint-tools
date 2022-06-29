@@ -17,7 +17,7 @@
 
 - [x] use `experiments/germline-model/promoters/promoters-batch.sh` and `experiments/germline-model/promoters/promoters-execute-notebook.sh` as templates to run each model (one for each windowSize-windowStride combination) on the test promoters. 
 
-- [ ] use `experiments/germline-model/promoters/promoter-constraint-does-not-predict-gene-constraint.ipynb` as a template to hopefully show that promoter constraint does predict gene constraint, when window-size is large enough 
+- [x] use `experiments/germline-model/promoters/promoter-constraint-does-not-predict-gene-constraint.ipynb` as a template to hopefully show that promoter constraint does predict gene constraint, when window-size is large enough 
 
 - [ ] use `experiments/germline-model/promoters/promoter-constraint-does-not-predict-gene-expression-variance.ipynb` as a template to hopefully show that promoter constraint does predict gene expression variance, when window-size is large enough 
 
