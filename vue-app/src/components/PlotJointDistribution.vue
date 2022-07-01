@@ -76,7 +76,7 @@ export default {
           zeroline: true,
           autotick: true,
           showticklabels: true,
-          range: [-5, 5]
+          range: [-10, 10]
         },
         yaxis: { 
           title: 'Z-score for <br># singletons (per window), <br>K_bar',

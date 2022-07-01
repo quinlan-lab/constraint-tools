@@ -42,9 +42,8 @@ export default {
       cpgNegativeColor: 'rgba(255, 0, 0, 0.2)',
       cpgPositiveColor: 'rgba(0, 0, 255, 0.2)',
       y2axisMin: 0,
-      y2axisMax: 50,
-      y3axisMin: -5,
-      y3axisMax: 5,
+      y3axisMin: -10,
+      y3axisMax: 10,
       plotlyEventListenersAdded: false,
       viewBreakpoint: 150
     }
@@ -148,7 +147,20 @@ export default {
       return variants.map(this.variantToEllipse)
     },
   },
-  computed: {
+  computed: {    
+    computeMeanStdSNVCount () {
+      const n = this.modelParameters.windowSize // number of Bernoulli trials, each being an attempt to substitute a nucleotide 
+      const p = 0.3 // probability of success: typical substitution probability
+      const mean = n*p // (binomial) mean SNV count
+      const std = Math.sqrt(n*p*(1-p)) // (binomial) std of SNV count
+      return [mean, std]
+    },
+    y2axisMax () {
+      const [mean, std] = this.computeMeanStdSNVCount
+      console.log(`predicted mean SNV count: ${mean}`)
+      console.error(`predicted std SNV count: ${std}`)
+      return mean + 5*std
+    },
     nucleotides () {
       return [...this.sequenceData.sequence]
     },
