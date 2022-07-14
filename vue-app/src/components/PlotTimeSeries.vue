@@ -380,7 +380,7 @@ export default {
           title: 'z-scores',
           showgrid: false,
           showline: true,
-          zeroline: false,
+          zeroline: true,
           autotick: true,
           showticklabels: true,
           range: [this.y3axisMin, this.y3axisMax]
