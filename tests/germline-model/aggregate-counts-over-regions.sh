@@ -23,7 +23,7 @@ export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities"
 
 line_number_of_first_region="1"
 line_number_of_last_region="7"
-neutral_regions_for_job="${tmpdir}/neutral-regions.${line_number_of_first_region}-${line_number_of_last_region}.bed"
+trustworthy_noncoding_regions_for_job="${tmpdir}/trustworthy-noncoding-regions.${line_number_of_first_region}-${line_number_of_last_region}.bed"
 counts_for_job="${tmpdir}/counts.${line_number_of_first_region}-${line_number_of_last_region}.json"
 log_for_job="${tmpdir}/progress-bar.${line_number_of_first_region}-${line_number_of_last_region}.log"
 # log_for_job="stdout"
@@ -33,7 +33,7 @@ aggregate-counts-over-regions \
   --mutations ${mutations} \
   --number-chromosomes-min ${number_chromosomes_min} \
   --kmer-size ${kmer_size} \
-  --neutral-regions-filename ${neutral_regions_for_job} \
+  --trustworthy-noncoding-regions-filename ${trustworthy_noncoding_regions_for_job} \
   --counts-filename ${counts_for_job} \
   --window-size ${window_size} \
   --log ${log_for_job} \

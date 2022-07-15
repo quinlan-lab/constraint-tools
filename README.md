@@ -83,10 +83,10 @@ Required arguments for `train-germline-model` are:
       to disk or stdout, respetively.
 ```
 
-By default the `train-germline-model` subcommand uses a pre-computed set of putatively neutral regions from the GRCH38 reference located in the `/dist` folder, and a reasonable value of the size of the window within which to count singletons. Optionally, the user may change either of these defaults by specifying the `--neutral-regions` and `--window-size` arguments: 
+By default the `train-germline-model` subcommand uses a pre-computed training set of trustworthy noncoding regions from the GRCH38 reference located in the `/dist` folder, and a reasonable value of the size of the window within which to count singletons. Optionally, the user may change either of these defaults by specifying the `--trustworthy-noncoding-regions` and `--window-size` arguments: 
 
 ```
---neutral-regions STR
+--trustworthy-noncoding-regions STR
       Bed-format file containing a list of genomic intervals on which the model is to be trained.
 --window-size INT
       Size of the intervals used to compute the null distribution of singleton count. 
@@ -98,12 +98,12 @@ Other optional arguments are:
 ```
 --number-of-jobs INT 
       Number of slurm jobs to use during training. 
---max-neutral-region-length INT 
-      Neutral regions longer than this number are filtered out 
+--max-trustworthy-noncoding-region-length INT 
+      Trustworthy noncoding regions longer than this number are filtered out 
       from the set of regions that are ultimately used to train the model. 
 ```
 
-Running `train-germline-model` produces a specification of the sequence-dependent and allele-frequency-aware neutral 
+Running `train-germline-model` produces a specification of the sequence-dependent and allele-frequency-aware null 
 model in json format, viewable using, e.g., 
 ```
 ${CONSTRAINT_TOOLS}/bin/jq . <model> 
@@ -117,15 +117,27 @@ Required arguments for `browser-germline-model` are:
 ```
 
 By default the `browser-germline-model` subcommand uses a pre-computed model
-corresponding to a pre-computed set of putatively neutral regions. 
+corresponding to a pre-computed training set of trustworthy noncoding regions. 
 Optionally, the user may change this by specifying the `--model` argument: 
 
 ```
 --model STR
-      Path to a neutral model produced by the train-germline-model sub-command 
+      Path to a null model produced by the train-germline-model sub-command 
       (in json format). 
       This model is used to compute the expected SNV and singleton counts in the visualization. 
 
+```
+
+By default the `browser-germline-model` subcommand uses a pre-computed set of trustworthy noncoding regions.
+(A random subset of these regions comprise the default training set of trustworthy noncoding regions 
+used to train the default model.)
+Optionally, the user may change the set of trustworthy noncoding regions displayed 
+by specifying the `--trustworthy-noncoding-regions` argument: 
+
+```
+--trustworthy-noncoding-regions STR
+      Path to a set of trustworthy noncoding regions. 
+      Ideally, of these, the trustworthy noncoding regions the model was trained upon should be a random subset. 
 ```
 
 ## Input Data
@@ -140,12 +152,12 @@ then data files can be found at:
 ## Production models
 
 In the `/dist` directory, we distribute models 
-that were trained on a genome-wide set of putatively neutral regions
+that were trained on a genome-wide training set of trustworthy noncoding regions
 (also located in the `/dist` directory).
 The bash script that was used to generate these models is:
 
 ```
-train-germline-models-production.sh
+train-germline-models-production-window-sizes.sh
 ```
 
 ## Sanity checks

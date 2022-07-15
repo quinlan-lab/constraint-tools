@@ -7,7 +7,7 @@ from expected_observed_counts import compute_expected_observed_counts
 from null_distributions import fetch_distribution_N, fetch_distribution_K
 from colorize import print_string_as_error, print_string_as_info, print_json
 from read_model import read_model
-from neutral_regions import get_neutral_regions
+from trustworthy_noncoding_regions import get_trustworthy_noncoding_regions
 from sequence import get_sequence
 from pack_unpack import unpack
 
@@ -17,6 +17,7 @@ def parse_arguments():
   parser.add_argument('--port', type=int, help='')
   parser.add_argument('--region', type=str, help='')
   parser.add_argument('--window-stride', type=int, help='', dest='window_stride')
+  parser.add_argument('--trustworthy-noncoding-regions', type=str, help='', dest='trustworthy_noncoding_regions')
   return parser.parse_args()
 
 app = Flask(__name__, static_folder='static', static_url_path="/static") # WSGI app
@@ -85,6 +86,7 @@ def serve_api_expected_observed_counts():
     return compute_expected_observed_counts(
       request.json['region'],
       model,
+      args.trustworthy_noncoding_regions,
       int(request.json['windowStride']),
       log = False
     )
@@ -113,8 +115,8 @@ def serve_api_model_parameters():
     'windowSize': model['windowSize']
   }
 
-@app.route('/api/neutral-regions', methods=['POST'])
-def serve_api_neutral_regions():
+@app.route('/api/trustworthy-noncoding-regions', methods=['POST'])
+def serve_api_trustworthy_noncoding_regions():
   if not request.is_json: 
     return bad_request()
   try: 
@@ -122,7 +124,10 @@ def serve_api_neutral_regions():
     # "Content-Type: application/json" 
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
     return { 
-      'neutralRegions': get_neutral_regions(request.json['region'], model)
+      'trustworthyNoncodingRegions': get_trustworthy_noncoding_regions(
+        request.json['region'], 
+        args.trustworthy_noncoding_regions
+      )
     }
   except Exception: 
     return internal_server_error() 

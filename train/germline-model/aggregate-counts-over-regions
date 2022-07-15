@@ -29,15 +29,15 @@ from get_M_K import get_M_K_trainingTime
 
 # using the "khmer" library might make this function a handful of times faster:
 # https://khmer.readthedocs.io/en/v0.6.1-0/ktable.html
-def compute_kmer_total_counts(neutral_region, genome, kmer_counts, args):
-  for kmer in fetch_kmers(neutral_region, genome, args.kmer_size): 
+def compute_kmer_total_counts(trustworthy_noncoding_region, genome, kmer_counts, args):
+  for kmer in fetch_kmers(trustworthy_noncoding_region, genome, args.kmer_size): 
     kmer_counts[kmer]['count'] += 1
   return kmer_counts
 
-def compute_kmer_SNV_counts(neutral_region, mutations, genome, kmer_counts, args):
-  print_string_as_info('Fetching SNVs in region {} and incrementing corresponding kmer counts...'.format(neutral_region))
+def compute_kmer_SNV_counts(trustworthy_noncoding_region, mutations, genome, kmer_counts, args):
+  print_string_as_info('Fetching SNVs in region {} and incrementing corresponding kmer counts...'.format(trustworthy_noncoding_region))
 
-  SNVs = fetch_SNVs(mutations, genome, neutral_region, args.__dict__)
+  SNVs = fetch_SNVs(mutations, genome, trustworthy_noncoding_region, args.__dict__)
   SNVs = reduce_SNVs(SNVs)
   for SNV in SNVs: 
     kmer_counts[SNV['kmer']]['ALTStateCounts'][SNV['ALTState']] += 1
@@ -63,24 +63,24 @@ def parse_arguments():
   parser.add_argument('--number-chromosomes-min', type=int, dest='number_chromosomes_min', help='')
   parser.add_argument('--mutations', type=str, help='')
   parser.add_argument('--window-size', type=int, dest='window_size', help='')
-  parser.add_argument('--neutral-regions-filename', type=str, dest='neutral_regions_filename', help='')
+  parser.add_argument('--trustworthy-noncoding-regions-filename', type=str, dest='trustworthy_noncoding_regions_filename', help='')
   parser.add_argument('--counts-filename', type=str, dest='counts_filename', help='')
   parser.add_argument('--log', type=str, help='')
   # https://docs.python.org/3/library/argparse.html#action:
   parser.add_argument('--test', action=argparse.BooleanOptionalAction)
   return parser.parse_args()
 
-def compute_singleton_counts(neutral_region, mutations, genome, args):
-  print_string_as_info('Breaking neutral region into non-overlapping windows, and counting SNVs and singletons in each window...')
+def compute_singleton_counts(trustworthy_noncoding_region, mutations, genome, args):
+  print_string_as_info('Breaking trustworthy noncoding region into non-overlapping windows, and counting SNVs and singletons in each window...')
 
   windows = create_windows(
     window_size=args.window_size, 
     window_stride=args.window_size, 
-    region=neutral_region, 
+    region=trustworthy_noncoding_region, 
     genome=genome, 
     region_contains_windows=True
   )
-  print_string_as_info_dim(f'Created {len(windows)} windows within neutral region {neutral_region}')
+  print_string_as_info_dim(f'Created {len(windows)} windows within trustworthy noncoding region {trustworthy_noncoding_region}')
 
   singleton_counts = Singleton_Counts()
   for window in windows: 
@@ -90,32 +90,32 @@ def compute_singleton_counts(neutral_region, mutations, genome, args):
   return singleton_counts
 
 @timer
-def count_on_region(neutral_region, args):
+def count_on_region(trustworthy_noncoding_region, args):
   # pysam.FastaFile uses the index produced by "samtools faidx": 
   # https://pysam.readthedocs.io/en/latest/api.html?highlight=fasta#pysam.FastaFile
   with pysam.TabixFile(args.mutations) as mutations, pysam.FastaFile(args.genome) as genome: 
     kmer_counts = initialize_kmer_counts_germline(args) 
-    kmer_counts = compute_kmer_total_counts(neutral_region, genome, kmer_counts, args) 
-    kmer_counts = compute_kmer_SNV_counts(neutral_region, mutations, genome, kmer_counts, args)
+    kmer_counts = compute_kmer_total_counts(trustworthy_noncoding_region, genome, kmer_counts, args) 
+    kmer_counts = compute_kmer_SNV_counts(trustworthy_noncoding_region, mutations, genome, kmer_counts, args)
 
-    singleton_counts = compute_singleton_counts(neutral_region, mutations, genome, args)
+    singleton_counts = compute_singleton_counts(trustworthy_noncoding_region, mutations, genome, args)
 
   return kmer_counts, singleton_counts
 
 # https://realpython.com/introduction-to-python-generators/
 def fetch_counts_from_regions(args, progress_bar): 
-  print_json({'neutral regions': args.neutral_regions_filename, **get_hostname_process_cpu()})
-  with open(args.neutral_regions_filename, 'r') as neutral_regions:
-    number_of_neutral_regions = sum(1 for line in neutral_regions)
-  with open(args.neutral_regions_filename, 'r') as neutral_regions:
-    for neutral_region in tqdm(
-      neutral_regions, 
-      total=number_of_neutral_regions,
+  print_json({'trustworthy noncoding regions': args.trustworthy_noncoding_regions_filename, **get_hostname_process_cpu()})
+  with open(args.trustworthy_noncoding_regions_filename, 'r') as trustworthy_noncoding_regions:
+    number_of_trustworthy_noncoding_regions = sum(1 for line in trustworthy_noncoding_regions)
+  with open(args.trustworthy_noncoding_regions_filename, 'r') as trustworthy_noncoding_regions:
+    for trustworthy_noncoding_region in tqdm(
+      trustworthy_noncoding_regions, 
+      total=number_of_trustworthy_noncoding_regions,
       file=progress_bar, 
       desc='fetch_counts_from_regions'
     ): 
-      neutral_region = bed_to_sam_string(neutral_region)
-      kmer_counts, singleton_counts = count_on_region(neutral_region, args)      
+      trustworthy_noncoding_region = bed_to_sam_string(trustworthy_noncoding_region)
+      kmer_counts, singleton_counts = count_on_region(trustworthy_noncoding_region, args)      
       yield { 
         'kmerCounts': kmer_counts,
         'singletonCounts': singleton_counts
@@ -130,7 +130,7 @@ def aggregate_counts_over_regions(args, progress_bar):
   counts = aggregate_counts(fetch_counts_from_regions, args, progress_bar)
 
   print_string_as_info(f'Aggregated kmer and singleton counts over regions:') 
-  print_string_as_info_dim(args.neutral_regions_filename) 
+  print_string_as_info_dim(args.trustworthy_noncoding_regions_filename) 
   print_string_as_info('Saved aggregated counts to:')
   print_string_as_info_dim(args.counts_filename)
   

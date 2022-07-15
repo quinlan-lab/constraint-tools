@@ -22,7 +22,7 @@ export default {
     ...mapState([
       'expectedObservedCounts',
       'exonColor',
-      'neutralRegionColor'
+      'trustworthyNoncodingRegionColor'
     ]),
     ...mapGetters([
       'fetchingTimeSeriesData'
@@ -30,16 +30,16 @@ export default {
     traces () {
       return [
         { 
-          x: this.expectedObservedCounts.NBarsNeutralRegions,
-          y: this.expectedObservedCounts.KBarsNeutralRegions,
-          name: 'neutral region',
+          x: this.expectedObservedCounts.NBarsTrustworthyNoncodingRegions,
+          y: this.expectedObservedCounts.KBarsTrustworthyNoncodingRegions,
+          name: 'trustworthy noncoding region',
           xaxis: 'x',
           yaxis: 'y',
           mode: 'markers',
           type: 'scatter',
           marker: { 
             size: 5,
-            color: this.neutralRegionColor
+            color: this.trustworthyNoncodingRegionColor
           },
           showlegend: true,
         },

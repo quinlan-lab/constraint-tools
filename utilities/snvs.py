@@ -127,15 +127,15 @@ def test_fetch_SNVs():
   print_unbuffered('')
   mutations_filename = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/gnomad_v3.sorted.tsv.gz'
   genome_filename = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38/hg38.analysisSet.fa.gz'
-  neutral_region = 'chr1:15363-15768'
+  trustworthy_noncoding_region = 'chr1:15363-15768'
   meta = { 
     'mutations': mutations_filename, 
     'kmer_size': 3
   }
   number_chromosomes_min = 150000
   with pysam.TabixFile(mutations_filename) as mutations, pysam.FastaFile(genome_filename) as genome: 
-    SNVs = fetch_SNVs(mutations, genome, neutral_region, meta)
-    SNVs_filtered = fetch_SNVs(mutations, genome, neutral_region, meta, number_chromosomes_min)
+    SNVs = fetch_SNVs(mutations, genome, trustworthy_noncoding_region, meta)
+    SNVs_filtered = fetch_SNVs(mutations, genome, trustworthy_noncoding_region, meta, number_chromosomes_min)
 
     print('SNVs at positions where more than one ALT allele is found in the cohort:')
     print_json([SNV for SNV in SNVs if (SNV['position'] == 15556) or (SNV['position'] == 15658)])
@@ -167,13 +167,13 @@ def test_reduce_SNVs():
 
   mutations_filename = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/gnomad_v3.sorted.tsv.gz'
   genome_filename = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38/hg38.analysisSet.fa.gz'
-  neutral_region = 'chr1:15363-15768'
+  trustworthy_noncoding_region = 'chr1:15363-15768'
   meta = { 
     'mutations': mutations_filename, 
     'kmer_size': 3
   }
   with pysam.TabixFile(mutations_filename) as mutations, pysam.FastaFile(genome_filename) as genome: 
-    SNVs = fetch_SNVs(mutations, genome, neutral_region, meta)
+    SNVs = fetch_SNVs(mutations, genome, trustworthy_noncoding_region, meta)
 
   print('Sites where more than one ALT allele is segregating: ')
   print_json([SNV for SNV in reduce_SNVs(SNVs) if len(SNV['ALTState']) > 3])

@@ -27,7 +27,7 @@ estimate-probabilities \
   --tmpdir ${tmpdir} \
   --window-size "-1" \
   --model ${model} \
-  --neutral-regions "XXX" \
+  --trustworthy-noncoding-regions "XXX" \
   --progress-bars "${progress_bars}"
 
 tests_directory="${CONSTRAINT_TOOLS}/tests/germline-model"

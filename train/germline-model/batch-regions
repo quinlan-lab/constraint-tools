@@ -9,9 +9,9 @@ while [[ "$1" =~ ^- ]]; do
     --mutations ) shift; [[ ! $1 =~ ^- ]] && mutations=$1;;
     --number-chromosomes-min ) shift; [[ ! $1 =~ ^- ]] && number_chromosomes_min=$1;;
     --kmer-size ) shift; [[ ! $1 =~ ^- ]] && kmer_size=$1;;
-    --neutral-regions ) shift; [[ ! $1 =~ ^- ]] && neutral_regions=$1;;
+    --trustworthy-noncoding-regions ) shift; [[ ! $1 =~ ^- ]] && trustworthy_noncoding_regions=$1;;
     --tmpdir ) shift; [[ ! $1 =~ ^- ]] && tmpdir=$1;;
-    --number-of-neutral-regions-per-job ) shift; [[ ! $1 =~ ^- ]] && number_of_neutral_regions_per_job=$1;;
+    --number-of-trustworthy-noncoding-regions-per-job ) shift; [[ ! $1 =~ ^- ]] && number_of_trustworthy_noncoding_regions_per_job=$1;;
     --window-size ) shift; [[ ! $1 =~ ^- ]] && window_size=$1;;    
     --progress-bars ) shift; [[ ! $1 =~ ^- ]] && progress_bars=$1;;
     *) error "$0: $1 is an invalid flag"; exit 1;;
@@ -25,16 +25,16 @@ set -o pipefail
 # set -o xtrace
 set -o nounset 
 
-line_number_of_last_region=$(( SLURM_ARRAY_TASK_ID * number_of_neutral_regions_per_job ))
-offset=$(( number_of_neutral_regions_per_job - 1 ))
+line_number_of_last_region=$(( SLURM_ARRAY_TASK_ID * number_of_trustworthy_noncoding_regions_per_job ))
+offset=$(( number_of_trustworthy_noncoding_regions_per_job - 1 ))
 line_number_of_first_region=$(( line_number_of_last_region - offset ))
 
-neutral_regions_for_job="${tmpdir}/neutral-regions.${line_number_of_first_region}-${line_number_of_last_region}.bed"
+trustworthy_noncoding_regions_for_job="${tmpdir}/trustworthy-noncoding-regions.${line_number_of_first_region}-${line_number_of_last_region}.bed"
 sed \
   --quiet \
   ${line_number_of_first_region},${line_number_of_last_region}p \
-  ${neutral_regions} \
-  > ${neutral_regions_for_job}
+  ${trustworthy_noncoding_regions} \
+  > ${trustworthy_noncoding_regions_for_job}
 
 counts_for_job="${tmpdir}/counts.${line_number_of_first_region}-${line_number_of_last_region}.json"
 
@@ -47,7 +47,7 @@ else
   exit 1 
 fi 
 
-info "Performing counts on:" "${neutral_regions_for_job}"
+info "Performing counts on:" "${trustworthy_noncoding_regions_for_job}"
 info "Writing counts to:" "${counts_for_job}"
 info "Writing log to:" "${log_for_job}"
 
@@ -56,7 +56,7 @@ aggregate-counts-over-regions \
   --mutations ${mutations} \
   --number-chromosomes-min ${number_chromosomes_min} \
   --kmer-size ${kmer_size} \
-  --neutral-regions-filename ${neutral_regions_for_job} \
+  --trustworthy-noncoding-regions-filename ${trustworthy_noncoding_regions_for_job} \
   --counts-filename ${counts_for_job} \
   --window-size ${window_size} \
   --log ${log_for_job} \

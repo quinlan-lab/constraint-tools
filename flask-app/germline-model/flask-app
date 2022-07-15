@@ -5,6 +5,7 @@
 model="${CONSTRAINT_TOOLS}/$(read-config browserGermlineModel model)"
 region=$(read-config browserGermlineModel region)
 window_stride=$(read-config browserGermlineModel windowStride)
+trustworthy_noncoding_regions="${CONSTRAINT_TOOLS}/$(read-config browserGermlineModel trustworthyNoncodingRegions)"
 
 # https://devhints.io/bash#miscellaneous
 # put option-fetching before "set -o nounset" so that we can detect flags without arguments
@@ -12,6 +13,7 @@ while [[ "$1" =~ ^- ]]; do
   case $1 in
     --model ) shift; [[ ! $1 =~ ^- ]] && model=$1;;
     --port ) shift; [[ ! $1 =~ ^- ]] && port=$1;;
+    --trustworthy-noncoding-regions ) shift; [[ ! $1 =~ ^- ]] && trustworthy_noncoding_regions=$1;;
     *) error "$0: $1 is an invalid flag"; exit 1;;
   esac 
   shift
@@ -30,6 +32,7 @@ python flask-app.py \
   --model ${model} \
   --port ${port} \
   --region ${region} \
-  --window-stride ${window_stride} 
+  --window-stride ${window_stride} \
+  --trustworthy-noncoding-regions ${trustworthy_noncoding_regions}
 
 

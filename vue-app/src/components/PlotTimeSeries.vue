@@ -23,8 +23,8 @@
           <div class="box" :style="{ 'background-color': exonColor }"></div>
           <span class="explanation">exon</span>
           <br>
-          <div class="box" :style="{ 'background-color': neutralRegionColor }"></div>
-          <span class="explanation">"neutral region"</span>
+          <div class="box" :style="{ 'background-color': trustworthyNoncodingRegionColor }"></div>
+          <span class="explanation">"trustworthy noncoding region"</span>
         </div>
       </div> 
     </div> 
@@ -178,12 +178,12 @@ export default {
       'expectedObservedCounts',
       'canonicalExons',
       'modelParameters',
-      'neutralRegions',
+      'trustworthyNoncodingRegions',
       'sequenceData',
       'selectedGenomicPosition',
       'fetchingDistributions',
       'exonColor',
-      'neutralRegionColor'
+      'trustworthyNoncodingRegionColor'
     ]),
     ...mapGetters([
       'fetchingTimeSeriesData'
@@ -195,8 +195,12 @@ export default {
     exonRectangles () {
       return this.canonicalExons.map(exon => this.createRectangle(exon, this.exonColor)) 
     },
-    neutralRegionRectangles () {
-      return this.neutralRegions.map(neutralRegion => this.createRectangle(neutralRegion, this.neutralRegionColor))
+    trustworthyNoncodingRegionRectangles () {
+      return this.trustworthyNoncodingRegions.map(
+        trustworthyNoncodingRegion => this.createRectangle(
+          trustworthyNoncodingRegion, 
+          this.trustworthyNoncodingRegionColor
+      ))
     },
     cpgNegativeEllipses () {
       const positions = this.expectedObservedCounts.snvCpGNegativePositions
@@ -397,7 +401,12 @@ export default {
         margin: { 
           t: 40 
         },
-        shapes: [...this.exonRectangles, ...this.neutralRegionRectangles, ...this.cpgNegativeEllipses, ...this.cpgPositiveEllipses]
+        shapes: [
+          ...this.exonRectangles, 
+          ...this.trustworthyNoncodingRegionRectangles, 
+          ...this.cpgNegativeEllipses, 
+          ...this.cpgPositiveEllipses
+        ]
       }
     },
   },

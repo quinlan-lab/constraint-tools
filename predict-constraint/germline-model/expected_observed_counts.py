@@ -14,7 +14,7 @@ from kmer import CpG, not_CpG
 from windows import create_windows 
 from get_p0s_p1s_p2s_p3s import get_p0s_p1s_p2s_p3s
 from get_M_K import get_M_K_testTime 
-from neutral_regions import get_all_neutral_regions
+from trustworthy_noncoding_regions import get_all_trustworthy_noncoding_regions
 from exons import get_canonical_exons
 
 import color_traceback
@@ -114,10 +114,19 @@ def filter_by_regions(windows, N_bars, N_observeds, K_bars, K_observeds, regions
     z_scores_filtered.KObserveds.tolist()
   )
 
-def compute_expected_observed_counts(region, model, window_stride, log=True):
+def compute_zscores(window, model, log=True):
+  with pysam.TabixFile(model['mutations']) as mutations, pysam.FastaFile(model['genome']) as genome:
+    N_bar, N_observed = compute_Nbar_Nobserved(window, model, mutations, genome, log) 
+    K_bar, K_observed, M = compute_Kbar_Kobserved_M(window, model, mutations, genome)
+  return N_bar, N_observed, K_bar, K_observed, M
+
+def compute_expected_observed_counts(region, model, trustworthy_noncoding_regions_filename, window_stride, log=True):
   with pysam.TabixFile(model['mutations']) as mutations, pysam.FastaFile(model['genome']) as genome:
     windows = create_windows(model['windowSize'], window_stride, region, genome, region_contains_windows=True)
-    N_bars, N_observeds = zip(*[compute_Nbar_Nobserved(window, model, mutations, genome, log) for window in windows])
+    N_bars, N_observeds = zip(*[
+      compute_Nbar_Nobserved(window, model, mutations, genome, log) 
+      for window in windows
+    ])
     (
       SNV_positions_frequencies_CpG_positive, 
       SNV_positions_frequencies_CpG_negative
@@ -132,18 +141,20 @@ def compute_expected_observed_counts(region, model, window_stride, log=True):
   chromosome, start, end = unpack(region)
 
   (
-    window_positions_neutral_regions, 
-    N_bars_neutral_regions, 
-    N_observeds_neutral_regions,
-    K_bars_neutral_regions,
-    K_observeds_neutral_regions
+    window_positions_trustworthy_noncoding_regions, 
+    N_bars_trustworthy_noncoding_regions, 
+    N_observeds_trustworthy_noncoding_regions,
+    K_bars_trustworthy_noncoding_regions,
+    K_observeds_trustworthy_noncoding_regions
   ) = filter_by_regions(
-    windows, 
-    N_bars, 
-    N_observeds, 
-    K_bars, 
+    windows,
+    N_bars,
+    N_observeds,
+    K_bars,
     K_observeds, 
-    regions=get_all_neutral_regions(model), 
+    regions=get_all_trustworthy_noncoding_regions(
+      trustworthy_noncoding_regions_filename
+    ), 
     how='containment'
   )
   (
@@ -179,11 +190,11 @@ def compute_expected_observed_counts(region, model, window_stride, log=True):
     'KBars': K_bars, 
     'KObserveds': K_observeds, 
     'Ms': Ms,
-    'windowPositionsNeutralRegions': window_positions_neutral_regions,
-    'NBarsNeutralRegions': N_bars_neutral_regions,
-    'NObservedsNeutralRegions': N_observeds_neutral_regions,
-    'KBarsNeutralRegions': K_bars_neutral_regions,
-    'KObservedsNeutralRegions': K_observeds_neutral_regions,
+    'windowPositionsTrustworthyNoncodingRegions': window_positions_trustworthy_noncoding_regions,
+    'NBarsTrustworthyNoncodingRegions': N_bars_trustworthy_noncoding_regions,
+    'NObservedsTrustworthyNoncodingRegions': N_observeds_trustworthy_noncoding_regions,
+    'KBarsTrustworthyNoncodingRegions': K_bars_trustworthy_noncoding_regions,
+    'KObservedsTrustworthyNoncodingRegions': K_observeds_trustworthy_noncoding_regions,
     'windowPositionsExons': window_positions_exons,
     'NBarsExons': N_bars_exons,
     'NObservedsExons': N_observeds_exons,
@@ -196,6 +207,7 @@ def parse_arguments():
   parser.add_argument('--region', type=str, help='')
   parser.add_argument('--model', type=str, help='')
   parser.add_argument('--window-stride', type=int, help='', dest='window_stride')
+  parser.add_argument('--trustworthy-noncoding-regions', type=str, help='', dest='trustworthy_noncoding_regions')
   return parser.parse_args()
 
 def test(): 
@@ -207,6 +219,7 @@ def test():
   print_json(compute_expected_observed_counts(
     args.region, 
     model, 
+    args.trustworthy_noncoding_regions,
     args.window_stride
   ))
 

@@ -17,9 +17,9 @@ export const store = new Vuex.Store({
     fetchingModelParameters: false, 
     modelParametersSet: false,
     
-    neutralRegions: null, 
-    fetchingNeutralRegions: false, 
-    neutralRegionsSet: false,
+    trustworthyNoncodingRegions: null, 
+    fetchingTrustworthyNoncodingRegions: false, 
+    trustworthyNoncodingRegionsSet: false,
 
     sequenceData: null, 
     fetchingSequenceData: false, 
@@ -35,14 +35,14 @@ export const store = new Vuex.Store({
     canonicalDataSet: false,
 
     exonColor: 'rgba(255, 0, 0, 0.3)',
-    neutralRegionColor: 'rgba(0, 0, 0, 0.1)', // '#d3d3d3', 
+    trustworthyNoncodingRegionColor: 'rgba(0, 0, 0, 0.1)', // '#d3d3d3', 
   },
   getters: {
     fetchingTimeSeriesData: state => {
       return (
         state.fetchingExpectedObservedCounts || 
         state.fetchingCanonicalData || 
-        state.fetchingNeutralRegions ||
+        state.fetchingTrustworthyNoncodingRegions ||
         state.fetchingSequenceData 
       )
     },
@@ -69,12 +69,12 @@ export const store = new Vuex.Store({
       state.fetchingModelParameters = fetchingModelParameters
     },
 
-    setNeutralRegions (state, neutralRegions) {
-      state.neutralRegions = neutralRegions
-      state.neutralRegionsSet = true
+    setTrustworthyNoncodingRegions (state, trustworthyNoncodingRegions) {
+      state.trustworthyNoncodingRegions = trustworthyNoncodingRegions
+      state.trustworthyNoncodingRegionsSet = true
     },
-    setFetchingNeutralRegions (state, fetchingNeutralRegions) {
-      state.fetchingNeutralRegions = fetchingNeutralRegions
+    setFetchingTrustworthyNoncodingRegions (state, fetchingTrustworthyNoncodingRegions) {
+      state.fetchingTrustworthyNoncodingRegions = fetchingTrustworthyNoncodingRegions
     },
 
     setSequenceData (state, sequenceData) {
@@ -117,10 +117,10 @@ export const store = new Vuex.Store({
       commit('setModelParameters', await api.getModelParameters())
       commit('setFetchingModelParameters', false)
     },
-    async getNeutralRegions ({ commit }, plotParameters) { 
-      commit('setFetchingNeutralRegions', true)
-      commit('setNeutralRegions', await api.getNeutralRegions(plotParameters))
-      commit('setFetchingNeutralRegions', false)
+    async getTrustworthyNoncodingRegions ({ commit }, plotParameters) { 
+      commit('setFetchingTrustworthyNoncodingRegions', true)
+      commit('setTrustworthyNoncodingRegions', await api.getTrustworthyNoncodingRegions(plotParameters))
+      commit('setFetchingTrustworthyNoncodingRegions', false)
     },
     async getSequenceData ({ commit }, plotParameters) { 
       commit('setFetchingSequenceData', true)

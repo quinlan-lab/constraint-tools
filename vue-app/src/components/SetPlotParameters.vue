@@ -223,7 +223,7 @@ export default {
           region: this.plotParameters.region,
           genomeBuild: this.modelParameters.genomeBuild
         })
-        this.$store.dispatch('getNeutralRegions', this.plotParameters)
+        this.$store.dispatch('getTrustworthyNoncodingRegions', this.plotParameters)
         this.$store.dispatch('getSequenceData', {
           region: this.plotParameters.region
         })

@@ -33,18 +33,18 @@ export async function getModelParameters() {
   }
 }
 
-export async function getNeutralRegions(plotParameters) {
+export async function getTrustworthyNoncodingRegions(plotParameters) {
   try {
-    const response = await axiosInstance.post('/api/neutral-regions', plotParameters)
-    let neutralRegions = response.data['neutralRegions'] 
-    console.log('neutralRegions lengths:')
-    console.log(neutralRegions.map(region => region.End - region.Start))
+    const response = await axiosInstance.post('/api/trustworthy-noncoding-regions', plotParameters)
+    let trustworthyNoncodingRegions = response.data['trustworthyNoncodingRegions'] 
+    console.log('trustworthyNoncodingRegions lengths:')
+    console.log(trustworthyNoncodingRegions.map(region => region.End - region.Start))
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions#advanced_syntax
-    neutralRegions = neutralRegions.map(region => ({
+    trustworthyNoncodingRegions = trustworthyNoncodingRegions.map(region => ({
       'start': region.Start, 
       'end': region.End
     }))
-    return neutralRegions
+    return trustworthyNoncodingRegions
   } catch (error) {
     console.error(error)
   }
