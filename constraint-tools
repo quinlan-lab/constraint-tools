@@ -33,10 +33,13 @@ info "Tool arguments: " "${args}"
 if [[ ${tool} == "train-germline-model" ]]; then 
   PATH="${CONSTRAINT_TOOLS}/train/germline-model:$PATH" 
   train-map-reduce ${args}
-elif [[ ${tool} == "browser-germline-model" ]]; then 
+elif [[ ${tool} == "browse-germline-model" ]]; then 
   PYTHONPATH="${CONSTRAINT_TOOLS}/predict-constraint/germline-model:${PYTHONPATH}"
   PATH="${CONSTRAINT_TOOLS}/flask-app/germline-model:${PATH}"
   flask-app ${args} 
+elif [[ ${tool} == "predict-germline-model" ]]; then 
+  PYTHONPATH="${CONSTRAINT_TOOLS}/predict-constraint/germline-model:${PYTHONPATH}"
+  predict-genome-wide ${args} 
 else
   error "invalid tool: " "${tool}"
   exit 1

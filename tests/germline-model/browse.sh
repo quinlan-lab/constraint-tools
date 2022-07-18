@@ -11,7 +11,7 @@ model="${CONSTRAINT_TOOLS}/dist/model-germline-grch38-exclude-test-promoters.win
 port="5000"
 trustworthy_noncoding_regions="${CONSTRAINT_TOOLS}/dist/trustworthy-noncoding-regions-germline-grch38.bed.gz"
 
-${CONSTRAINT_TOOLS}/constraint-tools browser-germline-model \
+${CONSTRAINT_TOOLS}/constraint-tools browse-germline-model \
   --model ${model} \
   --port ${port} \
   --trustworthy-noncoding-regions ${trustworthy_noncoding_regions}

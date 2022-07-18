@@ -28,7 +28,7 @@ bash tests/germline-model/train-germline-model-fast.sh
 
 One can render a prototype browser using: 
 ```
-bash tests/germline-model/browser.sh
+bash tests/germline-model/browse.sh
 ```
 
 Follow the instructions at the command line to view a web app that visualizes observed SNV and singleton counts, and those expected under a null model of sequence-dependent mutation (see `define-model` folder), as a function of genomic coordinate.  
@@ -45,12 +45,11 @@ Valid values for `SUB_COMMAND` are:
 train-germline-model 
       Estimate kmer-dependent SNV probabilities and singleton-count probabilities 
       (see the model defined in the "define-model" folder)
-browser-germline-model
+browse-germline-model
       Start a web app that visualizes observed and expected 
       SNV and singleton counts as a function of genomic coordinate
-predict-germline-constraint
-      Call genomic regions predicted to be under negative selection 
-      in the germline [not yet implemented]
+predict-germline-model
+      Tile trustworthy part of noncoding genome and compute z-scores for each tile. 
 ```
 
 Required arguments for `train-germline-model` are:
@@ -109,14 +108,14 @@ model in json format, viewable using, e.g.,
 ${CONSTRAINT_TOOLS}/bin/jq . <model> 
 ```
 
-Required arguments for `browser-germline-model` are:
+Required arguments for `browse-germline-model` are:
 
 ```
 --port INT 
       The port to serve the web-app on
 ```
 
-By default the `browser-germline-model` subcommand uses a pre-computed model
+By default the `browse-germline-model` and `predict-germline-model` subcommands use a pre-computed model
 corresponding to a pre-computed training set of trustworthy noncoding regions. 
 Optionally, the user may change this by specifying the `--model` argument: 
 
@@ -124,11 +123,11 @@ Optionally, the user may change this by specifying the `--model` argument:
 --model STR
       Path to a null model produced by the train-germline-model sub-command 
       (in json format). 
-      This model is used to compute the expected SNV and singleton counts in the visualization. 
+      This model is used to compute the expected SNV and singleton counts. 
 
 ```
 
-By default the `browser-germline-model` subcommand uses a pre-computed set of trustworthy noncoding regions.
+By default the `browse-germline-model` and `predict-germline-model` subcommands use a pre-computed set of trustworthy noncoding regions.
 (A random subset of these regions comprise the default training set of trustworthy noncoding regions 
 used to train the default model.)
 Optionally, the user may change the set of trustworthy noncoding regions displayed 

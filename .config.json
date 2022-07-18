@@ -5,10 +5,12 @@
     "numberOfJobs": "500",
     "maxTrustworthyNoncodingRegionTrainLength": "100000"
   },
-  "browserGermlineModel": {
-    "model": "dist/model-germline-grch38.windowSize-1001.json",
+  "browseGermlineModel": {
     "region": "chr20:63,442,000-63,446,000", 
-    "windowStride": "40",
+    "windowStride": "40"
+  },
+  "predictGermlineModel": {
+    "model": "dist/model-germline-grch38.windowSize-1001.json",
     "trustworthyNoncodingRegions": "dist/trustworthy-noncoding-regions-germline-grch38.bed.gz"
   }
 }
