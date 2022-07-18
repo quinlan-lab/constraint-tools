@@ -24,7 +24,7 @@
           <span class="explanation">exon</span>
           <br>
           <div class="box" :style="{ 'background-color': trustworthyNoncodingRegionColor }"></div>
-          <span class="explanation">"trustworthy noncoding region"</span>
+          <span class="explanation">trustworthy noncoding region</span>
         </div>
       </div> 
     </div> 
