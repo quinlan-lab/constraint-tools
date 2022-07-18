@@ -158,7 +158,7 @@ export default {
     y2axisMax () {
       const [mean, std] = this.computeMeanStdSNVCount
       console.log(`predicted mean SNV count: ${mean}`)
-      console.error(`predicted std SNV count: ${std}`)
+      console.log(`predicted std SNV count: ${std}`)
       return mean + 5*std
     },
     nucleotides () {
