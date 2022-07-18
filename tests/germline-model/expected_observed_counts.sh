@@ -17,8 +17,10 @@ PATH="${CONSTRAINT_TOOLS}/bin:$PATH"
 model="/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/model-germline-grch38.json" 
 region="chr20:63,442,000-63,446,000"
 window_stride="25"
+trustworthy_noncoding_regions="/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/trustworthy-noncoding-regions-germline-grch38.bed.gz"
 
 python ${CONSTRAINT_TOOLS}/predict-constraint/germline-model/expected_observed_counts.py \
     --region ${region} \
     --model ${model} \
-    --window-stride ${window_stride} 
+    --window-stride ${window_stride} \
+    --trustworthy-noncoding-regions ${trustworthy_noncoding_regions}
