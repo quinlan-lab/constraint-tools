@@ -33,6 +33,16 @@ export async function getModelParameters() {
   }
 }
 
+export async function getTrustworthyNoncodingRegionsMeta() {
+  try {
+    const response = await axiosInstance.get('/api/trustworthy-noncoding-regions-meta')
+    const trustworthyNoncodingRegionsMeta = response.data
+    return trustworthyNoncodingRegionsMeta
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 export async function getTrustworthyNoncodingRegions(plotParameters) {
   try {
     const response = await axiosInstance.post('/api/trustworthy-noncoding-regions', plotParameters)

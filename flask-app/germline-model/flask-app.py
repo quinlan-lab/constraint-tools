@@ -23,7 +23,10 @@ def parse_arguments():
 app = Flask(__name__, static_folder='static', static_url_path="/static") # WSGI app
 
 args = parse_arguments()
-model = read_model(args.model)
+model_path = args.model
+model = read_model(model_path)
+
+trustworthy_noncoding_regions_path = args.trustworthy_noncoding_regions
 
 # https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
 # this line of code can be removed once the vue.js app is served from the same port as the flask app: 
@@ -86,7 +89,7 @@ def serve_api_expected_observed_counts():
     return compute_expected_observed_counts(
       request.json['region'],
       model,
-      args.trustworthy_noncoding_regions,
+      trustworthy_noncoding_regions_path,
       int(request.json['windowStride']),
       log = False
     )
@@ -112,7 +115,17 @@ def serve_api_model_parameters():
     'genomeBuild': model['build'], 
     'kmerSize': model['kmerSize'],
     'numberChromosomesMin': model['numberChromosomesMin'],
-    'windowSize': model['windowSize']
+    'windowSize': model['windowSize'], 
+    'filePath': model_path
+  }
+
+@app.route('/api/trustworthy-noncoding-regions-meta', methods=['GET'])
+def serve_api_trustworthy_noncoding_regions_meta():
+  # returning a dictionary makes flask respond with: 
+  # "Content-Type: application/json" 
+  # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
+  return { 
+    'filePath': trustworthy_noncoding_regions_path,
   }
 
 @app.route('/api/trustworthy-noncoding-regions', methods=['POST'])
@@ -126,7 +139,7 @@ def serve_api_trustworthy_noncoding_regions():
     return { 
       'trustworthyNoncodingRegions': get_trustworthy_noncoding_regions(
         request.json['region'], 
-        args.trustworthy_noncoding_regions
+        trustworthy_noncoding_regions_path
       )
     }
   except Exception: 

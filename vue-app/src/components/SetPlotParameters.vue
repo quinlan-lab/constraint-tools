@@ -4,7 +4,10 @@
 
 <template> 
   <div> 
-    <md-progress-bar v-if="!initialPlotParametersSet || !modelParametersSet" md-mode="indeterminate" />
+    <md-progress-bar 
+      v-if="!initialPlotParametersSet || !modelParametersSet || !trustworthyNoncodingRegionsMetaSet" 
+      md-mode="indeterminate" 
+    />
     <md-card 
       v-else
       style="margin: 10px auto;" 
@@ -49,6 +52,19 @@
             </div>  
             <div class="md-subhead">
               windowSize: {{ modelParameters.windowSize }} 
+            </div>  
+            <div class="md-subhead">
+              filePath: {{ modelParameters.filePath }} 
+            </div>  
+          </div>
+
+          <div class="md-layout-item header-item">
+            <div class="md-head">
+              Trustworthy noncoding regions 
+            </div>
+            <md-divider></md-divider>
+            <div class="md-subhead">
+              filePath: {{ trustworthyNoncodingRegionsMeta.filePath }} 
             </div>  
           </div>
 
@@ -239,6 +255,8 @@ export default {
       'canonicalDataSet',
       'modelParameters',
       'modelParametersSet',
+      'trustworthyNoncodingRegionsMeta',
+      'trustworthyNoncodingRegionsMetaSet',
       'sequenceData',
       'sequenceDataSet'
     ]),
@@ -257,6 +275,7 @@ export default {
     this.initialPlotParametersSet = true
 
     this.$store.dispatch('getModelParameters')
+    this.$store.dispatch('getTrustworthyNoncodingRegionsMeta')
   }  
 }
 </script>

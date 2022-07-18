@@ -9,9 +9,11 @@ CONSTRAINT_TOOLS=$PWD
 window_size="1001"
 model="${CONSTRAINT_TOOLS}/dist/model-germline-grch38-exclude-test-promoters.windowSize-${window_size}.json"
 port="5000"
+trustworthy_noncoding_regions="${CONSTRAINT_TOOLS}/dist/trustworthy-noncoding-regions-germline-grch38.bed.gz"
 
 ${CONSTRAINT_TOOLS}/constraint-tools browser-germline-model \
   --model ${model} \
-  --port ${port}
+  --port ${port} \
+  --trustworthy-noncoding-regions ${trustworthy_noncoding_regions}
 
   

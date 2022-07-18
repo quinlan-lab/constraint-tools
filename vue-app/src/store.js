@@ -17,6 +17,10 @@ export const store = new Vuex.Store({
     fetchingModelParameters: false, 
     modelParametersSet: false,
     
+    trustworthyNoncodingRegionsMeta: null, 
+    fetchingTrustworthyNoncodingRegionsMeta: false, 
+    trustworthyNoncodingRegionsMetaSet: false,
+    
     trustworthyNoncodingRegions: null, 
     fetchingTrustworthyNoncodingRegions: false, 
     trustworthyNoncodingRegionsSet: false,
@@ -69,6 +73,14 @@ export const store = new Vuex.Store({
       state.fetchingModelParameters = fetchingModelParameters
     },
 
+    setTrustworthyNoncodingRegionsMeta (state, trustworthyNoncodingRegionsMeta) {
+      state.trustworthyNoncodingRegionsMeta = trustworthyNoncodingRegionsMeta
+      state.trustworthyNoncodingRegionsMetaSet = true
+    },
+    setFetchingTrustworthyNoncodingRegionsMeta (state, fetchingTrustworthyNoncodingRegionsMeta) {
+      state.fetchingTrustworthyNoncodingRegionsMeta = fetchingTrustworthyNoncodingRegionsMeta
+    },
+
     setTrustworthyNoncodingRegions (state, trustworthyNoncodingRegions) {
       state.trustworthyNoncodingRegions = trustworthyNoncodingRegions
       state.trustworthyNoncodingRegionsSet = true
@@ -116,6 +128,11 @@ export const store = new Vuex.Store({
       commit('setFetchingModelParameters', true)
       commit('setModelParameters', await api.getModelParameters())
       commit('setFetchingModelParameters', false)
+    },
+    async getTrustworthyNoncodingRegionsMeta ({ commit }) { 
+      commit('setFetchingTrustworthyNoncodingRegionsMeta', true)
+      commit('setTrustworthyNoncodingRegionsMeta', await api.getTrustworthyNoncodingRegionsMeta())
+      commit('setFetchingTrustworthyNoncodingRegionsMeta', false)
     },
     async getTrustworthyNoncodingRegions ({ commit }, plotParameters) { 
       commit('setFetchingTrustworthyNoncodingRegions', true)
