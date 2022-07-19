@@ -63,6 +63,9 @@ number_of_trustworthy_noncoding_regions_per_job=$( \
     --number-of-jobs ${number_of_jobs} \
 )
 
+# TODO: refactor the following code block some day, 
+# so that predict-constraint/germline-model/predict-map-reduce may use it too 
+
 # each slurm job/task will store its output files in this temporary directory: 
 tmpdir=$(mktemp --tmpdir=${work} --directory)
 clean_up () {
