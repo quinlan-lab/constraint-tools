@@ -42,7 +42,7 @@ case "${tool}" in
     ;;
   predict-germline-model ) 
     PATH="${CONSTRAINT_TOOLS}/predict-constraint/germline-model:${PATH}"
-    predict-genome-wide ${args} 
+    predict-map-reduce ${args} 
     ;; 
   * )
     error "invalid tool: " "${tool}"
