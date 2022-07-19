@@ -56,21 +56,12 @@ info "\tFiltered trustworthy noncoding regions:" ${trustworthy_noncoding_regions
 
 info "Number of slurm jobs (tasks): " "${number_of_jobs}"
 
-number_of_trustworthy_noncoding_regions_train=$(wc -l < ${trustworthy_noncoding_regions_train_filtered})
-info "Number of (filtered) trustworthy noncoding regions: " "${number_of_trustworthy_noncoding_regions_train}"
-
-if (( number_of_trustworthy_noncoding_regions_train <= number_of_jobs )); then
-  error "Number of trustworthy noncoding regions (${number_of_trustworthy_noncoding_regions_train}) should be larger than number of jobs (${number_of_jobs})!"
-  exit 1 
-else
-  number_of_trustworthy_noncoding_regions_per_job=$((number_of_trustworthy_noncoding_regions_train / number_of_jobs))
-  info "Number of trustworthy noncoding regions per job (task): " "${number_of_trustworthy_noncoding_regions_per_job}"
-fi
-
-number_of_trustworthy_noncoding_regions_left_over=$((number_of_trustworthy_noncoding_regions_train % number_of_jobs))
-if (( number_of_trustworthy_noncoding_regions_left_over > 0 )); then
-  info "Number of trustworthy noncoding regions not used in training: " "${number_of_trustworthy_noncoding_regions_left_over}"
-fi
+number_of_trustworthy_noncoding_regions_per_job=$( \
+  compute-number-regions-per-job \
+    --header "Compute number of (filtered) trustworthy noncoding regions per job (task):" \
+    --regions ${trustworthy_noncoding_regions_train_filtered} \
+    --number-of-jobs ${number_of_jobs} \
+)
 
 # each slurm job/task will store its output files in this temporary directory: 
 tmpdir=$(mktemp --tmpdir=${work} --directory)
