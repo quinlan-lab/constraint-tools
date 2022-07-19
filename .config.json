@@ -11,6 +11,7 @@
   },
   "predictGermlineModel": {
     "model": "dist/model-germline-grch38.windowSize-1001.json",
-    "trustworthyNoncodingRegions": "dist/trustworthy-noncoding-regions-germline-grch38.bed.gz"
+    "trustworthyNoncodingRegions": "dist/trustworthy-noncoding-regions-germline-grch38.bed.gz",
+    "numberOfJobs": "500"
   }
 }
