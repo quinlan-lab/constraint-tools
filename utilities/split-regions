@@ -10,7 +10,7 @@ def parse_arguments():
 
     return parser.parse_args()
 
-def split_trustworthy_noncoding_regions(): 
+def split_regions(): 
   chromosomes_train = ( 
     [f'chr{i}' for i in [2, 4, 6, 8]] + 
     [f'chr{i}' for i in range(10,23)] + 
@@ -31,4 +31,4 @@ def split_trustworthy_noncoding_regions():
         regions_test.write(region)
 
 if __name__ == '__main__': 
-  split_trustworthy_noncoding_regions()
+  split_regions()

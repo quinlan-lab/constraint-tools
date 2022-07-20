@@ -33,6 +33,6 @@ info "Split trustworthy non-coding regions into train and test subsets..."
 
 # https://en.wikipedia.org/wiki/Process_substitution
 zcat ${regions}.bed.gz \
-  | split-trustworthy-noncoding-regions \
+  | split-regions \
     --train >(sort-compress-index-bed --name ${regions}-train) \
     --test >(sort-compress-index-bed --name ${regions}-test)
