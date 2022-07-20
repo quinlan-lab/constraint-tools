@@ -42,17 +42,13 @@ info "Training on trustworthy noncoding regions: " "${trustworthy_noncoding_regi
 info "Size of window used to compute singleton number: " "${window_size}"
 info "Sending progress bars to:" "${progress_bars}"
 
-info "Filtering trustworthy noncoding regions..."
-info "\tRemove trustworthy noncoding regions less than:" "${window_size}bp"
-info "\tRemove trustworthy noncoding regions greater than:" "${max_trustworthy_noncoding_region_length}bp"
-info "\tRemove trustworthy noncoding regions on chromosomes X and Y"
 trustworthy_noncoding_regions_train_filtered="${work}/trustworthy-noncoding-regions-train.filtered.bed"
-zcat ${trustworthy_noncoding_regions_train} \
-  | awk --assign window_size=${window_size} '$3 - $2 > window_size' \
-  | awk --assign max_trustworthy_noncoding_region_length=${max_trustworthy_noncoding_region_length} '$3 - $2 < max_trustworthy_noncoding_region_length' \
-  | get-nonXY-chromosomes \
-  > ${trustworthy_noncoding_regions_train_filtered}
-info "\tFiltered trustworthy noncoding regions:" ${trustworthy_noncoding_regions_train_filtered}
+filter-regions \
+  --max-length ${max_trustworthy_noncoding_region_length} \
+  --min-length ${window_size} \
+  --regions-name "trustworthy noncoding train" \
+  --regions ${trustworthy_noncoding_regions_train} \
+  --filtered-regions ${trustworthy_noncoding_regions_train_filtered}
 
 info "Number of slurm jobs (tasks): " "${number_of_jobs}"
 

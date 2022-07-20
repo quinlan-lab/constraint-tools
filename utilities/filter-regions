@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+# https://devhints.io/bash#miscellaneous
+# put option-fetching before "set -o nounset" so that we can detect flags without arguments
+while [[ "$1" =~ ^- ]]; do 
+  case $1 in
+    --max-length ) shift; [[ ! $1 =~ ^- ]] && max_length=$1;;
+    --min-length ) shift; [[ ! $1 =~ ^- ]] && min_length=$1;;
+    --regions-name ) shift; [[ ! $1 =~ ^- ]] && regions_name=$1;;
+    --regions ) shift; [[ ! $1 =~ ^- ]] && regions=$1;;
+    --filtered-regions ) shift; [[ ! $1 =~ ^- ]] && filtered_regions=$1;;
+    *) error "$0: " "$1 is an invalid flag"; exit 1;;
+  esac 
+  shift
+done
+
+set -o errexit
+set -o pipefail
+# set -o noclobber
+set -o nounset
+# set -o xtrace
+
+info "Filtering ${regions_name} regions..."
+info "\tRemove ${regions_name} regions less than:" "${min_length}bp"
+info "\tRemove ${regions_name} regions greater than:" "${max_length}bp"
+info "\tRemove ${regions_name} regions on chromosomes X and Y"
+zcat ${regions} \
+  | awk --assign min_length=${min_length} '$3 - $2 > min_length' \
+  | awk --assign max_length=${max_length} '$3 - $2 < max_length' \
+  | get-nonXY-chromosomes \
+  > ${filtered_regions}
+info "\tFiltered ${regions_name} regions:" ${filtered_regions}
+
