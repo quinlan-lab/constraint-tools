@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+# https://devhints.io/bash#miscellaneous
+# put option-fetching before "set -o nounset" so that we can detect flags without arguments
+while [[ "$1" =~ ^- ]]; do 
+  case $1 in
+    --header ) shift; [[ ! $1 =~ ^- ]] && header=$1;;
+    --intervals ) shift; [[ ! $1 =~ ^- ]] && intervals=$1;;
+    --number-of-jobs ) shift; [[ ! $1 =~ ^- ]] && number_of_jobs=$1;;
+    *) error "$0: " "$1 is an invalid flag"; exit 1;;
+  esac 
+  shift
+done
+
+set -o errexit
+set -o pipefail
+# set -o noclobber
+set -o nounset
+# set -o xtrace
+
+info "${header}"
+
+number_of_intervals=$(wc -l < ${intervals})
+info "\tNumber of intervals:" "${number_of_intervals}"
+
+if (( number_of_intervals <= number_of_jobs )); then
+  error "\tNumber of intervals (${number_of_intervals}) should be larger than number of jobs (${number_of_jobs})!"
+  exit 1 
+else
+  number_of_intervals_per_job=$((number_of_intervals / number_of_jobs))
+  info "\tNumber of intervals per job (task): " "${number_of_intervals_per_job}"
+fi
+
+number_of_intervals_left_over=$((number_of_intervals % number_of_jobs))
+if (( number_of_intervals_left_over > 0 )); then
+  info "\tNumber of intervals not used in training:" "${number_of_intervals_left_over}"
+fi
+
+echo ${number_of_intervals_per_job}
