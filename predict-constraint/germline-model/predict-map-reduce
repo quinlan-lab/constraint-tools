@@ -1,0 +1,163 @@
+#!/usr/bin/env bash
+
+# set -o xtrace 
+
+model="${CONSTRAINT_TOOLS}/$(read-config predictGermlineModel model)"
+trustworthy_noncoding_regions="${CONSTRAINT_TOOLS}/$(read-config predictGermlineModel trustworthyNoncodingRegions)"
+number_of_jobs="$(read-config predictGermlineModel numberOfJobs)"
+
+# https://devhints.io/bash#miscellaneous
+# put option-fetching before "set -o nounset" so that we can detect flags without arguments
+while [[ "$1" =~ ^- ]]; do 
+  case $1 in
+    --model ) shift; [[ ! $1 =~ ^- ]] && model=$1;;
+    --zscores ) shift; [[ ! $1 =~ ^- ]] && zscores=$1;;
+    --trustworthy-noncoding-regions ) shift; [[ ! $1 =~ ^- ]] && trustworthy_noncoding_regions=$1;;
+    --number-of-jobs ) shift; [[ ! $1 =~ ^- ]] && number_of_jobs=$1;;
+    --work ) shift; [[ ! $1 =~ ^- ]] && work=$1;;
+    --progress-bars ) shift; [[ ! $1 =~ ^- ]] && progress_bars=$1;;
+    *) error "$0: $1 is an invalid flag"; exit 1;;
+  esac 
+  shift
+done
+
+set -o errexit
+set -o pipefail
+set -o noclobber
+set -o nounset
+
+info "Using the model specified at:" ${model}
+info "Using the trustworthy noncoding regions specified at:" ${trustworthy_noncoding_regions}
+info "File in which the genome-wide z-scores will be stored in bed format:" ${zscores}
+info "Number of slurm jobs (tasks):" "${number_of_jobs}"
+info "Sending progress bars to:" "${progress_bars}"
+
+max_trustworthy_noncoding_region_length=$(jq --raw-output .maxTrustworthyNoncodingRegionTrainLength ${model})
+window_size=$(jq --raw-output .windowSize ${model})
+trustworthy_noncoding_regions_filtered="${work}/trustworthy-noncoding-regions.filtered.bed"
+filter-regions \
+  --max-length ${max_trustworthy_noncoding_region_length} \
+  --min-length ${window_size} \
+  --regions-name "trustworthy noncoding" \
+  --regions ${trustworthy_noncoding_regions} \
+  --filtered-regions ${trustworthy_noncoding_regions_filtered}
+
+info "Tiling filtered trustworthy noncoding regions..."
+trustworthy_noncoding_windows="${work}/trustworthy-noncoding-windows.bed" 
+bedtools makewindows \
+    -b ${trustworthy_noncoding_regions_filtered} \
+    -w ${window_size} \
+  | awk --assign window_size=${window_size} '$3 - $2 == window_size' \
+  > ${trustworthy_noncoding_windows} 
+info "Saved trustworthy noncoding windows to:" ${trustworthy_noncoding_windows} 
+
+number_of_trustworthy_noncoding_windows_per_job=$(
+  compute-number-intervals-per-job \
+    --header "Compute number of trustworthy noncoding windows per job:" \
+    --intervals ${trustworthy_noncoding_windows} \
+    --number-of-jobs ${number_of_jobs}
+)
+
+# TODO: refactor the following code block some day, 
+# so that train/germline-model/train-map-reduce may use it too 
+
+# each slurm job/task will store its output files in this temporary directory: 
+tmpdir=$(mktemp --tmpdir=${work} --directory)
+clean_up () {
+  local exit_code="$1"
+  if [[ "${exit_code}" == "0" ]]; then 
+    info "Deleting tmp directory: " "${tmpdir}"
+    rm --recursive --force "${tmpdir}"
+    info "Prediction complete."
+  else 
+    error "Received exit code:" "${exit_code}"
+    error "Not deleting tmp directory:" "${tmpdir}"
+  fi 
+}
+# http://redsymbol.net/articles/bash-exit-traps/
+# https://medium.com/@dirk.avery/the-bash-trap-trap-ce6083f36700
+trap 'clean_up $?' EXIT
+
+parent_slurm_job="batch-windows.window-size-${window_size}"
+info "Submitting slurm job array with parent-job name:" ${parent_slurm_job}
+
+slurm_logs_directory="${work}/slurm_logs"
+mkdir --parents ${slurm_logs_directory}
+
+info "Slurm log directory:" ${slurm_logs_directory}
+info "For each of ${number_of_jobs} jobs, compute z-scores for each of the windows assigned to that job..."
+
+# "map" phase of map-reduce
+
+# sbatch man-page: 
+# A maximum number of simultaneously running tasks from the job array may be
+# specified using a "%" separator.  
+# For example "--array=0-15%4" will limit the number of simultaneously running
+# tasks from this job array to 4.
+# We "wait" to ensure that all the jobs/tasks are finished before merging their results
+sbatch \
+  --wait \
+  --array [1-${number_of_jobs}]%250 \
+  --job-name ${parent_slurm_job} \
+  --output ${slurm_logs_directory}/batch-windows.job-%A.task-%a.log \
+  batch-windows \
+    --trustworthy-noncoding-windows ${trustworthy_noncoding_windows} \
+    --tmpdir ${tmpdir} \
+    --number-of-trustworthy-noncoding-windows-per-job ${number_of_trustworthy_noncoding_windows_per_job} \
+    --progress-bars ${progress_bars} \
+    --model ${model}
+
+# QC #1 of "map" step
+expected_number_zscore_files=${number_of_jobs}
+actual_number_zscore_files=$(/usr/bin/ls ${tmpdir}/zscores.*.bed | wc -l)
+if [[ ${actual_number_zscore_files} != ${expected_number_zscore_files} ]]; then
+  error "Only ${actual_number_zscore_files}/${expected_number_zscore_files} z-scores files were written!"
+  exit 1
+fi
+info \
+  "Number of jobs for which zscores were obtained:" \
+  "${actual_number_zscore_files}/${expected_number_zscore_files}"
+
+# QC #2 of "map" step
+for zscore_file in ${tmpdir}/zscores.*.bed; do  
+  expected_number_zscores=${number_of_trustworthy_noncoding_windows_per_job}
+  number_lines=$(cat ${zscore_file} | wc -l)
+  actual_number_zscores=$(( number_lines - 1 ))
+  if [[ ${actual_number_zscores} != ${expected_number_zscores} ]]; then 
+    error "Only ${actual_number_zscores}/${expected_number_zscores} z-scores were computed in ${zscore_file}"
+    exit 1
+  fi  
+done 
+info "z-scores were successfully computed in each job"
+
+# "reduce" phase of map-reduce: 
+
+info "Merging zscores across jobs, and block compressing, ..."
+
+header-line () {
+  random_zscore_file=$(/usr/bin/ls ${tmpdir}/zscores.*.bed | head -1)
+  set +o errexit
+  cat ${random_zscore_file} | head -1
+  set -o errexit 
+}
+
+merge-files () {
+  tail -n +2 --quiet ${tmpdir}/zscores.*.bed \
+    | sort --parallel=8 --buffer-size=75% --version-sort -k1,1 -k2,2n -k3,3n
+}
+
+set +o noclobber
+(
+  header-line 
+  merge-files
+) | bgzip --force --stdout > ${zscores}
+
+info "Indexing merged z-score file..."
+# http://www.htslib.org/doc/tabix.html
+tabix \
+    --skip-lines 1 \
+    --sequence 1 \
+    --begin 2 \
+    --end 3 \
+    --force \
+  ${zscores}

@@ -114,7 +114,7 @@ def filter_by_regions(windows, N_bars, N_observeds, K_bars, K_observeds, regions
     z_scores_filtered.KObserveds.tolist()
   )
 
-def compute_zscores(window, model, log=True):
+def compute_zscores_on_window(window, model, log=True):
   with pysam.TabixFile(model['mutations']) as mutations, pysam.FastaFile(model['genome']) as genome:
     N_bar, N_observed = compute_Nbar_Nobserved(window, model, mutations, genome, log) 
     K_bar, K_observed, M = compute_Kbar_Kobserved_M(window, model, mutations, genome)

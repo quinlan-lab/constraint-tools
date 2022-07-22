@@ -33,7 +33,7 @@ fi
 
 number_of_intervals_left_over=$((number_of_intervals % number_of_jobs))
 if (( number_of_intervals_left_over > 0 )); then
-  info "\tNumber of intervals not used in training:" "${number_of_intervals_left_over}"
+  info "\tNumber of intervals not used:" "${number_of_intervals_left_over}"
 fi
 
 echo ${number_of_intervals_per_job}

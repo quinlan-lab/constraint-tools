@@ -49,7 +49,16 @@ def create_windows(window_size, window_stride, region, genome, region_contains_w
     })
   return windows
 
-def test(): 
+def create_window(region): 
+  chromosome, region_start, region_end = unpack(region)
+  window_size = region_end - region_start
+  window_center = region_start + window_size//2 
+  return {
+      'region': pack(chromosome, region_start, region_end),
+      'position': int(window_center) # https://stackoverflow.com/a/50916741/6674256
+  }
+
+def test_create_windows(): 
   from colorize import print_string_as_info, print_string_as_info_dim 
   from kmer import truncate, fetch_kmer_from_genome
   genome_filename = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38/hg38.analysisSet.fa.gz'
@@ -83,4 +92,4 @@ def test():
     
 
 if __name__ == '__main__': 
-  test()
+  test_create_windows()

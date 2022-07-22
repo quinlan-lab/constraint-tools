@@ -1,0 +1,28 @@
+[0;36mTool:  [0mpredict-germline-model
+[0;36mTool arguments:  [0m--model /scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/model-germline-grch38.windowSize-5001.json --zscores /scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/predict-germline-grch38.windowSize-5001.bed.gz --work /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-predict-germline-model-production.windowSize-5001 --progress-bars disk --number-of-jobs 5 --trustworthy-noncoding-regions /dev/fd/63
+[0;36mUsing the model specified at: [0m/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/model-germline-grch38.windowSize-5001.json
+[0;36mUsing the trustworthy noncoding regions specified at: [0m/dev/fd/63
+[0;36mFile in which the genome-wide z-scores will be stored in bed format: [0m/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/predict-germline-grch38.windowSize-5001.bed.gz
+[0;36mNumber of slurm jobs (tasks): [0m5
+[0;36mSending progress bars to: [0mdisk
+[0;36mFiltering trustworthy noncoding regions...[0m
+[0;36m	Remove trustworthy noncoding regions less than: [0m5001bp
+[0;36m	Remove trustworthy noncoding regions greater than: [0m100000bp
+[0;36m	Remove trustworthy noncoding regions on chromosomes X and Y[0m
+[0;36m	Filtered trustworthy noncoding regions: [0m/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-predict-germline-model-production.windowSize-5001/trustworthy-noncoding-regions.filtered.bed
+[0;36mTiling filtered trustworthy noncoding regions...[0m
+[0;36mSaved trustworthy noncoding windows to: [0m/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-predict-germline-model-production.windowSize-5001/trustworthy-noncoding-windows.bed
+[0;36mCompute number of trustworthy noncoding windows per job:[0m
+[0;36m	Number of intervals: [0m6
+[0;36m	Number of intervals per job (task):  [0m1
+[0;36m	Number of intervals not used: [0m1
+[0;36mSubmitting slurm job array with parent-job name: [0mbatch-windows.window-size-5001
+[0;36mSlurm log directory: [0m/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-predict-germline-model-production.windowSize-5001/slurm_logs
+[0;36mFor each of 5 jobs, compute z-scores for each of the windows assigned to that job...[0m
+Submitted batch job 5145817
+[0;36mNumber of jobs for which zscores were obtained: [0m5/5
+[0;36mz-scores were successfully computed in each job[0m
+[0;36mMerging zscores across jobs, and block compressing, ...[0m
+[0;36mIndexing merged z-score file...[0m
+[0;36mDeleting tmp directory:  [0m/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-predict-germline-model-production.windowSize-5001/tmp.EQMxE6EjVm
+[0;36mPrediction complete.[0m
