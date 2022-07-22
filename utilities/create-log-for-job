@@ -19,7 +19,7 @@ set -o nounset
 # set -o xtrace
 
 if [[ ${progress_bars} == "disk" ]]; then 
-  log_for_job=$( \
+  log_for_job=$(
     create-tmp-file-for-job \
       --number-of-intervals-per-job ${number_of_intervals_per_job} \
       --tmpdir ${tmpdir} \

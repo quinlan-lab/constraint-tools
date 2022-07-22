@@ -52,7 +52,7 @@ filter-regions \
 
 info "Number of slurm jobs (tasks): " "${number_of_jobs}"
 
-number_of_trustworthy_noncoding_regions_per_job=$( \
+number_of_trustworthy_noncoding_regions_per_job=$(
   compute-number-intervals-per-job \
     --header "Compute number of (filtered) trustworthy noncoding regions per job (task):" \
     --intervals ${trustworthy_noncoding_regions_train_filtered} \

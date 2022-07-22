@@ -25,15 +25,15 @@ set -o pipefail
 # set -o xtrace
 set -o nounset 
 
-trustworthy_noncoding_regions_for_job=$( \
+trustworthy_noncoding_regions_for_job=$(
   create-intervals-for-job \
     --intervals ${trustworthy_noncoding_regions} \
     --number-of-intervals-per-job ${number_of_trustworthy_noncoding_regions_per_job} \
     --tmpdir ${tmpdir} \
-    --name "trustworthy-noncoding-regions" \
+    --name "trustworthy-noncoding-regions"
 )
 
-counts_for_job=$( \
+counts_for_job=$(
   create-tmp-file-for-job \
     --number-of-intervals-per-job ${number_of_trustworthy_noncoding_regions_per_job} \
     --tmpdir ${tmpdir} \
@@ -41,7 +41,7 @@ counts_for_job=$( \
     --suffix "json" 
 )
 
-log_for_job=$( \
+log_for_job=$(
   create-log-for-job \
     --progress-bars ${progress_bars} \
     --number-of-intervals-per-job ${number_of_trustworthy_noncoding_regions_per_job} \
