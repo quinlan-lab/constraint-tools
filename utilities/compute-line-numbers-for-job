@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# https://devhints.io/bash#miscellaneous
+# put option-fetching before "set -o nounset" so that we can detect flags without arguments
+while [[ "$1" =~ ^- ]]; do 
+  case $1 in
+    --number-of-intervals-per-job ) shift; [[ ! $1 =~ ^- ]] && number_of_intervals_per_job=$1;;
+    *) error "$0: " "$1 is an invalid flag"; exit 1;;
+  esac 
+  shift
+done
+
+set -o errexit
+set -o pipefail
+# set -o noclobber
+set -o nounset
+# set -o xtrace
+
+line_number_of_last_interval=$(( SLURM_ARRAY_TASK_ID * number_of_intervals_per_job ))
+offset=$(( number_of_intervals_per_job - 1 ))
+line_number_of_first_interval=$(( line_number_of_last_interval - offset ))
+
+echo "${line_number_of_first_interval},${line_number_of_last_interval}"
