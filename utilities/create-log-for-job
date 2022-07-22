@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+# https://devhints.io/bash#miscellaneous
+# put option-fetching before "set -o nounset" so that we can detect flags without arguments
+while [[ "$1" =~ ^- ]]; do 
+  case $1 in
+    --tmpdir ) shift; [[ ! $1 =~ ^- ]] && tmpdir=$1;;
+    --progress-bars ) shift; [[ ! $1 =~ ^- ]] && progress_bars=$1;;
+    --number-of-intervals-per-job ) shift; [[ ! $1 =~ ^- ]] && number_of_intervals_per_job=$1;;
+    *) error "$0: " "$1 is an invalid flag"; exit 1;;
+  esac 
+  shift
+done
+
+set -o errexit
+set -o pipefail
+# set -o noclobber
+set -o nounset
+# set -o xtrace
+
+if [[ ${progress_bars} == "disk" ]]; then 
+  log_for_job=$( \
+    create-tmp-file-for-job \
+      --number-of-intervals-per-job ${number_of_intervals_per_job} \
+      --tmpdir ${tmpdir} \
+      --name "progress-bar" \
+      --suffix "log" 
+  )
+elif [[ ${progress_bars} == "stdout" ]]; then 
+  log_for_job="stdout"
+else
+  error "invalid value for progress_bars:" "${progress_bars}"
+  exit 1 
+fi 
+
+echo ${log_for_job}

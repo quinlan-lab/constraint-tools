@@ -25,27 +25,28 @@ set -o pipefail
 # set -o xtrace
 set -o nounset 
 
-line_number_of_last_region=$(( SLURM_ARRAY_TASK_ID * number_of_trustworthy_noncoding_regions_per_job ))
-offset=$(( number_of_trustworthy_noncoding_regions_per_job - 1 ))
-line_number_of_first_region=$(( line_number_of_last_region - offset ))
+trustworthy_noncoding_regions_for_job=$( \
+  create-intervals-for-job \
+    --intervals ${trustworthy_noncoding_regions} \
+    --number-of-intervals-per-job ${number_of_trustworthy_noncoding_regions_per_job} \
+    --tmpdir ${tmpdir} \
+    --name "trustworthy-noncoding-regions" \
+)
 
-trustworthy_noncoding_regions_for_job="${tmpdir}/trustworthy-noncoding-regions.${line_number_of_first_region}-${line_number_of_last_region}.bed"
-sed \
-  --quiet \
-  ${line_number_of_first_region},${line_number_of_last_region}p \
-  ${trustworthy_noncoding_regions} \
-  > ${trustworthy_noncoding_regions_for_job}
+counts_for_job=$( \
+  create-tmp-file-for-job \
+    --number-of-intervals-per-job ${number_of_trustworthy_noncoding_regions_per_job} \
+    --tmpdir ${tmpdir} \
+    --name "counts" \
+    --suffix "json" 
+)
 
-counts_for_job="${tmpdir}/counts.${line_number_of_first_region}-${line_number_of_last_region}.json"
-
-if [[ ${progress_bars} == "disk" ]]; then 
-  log_for_job="${tmpdir}/progress-bar.${line_number_of_first_region}-${line_number_of_last_region}.log"
-elif [[ ${progress_bars} == "stdout" ]]; then 
-  log_for_job="stdout"
-else
-  error "invalid value for progress_bars:" "${progress_bars}"
-  exit 1 
-fi 
+log_for_job=$( \
+  create-log-for-job \
+    --progress-bars ${progress_bars} \
+    --number-of-intervals-per-job ${number_of_trustworthy_noncoding_regions_per_job} \
+    --tmpdir ${tmpdir}
+)
 
 info "Performing counts on:" "${trustworthy_noncoding_regions_for_job}"
 info "Writing counts to:" "${counts_for_job}"

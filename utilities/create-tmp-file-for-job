@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+# https://devhints.io/bash#miscellaneous
+# put option-fetching before "set -o nounset" so that we can detect flags without arguments
+while [[ "$1" =~ ^- ]]; do
+  case $1 in
+    --number-of-intervals-per-job ) shift; [[ ! $1 =~ ^- ]] && number_of_intervals_per_job=$1;;
+    --tmpdir ) shift; [[ ! $1 =~ ^- ]] && tmpdir=$1;;
+    --name ) shift; [[ ! $1 =~ ^- ]] && name=$1;;
+    --suffix ) shift; [[ ! $1 =~ ^- ]] && suffix=$1;;
+    *) error "$0: " "$1 is an invalid flag"; exit 1;;
+  esac
+  shift
+done
+
+set -o errexit
+set -o pipefail
+# set -o noclobber
+set -o nounset
+# set -o xtrace
+
+IFS=, read line_number_of_first_interval line_number_of_last_interval < <( \
+  compute-line-numbers-for-job --number-of-intervals-per-job ${number_of_intervals_per_job} \
+)
+
+tmp_file_for_job="${tmpdir}/${name}.${line_number_of_first_interval}-${line_number_of_last_interval}.${suffix}"
+
+echo ${tmp_file_for_job}
