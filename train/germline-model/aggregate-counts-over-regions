@@ -6,9 +6,6 @@ import pysam
 
 import json
 import argparse 
-import os
-import subprocess
-import multiprocessing
 from tqdm import tqdm
 
 from kmer import initialize_kmer_counts_germline, fetch_kmers
@@ -26,6 +23,7 @@ from pack_unpack import bed_to_sam_string
 from timer import timer 
 from windows import create_windows 
 from get_M_K import get_M_K_trainingTime
+from hostname_process_cpu import get_hostname_process_cpu
 
 # using the "khmer" library might make this function a handful of times faster:
 # https://khmer.readthedocs.io/en/v0.6.1-0/ktable.html
@@ -42,19 +40,6 @@ def compute_kmer_SNV_counts(trustworthy_noncoding_region, mutations, genome, kme
   for SNV in SNVs: 
     kmer_counts[SNV['kmer']]['ALTStateCounts'][SNV['ALTState']] += 1
   return kmer_counts
-
-def get_hostname_process_cpu(): 
-  hostname = os.uname()[1]
-  pid = os.getpid()
-  cpu = subprocess.run(
-    ["ps", "-o", "psr=", "-p", f"{pid}"], 
-    capture_output=True
-  ).stdout.decode("utf-8").strip()
-  return {
-    'hostname': hostname,
-    'process': pid, 
-    'cpu': f'{cpu}/{multiprocessing.cpu_count()}'
-  }
 
 def parse_arguments():
   parser = argparse.ArgumentParser(description='')
