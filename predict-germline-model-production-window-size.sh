@@ -24,7 +24,6 @@ PATH=${CONSTRAINT_TOOLS}:$PATH
 model="${CONSTRAINT_TOOLS}/dist/model-germline-grch38.windowSize-${window_size}.json"
 zscores="${CONSTRAINT_TOOLS}/dist/predict-germline-grch38.windowSize-${window_size}.bed.gz"
 trustworthy_noncoding_regions="${CONSTRAINT_TOOLS}/dist/trustworthy-noncoding-regions-germline-grch38.bed.gz"
-number_of_jobs="500"
 
 progress_bars="disk" 
 # progress_bars="stdout" 
@@ -48,9 +47,10 @@ constraint-tools predict-germline-model \
   --zscores ${zscores} \
   --work ${work} \
   --progress-bars ${progress_bars} \
-  --number-of-jobs ${number_of_jobs} \
+  --number-of-jobs 500 \
   --trustworthy-noncoding-regions ${trustworthy_noncoding_regions}
 
   # TESTING:
+  # --number-of-jobs 5 \
   # --trustworthy-noncoding-regions <(fetch_subset_of_trustworthy_noncoding_regions | bgzip)
 
