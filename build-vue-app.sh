@@ -21,6 +21,7 @@ cd ${CONSTRAINT_TOOLS}/vue-app
 npm install
 npm run build 
 cd ${CONSTRAINT_TOOLS}
-rm --force --recursive ${CONSTRAINT_TOOLS}/flask-app/static
-mkdir --parents ${CONSTRAINT_TOOLS}/flask-app/static
-mv ${CONSTRAINT_TOOLS}/vue-app/dist/* ${CONSTRAINT_TOOLS}/flask-app/static
+static=${CONSTRAINT_TOOLS}/flask-app/germline-model/static
+rm --force --recursive ${static} 
+mkdir --parents ${static} 
+mv ${CONSTRAINT_TOOLS}/vue-app/dist/* ${static} 
