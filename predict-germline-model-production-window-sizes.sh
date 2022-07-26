@@ -2,7 +2,7 @@
 #SBATCH --time=40:00:00
 #SBATCH --account=quinlan-rw
 #SBATCH --partition=quinlan-shared-rw
-#SBATCH --output=dist/predict-germline-model-production-window-sizes.log
+#SBATCH --output=/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/genome-wide-predictions/predict-germline-model-production-window-sizes.log
 
 set -o errexit
 set -o pipefail
@@ -12,7 +12,7 @@ source set-environment-variables.sh
 
 for window_size in "101" "501" "1001" "2001" "5001"; do
   info "Computing predictions for model with window-size:" "${window_size}bp"
-  log_file="dist/predict-germline-grch38.windowSize-${window_size}.log"
+  log_file="${CONSTRAINT_TOOLS_DATA}/genome-wide-predictions/predict-germline-grch38.windowSize-${window_size}.log"
   job_name="predict-germline-model-production.windowSize-${window_size}"
   sbatch \
     --wait \

@@ -22,7 +22,8 @@ set -o nounset
 PATH=${CONSTRAINT_TOOLS}:$PATH 
 
 model="${CONSTRAINT_TOOLS}/dist/model-germline-grch38.windowSize-${window_size}.json"
-zscores="${CONSTRAINT_TOOLS}/dist/predict-germline-grch38.windowSize-${window_size}.bed.gz"
+genome_wide_predictions_directory="${CONSTRAINT_TOOLS_DATA}/genome-wide-predictions"
+zscores="${genome_wide_predictions_directory}/predict-germline-grch38.windowSize-${window_size}.bed.gz"
 trustworthy_noncoding_regions="${CONSTRAINT_TOOLS}/dist/trustworthy-noncoding-regions-germline-grch38.bed.gz"
 
 progress_bars="disk" 
@@ -30,7 +31,7 @@ progress_bars="disk"
 
 work_directory="work-predict-germline-model-production.windowSize-${window_size}"
 work_directory_should_be_clean="true"
-work="${CONSTRAINT_TOOLS_DATA}/${work_directory}" # path to directory to store intermediate work and logs
+work="${genome_wide_predictions_directory}/${work_directory}" # path to directory to store intermediate work and logs
 if [[ ${work_directory_should_be_clean} == "true" && -d ${work} ]]; then 
   error "the following work directory already exists:" ${work}
   exit 1 
