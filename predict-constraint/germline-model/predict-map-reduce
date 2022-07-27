@@ -136,7 +136,8 @@ info "Merging zscores across jobs, and block compressing, ..."
 
 header-line () {
   # In the following code, I disable pipefail.
-  # Not doing so can lead to a heisenbug that only becomes visible in a production run, 
+  # Not doing so can lead to a heisenbug that is 
+  # invisible during testing, and only becomes visible in a production run, 
   # where head stops reading before ls finishes writing. 
   # A simple illustration of this race condition is: 
   # $ set -o pipefail; seq 1 1000000 | head -1 > /dev/null; echo ${PIPESTATUS[@]}
@@ -147,9 +148,7 @@ header-line () {
   random_zscore_file=$(/usr/bin/ls ${tmpdir}/zscores.*.bed | head -1)
   set -o pipefail
 
-  # set +o errexit
   head -1 ${random_zscore_file} 
-  # set -o errexit 
 }
 
 merge-files () {
