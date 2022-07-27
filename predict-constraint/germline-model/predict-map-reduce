@@ -153,7 +153,7 @@ header-line () {
 
 merge-files () {
   tail -n +2 --quiet ${tmpdir}/zscores.*.bed \
-    | sort --parallel=8 --buffer-size=75% --version-sort -k1,1 -k2,2n -k3,3n
+    | /usr/bin/time --verbose sort --parallel=8 --buffer-size=75% --version-sort -k1,1 -k2,2n -k3,3n
 }
 
 set +o noclobber

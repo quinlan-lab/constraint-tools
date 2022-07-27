@@ -2,6 +2,7 @@
 #SBATCH --time=8:00:00
 #SBATCH --account=quinlan-rw
 #SBATCH --partition=quinlan-shared-rw
+#SBATCH --mem=20g # sacct -o reqmem,maxrss,averss,elapsed -j JOBID
 
 # https://devhints.io/bash#miscellaneous
 # put option-fetching before "set -o nounset" so that we can detect flags without arguments
