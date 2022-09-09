@@ -1,2 +1,2 @@
-Used the web interface to translate grch37 coordinates of promoters to grch38 coordinates: 
+Used the web interface to translate grch37 coordinates of promoters to grch38 coordinates (liftover): 
 https://genome.ucsc.edu/cgi-bin/hgLiftOver
