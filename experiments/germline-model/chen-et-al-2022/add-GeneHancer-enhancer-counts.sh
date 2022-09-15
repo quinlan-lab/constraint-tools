@@ -38,6 +38,9 @@ get-GeneHancer-enhancers () {
     | uniq 
 }
 
+# get-chen-windows | head 
+# get-GeneHancer-enhancers | head 
+
 add-GeneHancer-enhancer-counts () {
   bedtools intersect \
       -a <(get-chen-windows) \
