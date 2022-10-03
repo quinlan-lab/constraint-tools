@@ -35,7 +35,10 @@ get-GeneHancer-enhancers () {
 }
 
 # get-chen-windows | head 
-# get-GeneHancer-enhancers | head
+# min_enhancer_size=0
+# max_enhancer_size=750
+# get-GeneHancer-enhancers | wc -l
+# exit 1 
 
 header-line () {
   echo -e "chromosome\tchen_start\tchen_end\tchen_zscore\tmchale_start\tmchale_end\tmchale_position\tmchale_N_bar\tmchale_N_observed\tmchale_K_bar\tmchale_K_observed\tmchale_M\tchen_mchale_overlap_bps\tenhancer_chromosome\tenhancer_start\tenhancer_end\tchen_enhancer_overlap_bps"
@@ -48,7 +51,7 @@ add-GeneHancer-enhancer-overlapAmounts () {
       -wao 
 }
 
-for enhancer_size_bounds in "100,300" "500,1500"; do
+for enhancer_size_bounds in "0,750" "750,100000" "0,100000"; do
   chen_mchale_windows_with_GeneHancer_enhancer_overlapAmounts="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale.GeneHancer-enhancers.${enhancer_size_bounds}.overlapAmounts.bed"
   IFS="," read min_enhancer_size max_enhancer_size <<< ${enhancer_size_bounds}
   (
