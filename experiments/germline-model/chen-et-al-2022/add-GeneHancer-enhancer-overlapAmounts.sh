@@ -19,8 +19,6 @@ chen_mchale_windows="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/
 # data courtesy: Tom Nicholas 
 GeneHancer_enhancers="/scratch/ucgd/lustre-work/quinlan/u0055382/genome_reference/genehancer/genehancer_GRCh38.bed.gz" 
 
-chen_mchale_windows_with_GeneHancer_enhancer_overlapAmounts="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale.GeneHancer-enhancers.overlapAmounts.bed"
-
 get-chen-windows () { 
   cat ${chen_mchale_windows} | tail -n +2
 }
@@ -29,13 +27,15 @@ get-GeneHancer-enhancers () {
   zcat ${GeneHancer_enhancers} \
     | tail -n +2 \
     | cut -f1-3 \
-    | awk -v OFS="\t" '{ print "chr"$1, $2, $3 }' \
+    | awk -v OFS="\t" '{ print "chr"$1, $2, $3}' \
+    | awk -v min_enhancer_size=${min_enhancer_size} '$3-$2 > min_enhancer_size' \
+    | awk -v max_enhancer_size=${max_enhancer_size} '$3-$2 < max_enhancer_size' \
     | sort --version-sort -k1,1 -k2,2n \
     | uniq 
 }
 
 # get-chen-windows | head 
-# get-GeneHancer-enhancers | head 
+# get-GeneHancer-enhancers | head
 
 header-line () {
   echo -e "chromosome\tchen_start\tchen_end\tchen_zscore\tmchale_start\tmchale_end\tmchale_position\tmchale_N_bar\tmchale_N_observed\tmchale_K_bar\tmchale_K_observed\tmchale_M\tchen_mchale_overlap_bps\tenhancer_chromosome\tenhancer_start\tenhancer_end\tchen_enhancer_overlap_bps"
@@ -48,13 +48,14 @@ add-GeneHancer-enhancer-overlapAmounts () {
       -wao 
 }
 
-(
-  header-line 
-  add-GeneHancer-enhancer-overlapAmounts
-) > ${chen_mchale_windows_with_GeneHancer_enhancer_overlapAmounts}  
-# | head | column -t -s $'\t'
-
-
-info "Wrote GeneHancer-enhancer overlap amounts to" ${chen_mchale_windows_with_GeneHancer_enhancer_overlapAmounts}  
-
+for enhancer_size_bounds in "100,300" "500,1500"; do
+  chen_mchale_windows_with_GeneHancer_enhancer_overlapAmounts="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale.GeneHancer-enhancers.${enhancer_size_bounds}.overlapAmounts.bed"
+  IFS="," read min_enhancer_size max_enhancer_size <<< ${enhancer_size_bounds}
+  (
+    header-line 
+    add-GeneHancer-enhancer-overlapAmounts
+  ) > ${chen_mchale_windows_with_GeneHancer_enhancer_overlapAmounts}  
+  # | head | column -t -s $'\t'
+  info "Wrote GeneHancer-enhancer overlap amounts to" ${chen_mchale_windows_with_GeneHancer_enhancer_overlapAmounts}  
+done
 
