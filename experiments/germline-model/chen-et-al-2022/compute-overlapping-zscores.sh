@@ -31,4 +31,6 @@ overlapping-zscores () {
   overlapping-zscores
 ) > ${chen_mchale_windows}  
 
+info "wrote to:" ${chen_mchale_windows}  
+
 
