@@ -1,7 +1,7 @@
 {
   "trainGermlineModel": {
     "trustworthyNoncodingRegionsTrain": "dist/trustworthy-noncoding-regions-germline-grch38-train.bed.gz",
-    "windowSize": "1001",
+    "windowSize": "1000",
     "numberOfJobs": "500",
     "maxTrustworthyNoncodingRegionTrainLength": "100000"
   },
@@ -10,7 +10,7 @@
     "windowStride": "40"
   },
   "predictGermlineModel": {
-    "model": "dist/model-germline-grch38.windowSize-1001.json",
+    "model": "dist/model-germline-grch38.windowSize-1000.json",
     "trustworthyNoncodingRegions": "dist/trustworthy-noncoding-regions-germline-grch38.bed.gz",
     "numberOfJobs": "500"
   }
