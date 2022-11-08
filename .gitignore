@@ -38,3 +38,5 @@ tests/germline-model/*.json
 tests/germline-model/tmpdir
 tests/germline-model/*log
 *.time
+
+trash
