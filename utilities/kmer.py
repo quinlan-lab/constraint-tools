@@ -29,9 +29,13 @@ def get_complement(ALT_state):
   ALT_alleles_complemented = (complement[ALT_allele] for ALT_allele in ALT_alleles)
   return '{' + ','.join(sorted(ALT_alleles_complemented)) + '}'
 
+def check_odd(kmer_size): 
+  if not is_odd(kmer_size):     
+    raise ValueError('kmer size must be odd: {}'.format(kmer_size))
+
 def middle_index(kmer): 
   kmer_size = len(kmer)
-  is_odd(kmer_size)
+  check_odd(kmer_size)
   return int((kmer_size - 1)/2)
   
 def middle_base(kmer): 
@@ -44,12 +48,16 @@ def contains_unspecified_bases(kmer):
   # https://www.qmul.ac.uk/sbcs/iubmb/misc/naseq.html
   return {'N', 'M', 'R'} & set(kmer)
 
-def fetch_kmer_from_genome(genome, chromosome, position, kmer_size): 
+def fetch_kmer_from_genome_core(genome, chromosome, position, kmer_size): 
   # provide the "reference" argument positionally to "get_reference_length": 
   # https://stackoverflow.com/a/24463222/6674256
   left, right = compute_left_right(position, kmer_size, genome.get_reference_length(chromosome))  
   # "fetch" API: https://pysam.readthedocs.io/en/latest/api.html?highlight=fasta#pysam.FastaFile
   return genome.fetch(chromosome, left, right).upper()
+
+def fetch_kmer_from_genome(genome, chromosome, position, kmer_size): 
+  check_odd(kmer_size)
+  return fetch_kmer_from_genome_core(genome, chromosome, position, kmer_size)
 
 def truncate(string, length=100):   
   return string[:length] + '...' if len(string) > length else string
