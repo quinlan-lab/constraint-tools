@@ -8,8 +8,8 @@ set -o nounset
 
 CONSTRAINT_TOOLS=$PWD
 
-window_size="1001"
-model="${CONSTRAINT_TOOLS}/dist/model-germline-grch38-exclude-test-promoters.windowSize-${window_size}.json"
+window_size="1000"
+model="${CONSTRAINT_TOOLS}/dist/model-germline-grch38.windowSize-${window_size}.json"
 port="5000"
 trustworthy_noncoding_regions="${CONSTRAINT_TOOLS}/dist/trustworthy-noncoding-regions-germline-grch38.bed.gz"
 
