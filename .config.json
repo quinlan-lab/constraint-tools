@@ -7,11 +7,11 @@
   },
   "browseGermlineModel": {
     "region": "chr20:63,442,000-63,446,000", 
-    "windowStride": "40"
+    "windowStride": "40",
+    "model": "dist/model-germline-grch38.windowSize-1000.json",
+    "trustworthyNoncodingRegions": "dist/trustworthy-noncoding-regions-germline-grch38.bed.gz"
   },
   "predictGermlineModel": {
-    "model": "dist/model-germline-grch38.windowSize-1000.json",
-    "trustworthyNoncodingRegions": "dist/trustworthy-noncoding-regions-germline-grch38.bed.gz",
     "numberOfJobs": "500"
   }
 }

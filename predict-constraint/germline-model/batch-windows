@@ -5,9 +5,9 @@
 
 while [[ "$1" =~ ^- ]]; do
   case $1 in
-    --trustworthy-noncoding-windows ) shift; [[ ! $1 =~ ^- ]] && trustworthy_noncoding_windows=$1;;
+    --windows ) shift; [[ ! $1 =~ ^- ]] && windows=$1;;
     --tmpdir ) shift; [[ ! $1 =~ ^- ]] && tmpdir=$1;;
-    --number-of-trustworthy-noncoding-windows-per-job ) shift; [[ ! $1 =~ ^- ]] && number_of_trustworthy_noncoding_windows_per_job=$1;;
+    --number-of-windows-per-job ) shift; [[ ! $1 =~ ^- ]] && number_of_windows_per_job=$1;;
     --progress-bars ) shift; [[ ! $1 =~ ^- ]] && progress_bars=$1;;
     --model ) shift; [[ ! $1 =~ ^- ]] && model=$1;;
     *) error "$0: $1 is an invalid flag"; exit 1;;
@@ -21,36 +21,36 @@ set -o pipefail
 # set -o xtrace
 set -o nounset 
 
-trustworthy_noncoding_windows_for_job=$(
+windows_for_job=$(
   create-intervals-for-job \
-    --intervals ${trustworthy_noncoding_windows} \
-    --number-of-intervals-per-job ${number_of_trustworthy_noncoding_windows_per_job} \
+    --intervals ${windows} \
+    --number-of-intervals-per-job ${number_of_windows_per_job} \
     --tmpdir ${tmpdir} \
-    --name "trustworthy-noncoding-windows"
+    --name "windows"
 )
 
 log_for_job=$(
   create-log-for-job \
     --progress-bars ${progress_bars} \
-    --number-of-intervals-per-job ${number_of_trustworthy_noncoding_windows_per_job} \
+    --number-of-intervals-per-job ${number_of_windows_per_job} \
     --tmpdir ${tmpdir}
 )
 
 zscores_for_job=$(
   create-tmp-file-for-job \
-    --number-of-intervals-per-job ${number_of_trustworthy_noncoding_windows_per_job} \
+    --number-of-intervals-per-job ${number_of_windows_per_job} \
     --tmpdir ${tmpdir} \
     --name "zscores" \
     --suffix "bed" 
 )
 
-info "Computing z-scores on:" "${trustworthy_noncoding_windows_for_job}"
+info "Computing z-scores on:" "${windows_for_job}"
 info "Writing log to:" "${log_for_job}"
 info "Writing z-scores to:" "${zscores_for_job}"
 info "..."
 
 compute-zscores \
-  --windows ${trustworthy_noncoding_windows_for_job} \
+  --windows ${windows_for_job} \
   --log ${log_for_job} \
   --zscores ${zscores_for_job} \
   --model ${model}

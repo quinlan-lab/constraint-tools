@@ -25,7 +25,6 @@ PATH=${CONSTRAINT_TOOLS}:$PATH
 model="${CONSTRAINT_TOOLS}/dist/model-germline-grch38.windowSize-${window_size}.json"
 genome_wide_predictions_directory="${CONSTRAINT_TOOLS_DATA}/genome-wide-predictions"
 zscores="${genome_wide_predictions_directory}/predict-germline-grch38.windowSize-${window_size}.bed.gz"
-trustworthy_noncoding_regions="${CONSTRAINT_TOOLS}/dist/trustworthy-noncoding-regions-germline-grch38.bed.gz"
 
 progress_bars="disk" 
 # progress_bars="stdout" 
@@ -40,9 +39,14 @@ else
   mkdir --parents ${work}
 fi 
 
-fetch_subset_of_trustworthy_noncoding_regions () { 
-  less ${trustworthy_noncoding_regions} | head -10000 
-}
+trustworthy_noncoding_windows="${work}/trustworthy-noncoding-windows.bed" 
+create-trustworthy-noncoding-windows \
+  --model ${model} \
+  --work ${work} \
+  --output ${trustworthy_noncoding_windows}
+
+# TESTING: 
+# head -485 ${trustworthy_noncoding_windows} > trustworthy_noncoding_windows_small.bed
 
 constraint-tools predict-germline-model \
   --model ${model} \
@@ -50,9 +54,10 @@ constraint-tools predict-germline-model \
   --work ${work} \
   --progress-bars ${progress_bars} \
   --number-of-jobs 500 \
-  --trustworthy-noncoding-regions ${trustworthy_noncoding_regions}
+  --windows ${trustworthy_noncoding_windows}
 
-  # TESTING:
+# TESTING: 
   # --number-of-jobs 5 \
-  # --trustworthy-noncoding-regions <(fetch_subset_of_trustworthy_noncoding_regions | bgzip)
+  # --windows trustworthy_noncoding_windows_small.bed
+
 

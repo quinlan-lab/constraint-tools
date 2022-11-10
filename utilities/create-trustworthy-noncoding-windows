@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# https://devhints.io/bash#miscellaneous
+# put option-fetching before "set -o nounset" so that we can detect flags without arguments
+while [[ "$1" =~ ^- ]]; do 
+  case $1 in
+    --model ) shift; [[ ! $1 =~ ^- ]] && model=$1;;
+    --work ) shift; [[ ! $1 =~ ^- ]] && work=$1;;
+    --output ) shift; [[ ! $1 =~ ^- ]] && output=$1;;
+    *) error "$0: " "$1 is an invalid flag"; exit 1;;
+  esac 
+  shift
+done
+
+set -o errexit
+set -o pipefail
+set -o nounset
+# set -o noclobber
+# set -o xtrace
+
+trustworthy_noncoding_regions="${CONSTRAINT_TOOLS}/dist/trustworthy-noncoding-regions-germline-grch38.bed.gz"
+max_trustworthy_noncoding_region_length=$(jq --raw-output .maxTrustworthyNoncodingRegionTrainLength ${model})
+window_size=$(jq --raw-output .windowSize ${model})
+trustworthy_noncoding_regions_filtered="${work}/trustworthy-noncoding-regions.filtered.bed"
+filter-regions \
+  --max-length ${max_trustworthy_noncoding_region_length} \
+  --min-length ${window_size} \
+  --regions-name "trustworthy noncoding" \
+  --regions ${trustworthy_noncoding_regions} \
+  --filtered-regions ${trustworthy_noncoding_regions_filtered}
+
+info "Tiling filtered trustworthy noncoding regions..."
+bedtools makewindows \
+    -b ${trustworthy_noncoding_regions_filtered} \
+    -w ${window_size} \
+  | awk --assign window_size=${window_size} '$3 - $2 == window_size' \
+  > ${output} 
+info "Saved trustworthy noncoding windows to:" ${output} 
+
+
+

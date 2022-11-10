@@ -2,8 +2,6 @@
 
 # set -o xtrace 
 
-model="${CONSTRAINT_TOOLS}/$(read-config predictGermlineModel model)"
-trustworthy_noncoding_regions="${CONSTRAINT_TOOLS}/$(read-config predictGermlineModel trustworthyNoncodingRegions)"
 number_of_jobs="$(read-config predictGermlineModel numberOfJobs)"
 
 # https://devhints.io/bash#miscellaneous
@@ -12,7 +10,7 @@ while [[ "$1" =~ ^- ]]; do
   case $1 in
     --model ) shift; [[ ! $1 =~ ^- ]] && model=$1;;
     --zscores ) shift; [[ ! $1 =~ ^- ]] && zscores=$1;;
-    --trustworthy-noncoding-regions ) shift; [[ ! $1 =~ ^- ]] && trustworthy_noncoding_regions=$1;;
+    --windows ) shift; [[ ! $1 =~ ^- ]] && windows=$1;;
     --number-of-jobs ) shift; [[ ! $1 =~ ^- ]] && number_of_jobs=$1;;
     --work ) shift; [[ ! $1 =~ ^- ]] && work=$1;;
     --progress-bars ) shift; [[ ! $1 =~ ^- ]] && progress_bars=$1;;
@@ -26,35 +24,20 @@ set -o pipefail
 set -o noclobber
 set -o nounset
 
+check-window-sizes-match-model-spec \
+  --model ${model} \
+  --windows ${windows}
+
 info "Using the model specified at:" ${model}
-info "Using the trustworthy noncoding regions specified at:" ${trustworthy_noncoding_regions}
+info "Using the windows specified at:" ${windows}
 info "File in which the genome-wide z-scores will be stored in bed format:" ${zscores}
 info "Number of slurm jobs (tasks):" "${number_of_jobs}"
 info "Sending progress bars to:" "${progress_bars}"
 
-max_trustworthy_noncoding_region_length=$(jq --raw-output .maxTrustworthyNoncodingRegionTrainLength ${model})
-window_size=$(jq --raw-output .windowSize ${model})
-trustworthy_noncoding_regions_filtered="${work}/trustworthy-noncoding-regions.filtered.bed"
-filter-regions \
-  --max-length ${max_trustworthy_noncoding_region_length} \
-  --min-length ${window_size} \
-  --regions-name "trustworthy noncoding" \
-  --regions ${trustworthy_noncoding_regions} \
-  --filtered-regions ${trustworthy_noncoding_regions_filtered}
-
-info "Tiling filtered trustworthy noncoding regions..."
-trustworthy_noncoding_windows="${work}/trustworthy-noncoding-windows.bed" 
-bedtools makewindows \
-    -b ${trustworthy_noncoding_regions_filtered} \
-    -w ${window_size} \
-  | awk --assign window_size=${window_size} '$3 - $2 == window_size' \
-  > ${trustworthy_noncoding_windows} 
-info "Saved trustworthy noncoding windows to:" ${trustworthy_noncoding_windows} 
-
-number_of_trustworthy_noncoding_windows_per_job=$(
+number_of_windows_per_job=$(
   compute-number-intervals-per-job \
-    --header "Compute number of trustworthy noncoding windows per job:" \
-    --intervals ${trustworthy_noncoding_windows} \
+    --header "Compute number of windows per job:" \
+    --intervals ${windows} \
     --number-of-jobs ${number_of_jobs}
 )
 
@@ -78,6 +61,7 @@ clean_up () {
 # https://medium.com/@dirk.avery/the-bash-trap-trap-ce6083f36700
 trap 'clean_up $?' EXIT
 
+window_size=$(jq --raw-output .windowSize ${model})
 parent_slurm_job="batch-windows.window-size-${window_size}"
 info "Submitting slurm job array with parent-job name:" ${parent_slurm_job}
 
@@ -101,9 +85,9 @@ sbatch \
   --job-name ${parent_slurm_job} \
   --output ${slurm_logs_directory}/batch-windows.job-%A.task-%a.log \
   batch-windows \
-    --trustworthy-noncoding-windows ${trustworthy_noncoding_windows} \
+    --windows ${windows} \
     --tmpdir ${tmpdir} \
-    --number-of-trustworthy-noncoding-windows-per-job ${number_of_trustworthy_noncoding_windows_per_job} \
+    --number-of-windows-per-job ${number_of_windows_per_job} \
     --progress-bars ${progress_bars} \
     --model ${model}
 
@@ -120,7 +104,7 @@ info \
 
 # QC #2 of "map" step
 for zscore_file in ${tmpdir}/zscores.*.bed; do  
-  expected_number_zscores=${number_of_trustworthy_noncoding_windows_per_job}
+  expected_number_zscores=${number_of_windows_per_job}
   number_lines=$(cat ${zscore_file} | wc -l)
   actual_number_zscores=$(( number_lines - 1 ))
   if [[ ${actual_number_zscores} != ${expected_number_zscores} ]]; then 

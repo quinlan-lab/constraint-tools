@@ -1,0 +1,28 @@
+#!/usr/bin/env python
+
+import argparse 
+
+def parse_arguments(): 
+  parser = argparse.ArgumentParser(description='')
+  parser.add_argument('--model', type=str, help='')
+  parser.add_argument('--windows', type=str, help='')
+  return parser.parse_args()
+
+def main():
+  from colorize import print_string_as_info
+  print_string_as_info("Checking that user-supplied window sizes all equal the window-size specified in the model...")
+
+  args = parse_arguments()   
+
+  from read_model import read_model
+  model = read_model(args.model)
+
+  from pack_unpack import bed_to_sam_string, unpack
+
+  with open(args.windows, 'r') as windows: 
+    for window in windows: 
+      _, start, end = unpack(bed_to_sam_string(window))
+      assert end - start == model['windowSize']
+
+if __name__ == '__main__': 
+  main()
