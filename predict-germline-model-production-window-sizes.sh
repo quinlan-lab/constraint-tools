@@ -10,7 +10,7 @@ set -o nounset
 
 source set-environment-variables.sh 
 
-for window_size in "101" "501" "1001" "2001" "5001"; do
+for window_size in "100" "500" "1000" "2000" "5000" "10000"; do
   info "Computing predictions for model with window-size:" "${window_size}bp"
   log_file="${CONSTRAINT_TOOLS_DATA}/genome-wide-predictions/predict-germline-grch38.windowSize-${window_size}.log"
   job_name="predict-germline-model-production.windowSize-${window_size}"
