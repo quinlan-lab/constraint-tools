@@ -115,9 +115,24 @@ Required arguments for `browse-germline-model` are:
       The port to serve the web-app on
 ```
 
+Optional arguments for `browse-germline-model` are:
+
+```
+--model STR
+      Path to a null model produced by the train-germline-model sub-command (in json format). 
+      This model is used to compute the expected SNV and singleton counts. 
+--trustworthy-noncoding-regions STR
+      Path to a set of trustworthy noncoding regions. 
+```
+
 Required arguments for `predict-germline-model` are:
 
 ```
+--model STR
+      Path to a null model produced by the train-germline-model sub-command (in json format). 
+      This model is used to compute the expected SNV and singleton counts. 
+--windows STR
+      Path to a set of windows on which to compute z-scores. 
 --zscores STR 
       A path to a file in which the genome-wide z-scores will be stored (.bed.gz)
 --work STR 
@@ -133,29 +148,6 @@ while optional arguments are:
 ```
 --number-of-jobs INT 
       Number of slurm jobs to use. 
-```
-
-By default the `browse-germline-model` and `predict-germline-model` subcommands use a pre-computed model
-corresponding to a pre-computed training set of trustworthy noncoding regions. 
-Optionally, the user may change this by specifying the `--model` argument: 
-
-```
---model STR
-      Path to a null model produced by the train-germline-model sub-command (in json format). 
-      This model is used to compute the expected SNV and singleton counts. 
-
-```
-
-By default the `browse-germline-model` and `predict-germline-model` subcommands use a pre-computed set of trustworthy noncoding regions.
-(A random subset of these regions comprise the default training set of trustworthy noncoding regions 
-used to train the default model.)
-Optionally, the user may change the set of trustworthy noncoding regions  
-by specifying the `--trustworthy-noncoding-regions` argument: 
-
-```
---trustworthy-noncoding-regions STR
-      Path to a set of trustworthy noncoding regions. 
-      Ideally, of these, the trustworthy noncoding regions the model was trained upon should be a random subset. 
 ```
 
 ## Input Data
@@ -176,14 +168,6 @@ The bash script that was used to generate these models is:
 
 ```
 train-germline-models-production-window-sizes.sh
-```
-
-Also in the `\dist` directory, one may find model predictions on a 
-set of trustworthy noncoding regions. 
-The bash script that was used to generate these results is: 
-
-```
-predict-germline-model-production-window-sizes.sh
 ```
 
 ## Sanity checks
