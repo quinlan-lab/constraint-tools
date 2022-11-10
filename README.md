@@ -115,7 +115,7 @@ Required arguments for `browse-germline-model` are:
       The port to serve the web-app on
 ```
 
-Optional arguments for `browse-germline-model` are:
+while optional arguments are:
 
 ```
 --model STR
