@@ -49,7 +49,7 @@ browse-germline-model
       Start a web app that visualizes observed and expected 
       SNV and singleton counts as a function of genomic coordinate
 predict-germline-model
-      Tile trustworthy part of noncoding genome and compute z-scores for each tile. 
+      Compute z-scores for each user-supplied window. 
 ```
 
 Required arguments for `train-germline-model` are:
