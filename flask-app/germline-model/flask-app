@@ -2,10 +2,10 @@
 
 # set -o xtrace 
 
-model="${CONSTRAINT_TOOLS}/$(read-config predictGermlineModel model)"
+model="${CONSTRAINT_TOOLS}/$(read-config browseGermlineModel model)"
 region=$(read-config browseGermlineModel region)
 window_stride=$(read-config browseGermlineModel windowStride)
-trustworthy_noncoding_regions="${CONSTRAINT_TOOLS}/$(read-config predictGermlineModel trustworthyNoncodingRegions)"
+trustworthy_noncoding_regions="${CONSTRAINT_TOOLS}/$(read-config browseGermlineModel trustworthyNoncodingRegions)"
 
 # https://devhints.io/bash#miscellaneous
 # put option-fetching before "set -o nounset" so that we can detect flags without arguments

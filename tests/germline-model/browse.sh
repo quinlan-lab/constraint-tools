@@ -14,8 +14,8 @@ port="5000"
 trustworthy_noncoding_regions="${CONSTRAINT_TOOLS}/dist/trustworthy-noncoding-regions-germline-grch38.bed.gz"
 
 "${CONSTRAINT_TOOLS}"/constraint-tools browse-germline-model \
-  --model "${model}" \
   --port ${port} \
+  --model "${model}" \
   --trustworthy-noncoding-regions "${trustworthy_noncoding_regions}"
 
   
