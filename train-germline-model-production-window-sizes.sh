@@ -4,7 +4,7 @@
 #SBATCH --partition=quinlan-shared-rw
 #SBATCH --output=dist/train-germline-model-production-window-sizes.log
 
-for window_size in "100" "500" "1000" "2000" "5000"; do
+for window_size in "100" "500" "1000" "2000" "5000" "10000" "50000"; do
   log_file="dist/model-germline-grch38.windowSize-${window_size}.log"
   job_name="train-germline-model-production.windowSize-${window_size}"
   sbatch \
