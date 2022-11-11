@@ -1,7 +1,11 @@
 #!/bin/bash
 #SBATCH --time=5:00:00
-#SBATCH --account=quinlan-rw
-#SBATCH --partition=quinlan-shared-rw
+#SBATCH --account=redwood-gpu
+#SBATCH --partition=redwood-gpu
+
+# previously used: 
+# --account=quinlan-rw
+# --partition=quinlan-shared-rw
 
 while [[ "$1" =~ ^- ]]; do
   case $1 in

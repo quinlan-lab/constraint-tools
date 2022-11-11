@@ -1,8 +1,12 @@
 #!/bin/bash
 #SBATCH --time=40:00:00
-#SBATCH --account=quinlan-rw
-#SBATCH --partition=quinlan-shared-rw
+#SBATCH --account=redwood-gpu
+#SBATCH --partition=redwood-gpu
 #SBATCH --output=/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/genome-wide-predictions/predict-germline-model-production-window-sizes.log
+
+# previously used: 
+# --account=quinlan-rw
+# --partition=quinlan-shared-rw
 
 set -o errexit
 set -o pipefail
