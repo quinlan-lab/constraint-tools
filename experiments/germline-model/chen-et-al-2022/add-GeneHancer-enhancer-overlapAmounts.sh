@@ -37,11 +37,11 @@ get-GeneHancer-enhancers () {
 # get-chen-windows | head 
 # min_enhancer_size=0
 # max_enhancer_size=750
-# get-GeneHancer-enhancers | wc -l
+# get-GeneHancer-enhancers | head
 # exit 1 
 
 header-line () {
-  echo -e "chromosome\tchen_start\tchen_end\tchen_zscore\tmchale_start\tmchale_end\tmchale_position\tmchale_N_bar\tmchale_N_observed\tmchale_K_bar\tmchale_K_observed\tmchale_M\tchen_mchale_overlap_bps\tenhancer_chromosome\tenhancer_start\tenhancer_end\tchen_enhancer_overlap_bps"
+  echo -e "chromosome\tstart\tend\tposition\tN_bar\tN_observed\tK_bar\tK_observed\tM\tchen_zscore\tenhancer_chromosome\tenhancer_start\tenhancer_end\tchen_enhancer_overlap_bps"
 }
 
 add-GeneHancer-enhancer-overlapAmounts () {
@@ -57,8 +57,8 @@ for enhancer_size_bounds in "0,750" "750,100000" "0,100000"; do
   (
     header-line 
     add-GeneHancer-enhancer-overlapAmounts
-  ) > ${chen_mchale_windows_with_GeneHancer_enhancer_overlapAmounts}  
-  # | head | column -t -s $'\t'
+  ) > ${chen_mchale_windows_with_GeneHancer_enhancer_overlapAmounts}   
+  # | head | column -t -s $'\t' 
   info "Wrote GeneHancer-enhancer overlap amounts to" ${chen_mchale_windows_with_GeneHancer_enhancer_overlapAmounts}  
 done
 
