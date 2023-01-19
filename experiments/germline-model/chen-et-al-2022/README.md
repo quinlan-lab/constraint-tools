@@ -2,11 +2,11 @@
 ```
 ${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale.bed
 ```
-2. The amount of overlap of chen windows with things such as enhancers and exons: 
+2. The amount of overlap of Chen windows with things such as enhancers and exons: 
 ```
 ${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale.overlapAmounts.bed
 ```
-3. Classify chen windows as overlapping enhancers, exons: 
+3. Classify Chen windows as overlapping enhancers, exons: 
 ```
 ${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale-enhancer-exon.bed
 ```
@@ -14,7 +14,7 @@ ${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-
 ```
 ${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale-enhancer-exon-replicationTiming.bed
 ```
-5. Label each Chen window with their z-score quantiles: 
+5. Label Chen windows with their z-score quantiles: 
 ```
 ${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale-quantiles.bed
 ```
