@@ -13,9 +13,9 @@ PATH="${CONSTRAINT_TOOLS}/experiments/germline-model/chen-et-al-2022:$PATH"
 # `printenv | grep -w PYTHONPATH` returns zero output
 export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities"
                                               
-chen_mchale_windows="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale-quantiles.bed"
+chen_mchale_windows="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale.bed"
 clinvar_snvs="${CONSTRAINT_TOOLS_DATA}/clinvar-noncoding-with-negative-controls/Clinvar_nc_snv_pathogenic.hg38.bed"
-chen_mchale_windows_with_clinvar_snv_counts="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale-quantiles-clinvar.bed"
+chen_mchale_windows_with_clinvar_snv_counts="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale-clinvar.bed"
 
 header-line () {
   set +o errexit
