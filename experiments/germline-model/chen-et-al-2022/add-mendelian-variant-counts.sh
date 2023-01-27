@@ -13,9 +13,9 @@ PATH="${CONSTRAINT_TOOLS}/experiments/germline-model/chen-et-al-2022:$PATH"
 # `printenv | grep -w PYTHONPATH` returns zero output
 export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities"
                                               
-chen_mchale_windows="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale.bed"
+chen_mchale_windows="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale-enhancer-exon.bed"
 mendelian_variants="${CONSTRAINT_TOOLS_DATA}/noncoding-variants-associated-with-Mendelian-traits/noncoding-mendelian-variants.hg38.txt"
-chen_mchale_windows_with_mendelian_variant_counts="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale-mendelian-variants.bed"
+chen_mchale_windows_with_mendelian_variant_counts="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale-enhancer-exon-mendelian-variants.bed"
 
 header-line () {
   set +o errexit
@@ -48,5 +48,24 @@ add-mendelian-variant-counts () {
 ) > ${chen_mchale_windows_with_mendelian_variant_counts}  
 
 info "Wrote windows with mendelian variant counts to:" ${chen_mchale_windows_with_mendelian_variant_counts}  
+
+# ################################ SPOT CHECKING #######################################
+
+get-mendelian-variants-full-record () {
+  cat ${mendelian_variants} \
+    | tail -n +2 \
+    | python ${CONSTRAINT_TOOLS}/experiments/germline-model/chen-et-al-2022/convert_to_bed.py \
+    | sort --version-sort -k1,1 -k2,2n
+}
+
+show-mendelian-variants-in-window () {
+  window=$1
+  info "Mendelian variants in window:" "${window}"
+  bedtools intersect \
+      -a <(get-mendelian-variants-full-record) \
+      -b <(echo -e "${window}") 
+}
+
+show-mendelian-variants-in-window "chr11\t5227000\t5228000"
 
 
