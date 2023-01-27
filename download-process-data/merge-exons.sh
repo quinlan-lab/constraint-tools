@@ -25,5 +25,5 @@ merge-exons () {
 
 merge-exons > ${merged_exons}
 # | head 
-
+ 
 info "Merged exons and wrote to:" ${merged_exons}
