@@ -13,9 +13,9 @@ PATH="${CONSTRAINT_TOOLS}/experiments/germline-model/chen-et-al-2022:$PATH"
 # `printenv | grep -w PYTHONPATH` returns zero output
 export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities"
                                               
-chen_mchale_windows="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale.bed"
+chen_mchale_windows="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale-enhancer-exon.bed"
 clinvar_snvs="${CONSTRAINT_TOOLS_DATA}/clinvar-noncoding-with-negative-controls/Clinvar_nc_snv_pathogenic.hg38.bed"
-chen_mchale_windows_with_clinvar_snv_counts="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale-clinvar.bed"
+chen_mchale_windows_with_clinvar_snv_counts="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale-enhancer-exon-clinvar.bed"
 
 header-line () {
   set +o errexit
@@ -47,5 +47,23 @@ add-clinvar-snv-counts () {
 ) > ${chen_mchale_windows_with_clinvar_snv_counts}  
 
 info "Wrote windows with clinvar snv counts to:" ${chen_mchale_windows_with_clinvar_snv_counts}  
+
+################################ SPOT CHECKING #######################################
+
+get-clinvar-snvs-full-records () {
+  cat ${clinvar_snvs} \
+    | tail -n +2 \
+    | sort --version-sort -k1,1 -k2,2n
+}
+
+show-clinvar-variants-in-window () {
+  window=$1
+  info "clinvar SNVs in window:" "${window}"
+  bedtools intersect \
+      -a <(get-clinvar-snvs-full-records) \
+      -b <(echo -e "${window}") 
+}
+
+show-clinvar-variants-in-window "chr11\t5227000\t5228000"
 
 
