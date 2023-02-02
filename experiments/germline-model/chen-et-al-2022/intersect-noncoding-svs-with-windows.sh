@@ -17,9 +17,11 @@ export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities"
 # https://quinlangroup.slack.com/archives/D9Q0R5VNW/p1675111276956879?thread_ts=1674171985.879549&cid=D9Q0R5VNW
 svs="/scratch/ucgd/lustre-work/quinlan/u0055382/SVAFotate/sources/SVAFotate_core_SV_popAFs.GRCh38.bed.gz"
 
+merged_exons="${CONSTRAINT_TOOLS_DATA}/genes/grch38/exons.merged.bed"
+
 windows="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale.bed"
 
-svs_windows="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/svs-windows.bed"
+noncoding_svs_windows="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/noncoding-svs-chen-mchale.bed"
 
 get-svs () {
   zcat ${svs} \
@@ -46,9 +48,21 @@ header-line () {
   echo -e "$(get-svs-head)\t$(get-windows-head)"
 }
 
-intersect-svs-with-windows () {
+get-merged-exons () {
+  cat ${merged_exons} | uniq
+}
+
+get-noncoding-svs-tail () { 
   bedtools intersect \
     -a <(get-svs-tail) \
+    -b <(get-merged-exons) \
+    -v \
+    -wa 
+}
+
+intersect-noncoding-svs-with-windows () {
+  bedtools intersect \
+    -a <(get-noncoding-svs-tail) \
     -b <(get-windows-tail) \
     -wa \
     -wb 
@@ -56,9 +70,9 @@ intersect-svs-with-windows () {
 
 (
   header-line 
-  intersect-svs-with-windows
-) > ${svs_windows}  
+  intersect-noncoding-svs-with-windows
+) > ${noncoding_svs_windows}  
 
-info "Wrote SVs with intersecting windows to:" ${svs_windows}  
+info "Wrote noncoding SVs with intersecting windows to:" ${noncoding_svs_windows}  
 
 
