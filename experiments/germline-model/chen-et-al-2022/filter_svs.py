@@ -33,7 +33,7 @@ def print_tail():
     if int(sv_length) < 100: continue 
     if sv_type != 'DEL': continue 
     if source != 'gnomAD': continue 
-    alt_allele_count = number_het_individuals  
+    alt_allele_count = 1*int(number_het_individuals) + 2*int(number_homalt_individuals)
     number_individuals_who_were_genotyped = (
       int(number_homref_individuals) + 
       int(number_het_individuals) + 
@@ -46,7 +46,7 @@ def print_tail():
       end, 
       sv_length, 
       sv_id, 
-      alt_allele_count, 
+      str(alt_allele_count), 
       str(number_individuals_who_were_genotyped)
     ])
     print(line)
