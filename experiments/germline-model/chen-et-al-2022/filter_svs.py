@@ -14,6 +14,9 @@ def print_head():
   print(header)
 
 def print_tail(): 
+  with open('/scratch/ucgd/lustre-work/quinlan/u0055382/SV_constraint/SV_data/CCDG_DEL_singleton_ids.txt') as fh: 
+    CCDG_singletons = set(line.strip() for line in fh)
+
   for line in sys.stdin: 
     fields = line.strip('\n').split('\t')
     (
@@ -32,14 +35,20 @@ def print_tail():
     chromosome = f'chr{chromosome}'
     if int(sv_length) < 100: continue 
     if sv_type != 'DEL': continue 
-    if source != 'gnomAD': continue 
-    alt_allele_count = 1*int(number_het_individuals) + 2*int(number_homalt_individuals)
-    number_individuals_who_were_genotyped = (
-      int(number_homref_individuals) + 
-      int(number_het_individuals) + 
-      int(number_homalt_individuals)
-    )
-    if number_individuals_who_were_genotyped < 10000: continue 
+    if source != sys.argv[1]: continue 
+
+    if source == 'CCDG':
+      alt_allele_count = 1 if sv_id in CCDG_singletons else '>1'
+      number_individuals_who_were_genotyped = '.'
+    else:
+      alt_allele_count = 1*int(number_het_individuals) + 2*int(number_homalt_individuals)
+      number_individuals_who_were_genotyped = (
+        int(number_homref_individuals) + 
+        int(number_het_individuals) + 
+        int(number_homalt_individuals)
+      )
+      if number_individuals_who_were_genotyped < int(sys.argv[2]): continue 
+
     line = '\t'.join([
       chromosome, 
       start, 
