@@ -20,8 +20,11 @@ def get_noncoding_windows():
     return df
 
 import sys 
+import errno
 
 try: 
-  get_noncoding_windows().to_csv(sys.stdout, sep='\t', header=False, index=False)
-except BrokenPipeError: 
-  pass
+    get_noncoding_windows().to_csv(sys.stdout, sep='\t', header=False, index=False)
+except IOError as e:
+    if e.errno == errno.EPIPE: pass
+    else: raise
+
