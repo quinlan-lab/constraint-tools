@@ -29,6 +29,8 @@ bedtools complement -i ${exons} -g ${chromosome_sizes} \
   | bedtools intersect -a - -b ${covered_sites} \
   | sort-compress-index-bed --name ${regions}
 
+info "Wrote trustworthy noncoding regions to:" ${regions}
+
 info "Split trustworthy non-coding regions into train and test subsets..."
 
 # https://en.wikipedia.org/wiki/Process_substitution
