@@ -36,7 +36,7 @@ get-svs-tail () {
 }
 
 get-windows () {
-  local windows="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale.bed"
+  local windows="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale-enhancer-exon.bed"
   cat ${windows}
 }
 
@@ -82,7 +82,7 @@ intersect-noncoding-svs-with-windows () {
 intersect-noncoding-svs-with-windows-with-header () {
   local source=$1
   local number_individuals_who_were_genotyped_min=$2
-  noncoding_svs_windows="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/${source}-noncoding-svs-chen-mchale.bed"
+  noncoding_svs_windows="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/${source}-noncoding-svs-chen-mchale-enhancer-exon.bed"
   (
     header-line ${source} ${number_individuals_who_were_genotyped_min}
     intersect-noncoding-svs-with-windows ${source} ${number_individuals_who_were_genotyped_min}
