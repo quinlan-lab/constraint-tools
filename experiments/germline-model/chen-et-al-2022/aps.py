@@ -2,13 +2,17 @@ import pandas as pd
 import numpy as np 
 from scipy.signal import savgol_filter
 import warnings 
+from collections import defaultdict
+import pickle
+import sys 
+from tqdm import tqdm 
 
 parameters_to_estimate_singleton_probability_under_null = { 
     'gnomAD': dict(
       number_length_quantiles=200, 
       savgol_window_length=51, 
       degree=3,
-      array_of_quantiles=[0.000, 0.02, 0.05, 0.10, 0.25, 0.5, 0.75, 0.90, 0.95, 0.98, 0.99, 1.00]
+      array_of_quantiles=[0.000, 0.02, 0.05, 0.10, 0.25, 0.5, 0.75, 0.90, 0.95, 0.98, 1.00]
     ),
     'CCDG': dict(
       number_length_quantiles=100, 
@@ -27,9 +31,9 @@ parameters_to_estimate_singleton_probability_under_null = {
 def get_noncoding_svs_windows(source):
     CONSTRAINT_TOOLS_DATA = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools'
     # created using ${CONSTRAINT_TOOLS}/experiments/germline-model/chen-et-al-2022/intersect-noncoding-svs-with-windows.sh : 
-    filename = f'{CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/{source}-noncoding-svs-chen-mchale.bed'
+    filename = f'{CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/{source}-noncoding-svs-chen-mchale-enhancer-exon.bed'
     df = pd.read_csv(filename, sep='\t')
-    df['negative chen zscore'] = -df['chen_zscore']
+    df['negative chen zscore'] = -df['chen zscore']
     
     df['K_bar'] = pd.to_numeric(df['K_bar'], errors='coerce') # convert '.' to 'NaN'
 #     df = df.dropna(subset=['K_bar']) # drop windows for which K_bar == NaN
@@ -128,13 +132,67 @@ def aggregate_over_score_quantiles(df, score, operator):
     aggregated = groups.agg({
         'sv is singleton': ['sum', 'count'],
         'mean(isSingleton) under null': ['sum', 'count'],
-        'variance(isSingleton) under null': ['sum', 'count']
+        'variance(isSingleton) under null': ['sum', 'count'],
+        f'{operator} {score}': ['mean', 'std']
     })
     aggregated = aggregated.reset_index()
     aggregated['observed F'] = aggregated[('sv is singleton', 'sum')]/aggregated[('sv is singleton', 'count')]
     aggregated['mean(F) under null'] = aggregated[('mean(isSingleton) under null', 'sum')]/aggregated[('mean(isSingleton) under null', 'count')]
     aggregated['variance(F) under null'] = aggregated[('variance(isSingleton) under null', 'sum')]/(aggregated[('variance(isSingleton) under null', 'count')]**2)
-    aggregated['Adjusted Proportion of Singletons'] = aggregated['observed F'] - aggregated['mean(F) under null']
+    aggregated['observed F, relative to null'] = aggregated['observed F']/aggregated['mean(F) under null']
     aggregated['zscore(F)'] = (aggregated['observed F'] - aggregated['mean(F) under null'])/np.sqrt(aggregated['variance(F) under null'])
     return aggregated
 
+def resample_aps(source, score, operator): 
+  svs = get_svs(source, do_resample=True)
+  params = parameters_to_estimate_singleton_probability_under_null[source]  
+  svs = label_svs_with_length_quantiles(svs, params)
+  aggregated_over_length_quantiles = aggregate_over_length_quantiles(svs, params)
+  svs = label_svs_with_null_statistics(svs, aggregated_over_length_quantiles)
+  svs = label_svs_with_score_quantiles(svs, score, operator, params)
+  aggregated_over_score_quantiles = aggregate_over_score_quantiles(svs, score, operator)
+  aps = aggregated_over_score_quantiles[[
+    f'({operator} {score}) quantile',
+    f'{operator} {score}',
+    'observed F, relative to null'
+  ]]
+  aps.columns = [' '.join(col[::-1]).strip() for col in aps.columns.values]
+  return aps
+
+def ci_lower(xs):
+  xs = np.array(xs)
+  return np.percentile(xs, 2.5) 
+
+def ci_upper(xs): 
+  xs = np.array(xs)
+  return np.percentile(xs, 97.5) 
+
+def bootstrap_aps(source, score, number_bootstrap_samples, operator='min'): 
+  aps_samples = []
+  for i in tqdm(range(number_bootstrap_samples), desc=f'{source}; {score}'):
+    aps_samples.append(resample_aps(source, score, operator))
+  aps_samples = pd.concat(aps_samples, axis=0, ignore_index=True)
+
+  groups = aps_samples.groupby([f'({operator} {score}) quantile'])
+  aggregated = groups.agg({
+      'observed F, relative to null': [
+        'mean', 
+        ('number of bootstrap samples', 'count'),
+        ('ci_lower', ci_lower), 
+        ('ci_upper', ci_upper), 
+      ],
+  })
+  aggregated = aggregated.reset_index()
+  return aggregated
+
+def save_aps(number_bootstrap_samples): 
+  aps = defaultdict(lambda: {})
+  for source in ['gnomAD', 'CCDG', '1000G']: 
+    for score in ['N_bar', 'negative K_bar', 'negative chen zscore']: 
+      aps[source][score] = bootstrap_aps(source, score, number_bootstrap_samples)
+  aps = dict(aps)
+  with open('aps.pkl', 'wb') as handle:
+      pickle.dump(aps, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+if __name__ == '__main__':
+  save_aps(number_bootstrap_samples=int(sys.argv[1]))
