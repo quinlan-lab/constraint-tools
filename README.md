@@ -133,6 +133,7 @@ Required arguments for `predict-germline-model` are:
       This model is used to compute the expected SNV and singleton counts. 
 --windows STR
       Path to a set of windows on which to compute z-scores. 
+      Windows on X and Y chromosomes are not allowed. 
 --zscores STR 
       A path to a file in which the genome-wide z-scores will be stored (.bed.gz)
 --work STR 
@@ -149,6 +150,8 @@ while optional arguments are:
 --number-of-jobs INT 
       Number of slurm jobs to use. 
 ```
+
+Process substitution in the `predict-germline-model` CLI is not supported. 
 
 ## Input Data
 
