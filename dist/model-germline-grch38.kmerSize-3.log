@@ -1,0 +1,31 @@
+[0;36mTool:  [0mtrain-germline-model
+[0;36mTool arguments:  [0m--genome /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38/hg38.analysisSet.fa.gz --build hg38 --mutations /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/gnomad_v3.sorted.tsv.gz --number-chromosomes-min 130000 --kmer-size 3 --model /scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/model-germline-grch38.kmerSize-3.json --work /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-train-germline-model-production.kmerSize-3 --progress-bars disk --window-size 1000 --trustworthy-noncoding-regions /scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/trustworthy-noncoding-regions-germline-grch38-train.bed.gz
+[0;36mTraining on trustworthy noncoding regions:  [0m/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/trustworthy-noncoding-regions-germline-grch38-train.bed.gz
+[0;36mSize of window used to compute singleton number:  [0m1000
+[0;36mSending progress bars to: [0mdisk
+[0;36mFiltering trustworthy noncoding train regions...[0m
+[0;36m	Remove trustworthy noncoding train regions less than: [0m1000bp
+[0;36m	Remove trustworthy noncoding train regions greater than: [0m100000bp
+[0;36m	Remove trustworthy noncoding train regions on chromosomes X and Y[0m
+[0;36m	Filtered trustworthy noncoding train regions: [0m/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-train-germline-model-production.kmerSize-3/trustworthy-noncoding-regions-train.filtered.bed
+[0;36mNumber of slurm jobs (tasks):  [0m500
+[0;36mCompute number of (filtered) trustworthy noncoding regions per job (task):[0m
+[0;36m	Number of intervals: [0m518371
+[0;36m	Number of intervals per job (task):  [0m1036
+[0;36m	Number of intervals not used: [0m371
+[0;36mSubmitting slurm job array with parent-job name: [0mbatch-regions.window-size-1000
+[0;36mSlurm log directory: [0m/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-train-germline-model-production.kmerSize-3/slurm_logs
+[0;36mFor each of 500 jobs, aggregate kmer and singleton counts over the regions assigned to each job...[0m
+Submitted batch job 5864691
+[0;36mNumber of jobs for which counts were obtained:  [0m500/500
+[0;36mCombining counts across jobs, and estimating probabilities...[0m
+[36mAggregating kmer and singleton counts over jobs using count files:[0m
+[90m/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-train-germline-model-production.kmerSize-3/tmp.zevLFsq1Lo/counts.*.json[0m
+[36mLogging progress of job aggregation to:[0m
+[90m/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-train-germline-model-production.kmerSize-3/tmp.zevLFsq1Lo/progress-bar.log[0m
+[36mEstimating probability of observing ALT_state, e.g. {C, T}, given kmer, e.g., AAA, ...[0m
+[36mEstimating the probability of observing k singletons, given that a window contains m SNVs...[0m
+[36mWriting model to:[0m
+[90m/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/model-germline-grch38.kmerSize-3.json[0m
+[0;36mDeleting tmp directory:  [0m/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-train-germline-model-production.kmerSize-3/tmp.zevLFsq1Lo
+[0;36mTraining complete.[0m
