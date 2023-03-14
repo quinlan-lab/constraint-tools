@@ -8,27 +8,35 @@
 # --account=quinlan-rw
 # --partition=quinlan-shared-rw
 
+# https://devhints.io/bash#miscellaneous
+# put option-fetching before "set -o nounset" so that we can detect flags without arguments
+while [[ "$1" =~ ^- ]]; do 
+  case $1 in
+    --kmer-size ) shift; [[ ! $1 =~ ^- ]] && kmer_size=$1;;
+    *) error "$0: " "$1 is an invalid flag"; exit 1;;
+  esac 
+  shift
+done
+
 set -o errexit
 set -o pipefail
 set -o nounset
 # set -o noclobber
 # set -o xtrace
 
-info "Computing z-scores on Chen windows" 
+info "Computing z-scores on Chen windows using kmers of size:" "${kmer_size}bp"
 
 PATH=${CONSTRAINT_TOOLS}:$PATH 
 
-window_size="1000"
-info "Model window-size:" "${window_size}bp"
-model="${CONSTRAINT_TOOLS}/dist/model-germline-grch38.windowSize-${window_size}.json"
+model="${CONSTRAINT_TOOLS}/dist/model-germline-grch38.kmerSize-${kmer_size}.json"
 
 genome_wide_predictions_directory="${CONSTRAINT_TOOLS_DATA}/genome-wide-predictions"
-zscores="${genome_wide_predictions_directory}/predict-germline-grch38.chen-windows.bed.gz"
+zscores="${genome_wide_predictions_directory}/predict-germline-grch38.chen-windows.kmerSize-${kmer_size}.bed.gz"
 
 progress_bars="disk" 
 # progress_bars="stdout" 
 
-work_directory="work-predict-germline-model-production.chen-windows"
+work_directory="work-predict-germline-model-production.chen-windows.kmerSize-${kmer_size}"
 work_directory_should_be_clean="true"
 work="${genome_wide_predictions_directory}/${work_directory}" # path to directory to store intermediate work and logs
 if [[ ${work_directory_should_be_clean} == "true" && -d ${work} ]]; then 
