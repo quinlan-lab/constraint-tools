@@ -13,7 +13,7 @@ PATH="${CONSTRAINT_TOOLS}/experiments/germline-model/chen-et-al-2022:$PATH"
 # `printenv | grep -w PYTHONPATH` returns zero output
 export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities"
 
-chen_mchale_windows="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale.bed"
+chen_mchale_windows="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale.multiple-kmers.bed"
 
 # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5467550/
 # data courtesy: Tom Nicholas 
@@ -66,7 +66,7 @@ get-uncovered-regions () {
 # exit 1 
 
 header-line () {
-  echo -e "chromosome\tstart\tend\tposition\tN_bar\tN_observed\tK_bar\tK_observed\tM\tchen_zscore\tfeature\tfeature_chromosome\tfeature_start\tfeature_end\twindow_feature_overlap_bps"
+  python experiments/germline-model/chen-et-al-2022/augment_header_line.py  
 }
 
 add-overlapAmounts () {
@@ -87,11 +87,11 @@ add-overlapAmounts () {
       -wao 
 }
 
-chen_mchale_windows_with_overlapAmounts="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale.overlapAmounts.bed"
+chen_mchale_windows_with_overlapAmounts="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale.multiple-kmers.overlapAmounts.bed"
 (
   header-line 
   add-overlapAmounts
-) > ${chen_mchale_windows_with_overlapAmounts}
+) > ${chen_mchale_windows_with_overlapAmounts} 
 # | head -50 | column -t -s $'\t' 
 
 info "Wrote overlap amounts to" ${chen_mchale_windows_with_overlapAmounts}  
