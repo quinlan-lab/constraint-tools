@@ -14,7 +14,8 @@ export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities:${CONSTRAINT_TOOLS}/predict-con
 # `printenv | grep -w PATH` returns non-zero output 
 PATH="${CONSTRAINT_TOOLS}/bin:$PATH" 
 
-model="/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/model-germline-grch38.json" 
+# model="/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/model-germline-grch38.json" 
+model="/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/model-germline-grch38.kmerSize-7.json"
 region="chr20:63,442,000-63,446,000"
 window_stride="25"
 trustworthy_noncoding_regions="/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/trustworthy-noncoding-regions-germline-grch38.bed.gz"

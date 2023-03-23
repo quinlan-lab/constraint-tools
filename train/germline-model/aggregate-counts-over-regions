@@ -19,7 +19,7 @@ from colorize import (
 )
 import color_traceback 
 from snvs import fetch_SNVs, reduce_SNVs
-from pack_unpack import bed_to_sam_string
+from pack_unpack import bed_to_sam_string, unpack
 from timer import timer 
 from windows import create_windows 
 from get_M_K import get_M_K_trainingTime
@@ -152,14 +152,23 @@ def test_compute_kmer_total_counts(args):
   print('')
   print_string_as_info('**** testing compute_kmer_total_counts(...) ***** ')
   print('')
+
   region = 'chr1:15320-15340'
+  region_with_flanks = 'chr1:15319-15341'
+
+  with pysam.FastaFile(args.genome) as genome: 
+    sequence_with_flanks = genome.fetch(*unpack(region_with_flanks))    
+    print_string_as_info(f'sequence for region {region_with_flanks}')
+    print_string_as_info_dim(sequence_with_flanks)
+
   with pysam.FastaFile(args.genome) as genome: 
     kmer_counts = initialize_kmer_counts_germline(args)
-    expected_kmer_total_counts = [('AAA', 2), ('AAG', 2), ('AGA', 1), ('AGC', 3), ('AGG', 1), ('CAA', 2), ('CAG', 1), ('GAG', 1), ('GCA', 3), ('GCG', 1), ('GGC', 1)]
+    expected_kmer_total_counts = [('AAA', 2), ('AAG', 2), ('AGA', 1), ('AGC', 3), ('AGG', 1), ('CAA', 2), ('CAG', 2), ('CGC', 1), ('GAG', 1), ('GCA', 3), ('GCG', 1), ('GGC', 1)]
     kmer_counts = compute_kmer_total_counts(region, genome, kmer_counts, args)
     observed_kmer_total_counts = [(kmer, data['count']) for kmer, data in kmer_counts.items() if data['count'] > 0]
     observed_number_kmers = sum([count for _, count in observed_kmer_total_counts])
-    assert observed_number_kmers == 20 - (args.kmer_size - 1) # 20 is the hard-coded sequence length
+    # assert observed_number_kmers == 20 - (args.kmer_size - 1) # 20 is the hard-coded sequence length
+    assert observed_number_kmers == 20 # 20 is the hard-coded sequence length
     assert observed_kmer_total_counts == expected_kmer_total_counts
     print_string_as_info('... compute_kmer_total_counts(...) passed test')
 

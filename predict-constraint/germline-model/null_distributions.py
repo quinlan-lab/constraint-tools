@@ -68,7 +68,7 @@ def test():
     region = window['region']
   print_json(fetch_distribution_N(region, model))
 
-  print_json(fetch_distribution_K(M=20, model=model)) 
+  print_json(fetch_distribution_K(M=200, model=model)) 
   
 if __name__ == '__main__':
   test()

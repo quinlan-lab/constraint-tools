@@ -21,8 +21,8 @@ PATH="${CONSTRAINT_TOOLS}/train/germline-model:$PATH"
 # `printenv | grep -w PYTHONPATH` returns zero output
 export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities"
 
-line_number_of_first_region="1"
-line_number_of_last_region="7"
+line_number_of_first_region="8"
+line_number_of_last_region="14"
 trustworthy_noncoding_regions_for_job="${tmpdir}/trustworthy-noncoding-regions.${line_number_of_first_region}-${line_number_of_last_region}.bed"
 counts_for_job="${tmpdir}/counts.${line_number_of_first_region}-${line_number_of_last_region}.json"
 log_for_job="${tmpdir}/progress-bar.${line_number_of_first_region}-${line_number_of_last_region}.log"

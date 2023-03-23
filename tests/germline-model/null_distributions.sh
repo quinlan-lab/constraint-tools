@@ -14,8 +14,8 @@ export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities:${CONSTRAINT_TOOLS}/predict-con
 # `printenv | grep -w PATH` returns non-zero output 
 PATH="${CONSTRAINT_TOOLS}/bin:$PATH" 
 
-model="/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/model-germline-grch38.json" 
-region="chr1:1,000,000-1,000,200"
+model="/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/model-germline-grch38.kmerSize-7.json" 
+region="chr1:1,000,000-1,002,000"
 window_stride="25"
 
 python ${CONSTRAINT_TOOLS}/predict-constraint/germline-model/null_distributions.py \
