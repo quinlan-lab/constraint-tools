@@ -76,7 +76,9 @@ def fetch_kmers(region, genome, kmer_size, log=True):
     window_stride = 1, 
     region = region, 
     genome = genome, 
-    region_contains_windows = True
+    # c.f. fetch_SNVs
+    # region_contains_windows = True
+    region_contains_windows = False
   )
   number_of_sites = 0 
   number_of_sites_containing_unspecified_bases = 0
@@ -92,9 +94,10 @@ def fetch_kmers(region, genome, kmer_size, log=True):
     yield kmer 
     
   if log: 
+    print_string_as_info_dim(f'Interrogated {number_of_sites}/{len(sequence)} sites in region {region}')
     print_string_as_info_dim(
       f'Number of sites in {region} containing unspecified bases: '
-      f'{number_of_sites_containing_unspecified_bases}/{number_of_sites}'
+      f'{number_of_sites_containing_unspecified_bases}/{len(sequence)}'
     )
 
 def compute_kmers(kmer_size): 
@@ -187,10 +190,16 @@ def test_fetch_kmers():
 
   genome_filename = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38/hg38.analysisSet.fa.gz'
   region = 'chr1:15300-15310'
-  expected_kmers = ['GGCAG', 'GCAGC', 'CAGCT', 'AGCTT', 'GCTTG', 'CTTGC']
+  region_with_flanks = 'chr1:15298-15312'
+  kmer_size = 5
+  expected_kmers = ['GAGGC', 'AGGCA', 'GGCAG', 'GCAGC', 'CAGCT', 'AGCTT', 'GCTTG', 'CTTGC', 'TTGCC', 'TGCCT'] 
   with pysam.FastaFile(genome_filename) as genome: 
+    sequence_with_flanks = genome.fetch(*unpack(region_with_flanks))    
+    print_string_as_info(f'sequence for region {region_with_flanks}')
+    print_string_as_info_dim(sequence_with_flanks)
+
     number_fetched_kmers = 0
-    for i, kmer in enumerate(fetch_kmers(region, genome, kmer_size=5)): 
+    for i, kmer in enumerate(fetch_kmers(region, genome, kmer_size=kmer_size)): 
       number_fetched_kmers += 1
       print_string_as_info_dim(f'kmer: {kmer}')
       try: 
@@ -201,6 +210,7 @@ def test_fetch_kmers():
       assert number_fetched_kmers == len(expected_kmers)
     except AssertionError: 
       print_string_as_error('number fetched kmers differs from expected number of kmers!')
+  print_string_as_info_dim('Tests passed')
 
 def test_fetch_kmer_from_genome(): 
   print('')
@@ -221,6 +231,7 @@ def test_fetch_kmer_from_genome():
       assert observed_kmers == expected_kmers
     except AssertionError:
       print_string_as_error('nucleotides are unexpected!')
+  print_string_as_info_dim('Tests passed')
 
 if __name__ == '__main__': 
   # print(compute_kmers(3))
