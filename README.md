@@ -45,14 +45,19 @@ Valid values for `SUB_COMMAND` are:
 train-germline-model 
       Estimate kmer-dependent SNV probabilities and singleton-count probabilities 
       (see the model defined in the "define-model" folder)
+train-germline-model-Nonly
+      Estimate kmer-dependent SNV probabilities only  
+      (see the model defined in the "define-model" folder)
 browse-germline-model
       Start a web app that visualizes observed and expected 
       SNV and singleton counts as a function of genomic coordinate
 predict-germline-model
-      Compute z-scores for each user-supplied window. 
+      Compute z-scores (Nbar and Kbar) for each user-supplied window. 
+predict-germline-model-Nonly
+      Compute z-scores (Nbar only) for each user-supplied window. 
 ```
 
-Required arguments for `train-germline-model` are:
+Required arguments for `train-germline-model` and `train-germline-model-Nonly` are:
 
 ```
 --genome STR
@@ -92,18 +97,39 @@ By default the `train-germline-model` subcommand uses a pre-computed training se
       This is also the size of the window in "test" regions.
 ```
 
-Other optional arguments are: 
+Optional arguments for `train-germline-model` are: 
 
 ```
---number-of-jobs INT 
-      Number of slurm jobs to use during training. 
 --max-trustworthy-noncoding-region-length INT 
       Trustworthy noncoding regions longer than this number are filtered out 
       from the set of regions that are ultimately used to train the model. 
 ```
 
+The `train-germline-model-Nonly` subcommand requires: 
+
+```
+--train-regions STR 
+      Bed-format file containing a list of genomic intervals on which the model is to be trained.
+```
+
+Optional arguments for `train-germline-model-Nonly` are: 
+
+```
+--max-train-region-length INT 
+      Regions longer than this number are filtered out 
+      from the set of regions that are ultimately used to train the model. 
+```
+
+Optional arguments common to `train-germline-model` and `train-germline-model-Nonly` are: 
+
+```
+--number-of-jobs INT 
+      Number of slurm jobs to use during training. 
+```
+
 Running `train-germline-model` produces a specification of the sequence-dependent and allele-frequency-aware null 
-model in json format, viewable using, e.g., 
+model in json format; running `train-germline-model-Nonly` produces a specification of the 
+sequence-dependent null model in json format. Both are viewable using, e.g., 
 ```
 ${CONSTRAINT_TOOLS}/bin/jq . <model> 
 ```
@@ -125,12 +151,12 @@ while optional arguments are:
       Path to a set of trustworthy noncoding regions. 
 ```
 
-Required arguments for `predict-germline-model` are:
+Required arguments for `predict-germline-model` and `predict-germline-model-Nonly` are:
 
 ```
 --model STR
-      Path to a null model produced by the train-germline-model sub-command (in json format). 
-      This model is used to compute the expected SNV and singleton counts. 
+      Path to a null model produced by the `train-germline-model` or `train-germline-model-Nonly` sub-commands, respectively, (in json format). 
+      This model is used to compute the expected SNV and singleton counts, or just the expected SNV counts, respectively. 
 --windows STR
       Path to a set of windows on which to compute z-scores. 
       Windows on X and Y chromosomes are not allowed. 
