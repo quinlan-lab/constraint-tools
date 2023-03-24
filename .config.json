@@ -5,6 +5,10 @@
     "numberOfJobs": "500",
     "maxTrustworthyNoncodingRegionTrainLength": "100000"
   },
+  "trainGermlineModelNonly": {
+    "numberOfJobs": "500",
+    "maxRegionTrainLength": "100000"
+  },
   "browseGermlineModel": {
     "region": "chr20:63,442,000-63,446,000", 
     "windowStride": "40",

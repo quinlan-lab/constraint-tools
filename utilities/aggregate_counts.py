@@ -5,10 +5,12 @@ from singleton import add_singleton_counts
 from colorize import print_string_as_info
 
 def add_counts(x, y, args): 
-  return {
+  d = {
     'kmerCounts': add_kmer_counts_germline(x['kmerCounts'], y['kmerCounts'], args),
-    'singletonCounts': add_singleton_counts(x['singletonCounts'], y['singletonCounts'])
   }
+  if ('singletonCounts' in x.keys()) and ('singletonCounts' in y.keys()):
+    d['singletonCounts'] = add_singleton_counts(x['singletonCounts'], y['singletonCounts'])
+  return d
 
 def aggregate_counts(fetch_counts, args, progress_bar): 
   return functools.reduce(

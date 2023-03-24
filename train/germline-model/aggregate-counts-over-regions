@@ -8,7 +8,8 @@ import json
 import argparse 
 from tqdm import tqdm
 
-from kmer import initialize_kmer_counts_germline, fetch_kmers
+from kmer import initialize_kmer_counts_germline
+from kmer_counts import compute_kmer_total_counts, compute_kmer_SNV_counts
 from singleton import Singleton_Counts, make_serializable
 from aggregate_counts import aggregate_counts
 
@@ -24,22 +25,6 @@ from timer import timer
 from windows import create_windows 
 from get_M_K import get_M_K_trainingTime
 from hostname_process_cpu import get_hostname_process_cpu
-
-# using the "khmer" library might make this function a handful of times faster:
-# https://khmer.readthedocs.io/en/v0.6.1-0/ktable.html
-def compute_kmer_total_counts(trustworthy_noncoding_region, genome, kmer_counts, args):
-  for kmer in fetch_kmers(trustworthy_noncoding_region, genome, args.kmer_size): 
-    kmer_counts[kmer]['count'] += 1
-  return kmer_counts
-
-def compute_kmer_SNV_counts(trustworthy_noncoding_region, mutations, genome, kmer_counts, args):
-  print_string_as_info('Fetching SNVs in region {} and incrementing corresponding kmer counts...'.format(trustworthy_noncoding_region))
-
-  SNVs = fetch_SNVs(mutations, genome, trustworthy_noncoding_region, args.__dict__)
-  SNVs = reduce_SNVs(SNVs)
-  for SNV in SNVs: 
-    kmer_counts[SNV['kmer']]['ALTStateCounts'][SNV['ALTState']] += 1
-  return kmer_counts
 
 def parse_arguments():
   parser = argparse.ArgumentParser(description='')

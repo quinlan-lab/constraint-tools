@@ -1,0 +1,114 @@
+#!/usr/bin/env python
+
+import argparse 
+import json 
+import numpy as np 
+from tqdm import tqdm
+import sys
+
+from kmer import (
+  compute_possible_ALT_states, 
+  compute_kmers, 
+  get_reverse_complement,
+  get_complement
+)
+from colorize import (
+  print_string_as_info, 
+  print_string_as_info_dim, 
+)
+import color_traceback
+from aggregate_counts import aggregate_counts 
+from singleton import make_serializable, dict_to_defaultdict
+
+def parse_arguments():
+  parser = argparse.ArgumentParser(description='')
+  parser.add_argument('--kmer-size', type=int, dest='kmer_size', help='')
+  parser.add_argument('--genome', type=str, help='')
+  parser.add_argument('--build', type=str, help='')
+  parser.add_argument('--number-chromosomes-min', type=int, dest='number_chromosomes_min', help='')
+  parser.add_argument('--tmpdir', type=str, help='')
+  parser.add_argument('--mutations', type=str, help='')
+  parser.add_argument('--model', type=str, help='')
+  parser.add_argument('--train-regions', type=str, dest='train_regions', help='')
+  parser.add_argument('--progress-bars', type=str, dest='progress_bars', help='')
+  parser.add_argument('--max-train-region-length', type=int, dest='max_train_region_length', help='')
+  return parser.parse_args()
+
+# https://realpython.com/introduction-to-python-generators/
+def fetch_counts_from_jobs(args, progress_bar): 
+  from glob import glob 
+  for counts_filename in tqdm(glob(f'{args.tmpdir}/counts.*.json'), file=progress_bar, desc='fetch_counts_from_jobs'):
+    with open(counts_filename, 'r') as fh:
+      d = json.load(fh) 
+      yield { 
+        'kmerCounts': d['kmerCounts'],
+      }
+
+def get_counts(kmer_counts, kmer, ALT_state): 
+  data = kmer_counts[kmer]
+  return data['ALTStateCounts'][ALT_state], data['count'] 
+
+def estimate_ALT_state_probability(kmer_counts, kmer, ALT_state): 
+  # see define-model/germline-model.ipynb: 
+  s_to_S_count, s_count = get_counts(kmer_counts, kmer, ALT_state)
+  sbar_to_Sbar_count, sbar_count = get_counts(kmer_counts, get_reverse_complement(kmer), get_complement(ALT_state))
+  num = s_to_S_count + sbar_to_Sbar_count
+  den = s_count + sbar_count
+  # estimate probabilities for multinomial distribution: https://math.stackexchange.com/a/421838
+  return num/den if den > 0 else None
+
+def estimate_kmer_probabilities(kmer_counts, args):
+  return { 
+    kmer: { 
+      ALT_state: estimate_ALT_state_probability(kmer_counts, kmer, ALT_state) 
+      for ALT_state in compute_possible_ALT_states(kmer) 
+    } 
+    for kmer in compute_kmers(args.kmer_size)      
+  }
+
+def estimate_probabilities(args, progress_bar, progress_bar_filename):
+  print_string_as_info('Aggregating kmer counts over jobs using count files:')
+  print_string_as_info_dim(f'{args.tmpdir}/counts.*.json')
+
+  print_string_as_info('Logging progress of job aggregation to:')
+  print_string_as_info_dim(progress_bar_filename)
+
+  counts = aggregate_counts(fetch_counts_from_jobs, args, progress_bar)
+  kmer_counts = counts['kmerCounts']
+
+  print_string_as_info(
+    'Estimating probability of observing ALT_state, e.g. {C, T}, given kmer, e.g., AAA, ...'
+  )
+  kmer_probabilities = estimate_kmer_probabilities(kmer_counts, args) 
+
+  print_string_as_info(f'Writing model to:')
+  print_string_as_info_dim(f'{args.model}')
+  with open(args.model, 'w') as fh:
+    json.dump({
+      'mutations': args.mutations,
+      'genome': args.genome,
+      'build': args.build,
+      'regionsTrain': args.train_regions,
+      'kmerSize': args.kmer_size,
+      'numberChromosomesMin': args.number_chromosomes_min,
+      'maxRegionTrainLength': args.max_train_region_length,
+      'kmerCounts': kmer_counts,
+      'kmerProbabilities': kmer_probabilities,
+    }, fh, indent=2)
+
+def main(): 
+  args = parse_arguments()  
+  if args.progress_bars == 'stdout': 
+    estimate_probabilities(args, sys.stdout, 'stdout')
+  elif args.progress_bars == 'disk':
+    progress_bar_filename = f'{args.tmpdir}/progress-bar.log'
+    with open(progress_bar_filename, 'w') as progress_bar:
+      estimate_probabilities(args, progress_bar, progress_bar_filename)
+  else: 
+    raise ValueError(f'invalid value for progress-bars: {args.progress_bars}')
+
+if __name__ == '__main__': 
+  main() 
+
+
+

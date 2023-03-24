@@ -35,6 +35,10 @@ case "${tool}" in
     PATH="${CONSTRAINT_TOOLS}/train/germline-model:$PATH" 
     train-map-reduce ${args}
     ;;
+  train-germline-model-Nonly ) 
+    PATH="${CONSTRAINT_TOOLS}/train-Nonly/germline-model:$PATH" 
+    train-map-reduce ${args}
+    ;;
   browse-germline-model ) 
     PYTHONPATH="${CONSTRAINT_TOOLS}/predict-constraint/germline-model:${PYTHONPATH}"
     PATH="${CONSTRAINT_TOOLS}/flask-app/germline-model:${PATH}"

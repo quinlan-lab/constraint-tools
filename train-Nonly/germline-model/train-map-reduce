@@ -1,0 +1,129 @@
+#!/usr/bin/env bash
+
+number_of_jobs="$(read-config trainGermlineModel numberOfJobs)"
+max_train_region_length="$(read-config trainGermlineModelNonly maxRegionTrainLength)"
+
+# https://devhints.io/bash#miscellaneous
+# put option-fetching before "set -o nounset" so that we can detect flags without arguments
+while [[ "$1" =~ ^- ]]; do 
+  case $1 in
+    --genome ) shift; [[ ! $1 =~ ^- ]] && genome=$1;;
+    --build ) shift; [[ ! $1 =~ ^- ]] && build=$1;;
+    --mutations ) shift; [[ ! $1 =~ ^- ]] && mutations=$1;;
+    --number-chromosomes-min ) shift; [[ ! $1 =~ ^- ]] && number_chromosomes_min=$1;;
+    --train-regions ) shift; [[ ! $1 =~ ^- ]] && regions_train=$1;;
+    --kmer-size ) shift; [[ ! $1 =~ ^- ]] && kmer_size=$1;;
+    --model ) shift; [[ ! $1 =~ ^- ]] && model=$1;;
+    --work ) shift; [[ ! $1 =~ ^- ]] && work=$1;;
+    --number-of-jobs ) shift; [[ ! $1 =~ ^- ]] && number_of_jobs=$1;;
+    --progress-bars ) shift; [[ ! $1 =~ ^- ]] && progress_bars=$1;;
+    --max-train-region-length ) shift; [[ ! $1 =~ ^- ]] && max_train_region_length=$1;;
+    *) error "$0: " "$1 is an invalid flag"; exit 1;;
+  esac 
+  shift
+done
+
+set -o errexit
+set -o pipefail
+# set -o noclobber
+set -o nounset
+# set -o xtrace
+
+if [[ ${build} != "hg19" && ${build} != "hg38" ]]; then
+  error "genome build parameter is:" ${build}
+  error "genome build must be 'hg19' or 'hg38'"
+  exit 1
+fi
+
+info "Training on regions: " "${regions_train}"
+info "Sending progress bars to:" "${progress_bars}"
+
+regions_train_filtered="${work}/regions-train.filtered.bed"
+filter-regions \
+  --max-length ${max_train_region_length} \
+  --min-length "0" \
+  --regions-name "train" \
+  --regions ${regions_train} \
+  --filtered-regions ${regions_train_filtered}
+
+info "Number of slurm jobs (tasks): " "${number_of_jobs}"
+
+number_of_train_regions_per_job=$(
+  compute-number-intervals-per-job \
+    --header "Compute number of (filtered) train regions per job (task):" \
+    --intervals ${regions_train_filtered} \
+    --number-of-jobs ${number_of_jobs} \
+)
+
+# TODO: refactor the following code block some day, 
+# so that, e.g., predict-constraint-Nonly/germline-model/predict-map-reduce may use it too 
+
+# each slurm job/task will store its output files in this temporary directory: 
+tmpdir=$(mktemp --tmpdir=${work} --directory)
+clean_up () {
+  local exit_code="$1"
+  if [[ "${exit_code}" == "0" ]]; then 
+    info "Deleting tmp directory: " "${tmpdir}"
+    rm --recursive --force "${tmpdir}"
+    info "Training complete."
+  else 
+    error "Received exit code:" "${exit_code}"
+    error "Not deleting tmp directory:" "${tmpdir}"
+  fi 
+}
+# http://redsymbol.net/articles/bash-exit-traps/
+# https://medium.com/@dirk.avery/the-bash-trap-trap-ce6083f36700
+trap 'clean_up $?' EXIT
+
+parent_slurm_job="batch-regions.kmer-size-${kmer_size}"
+info "Submitting slurm job array with parent-job name:" ${parent_slurm_job}
+
+slurm_logs_directory="${work}/slurm_logs"
+mkdir --parents ${slurm_logs_directory}
+
+info "Slurm log directory:" ${slurm_logs_directory}
+info "For each of ${number_of_jobs} jobs, aggregate kmer counts over the regions assigned to each job..."
+
+# "map" phase of map-reduce
+
+# sbatch man-page: 
+# A maximum number of simultaneously running tasks from the job array may be
+# specified using a "%" separator.  
+# For example "--array=0-15%4" will limit the number of simultaneously running
+# tasks from this job array to 4.
+# We "wait" to ensure that all the jobs/tasks are finished before merging their results
+sbatch \
+  --wait \
+  --array [1-${number_of_jobs}]%250 \
+  --job-name ${parent_slurm_job} \
+  --output ${slurm_logs_directory}/batch-regions.job-%A.task-%a.log \
+  batch-regions \
+    --genome ${genome} \
+    --mutations ${mutations} \
+    --number-chromosomes-min ${number_chromosomes_min} \
+    --kmer-size ${kmer_size} \
+    --train-regions ${regions_train_filtered} \
+    --tmpdir ${tmpdir} \
+    --number-of-train-regions-per-job ${number_of_train_regions_per_job} \
+    --progress-bars ${progress_bars} 
+
+expected_number_json_files=${number_of_jobs}
+actual_number_json_files=$(/usr/bin/ls ${tmpdir}/counts.*.json | wc -l)
+info \
+  "Number of jobs for which counts were obtained: " \
+  "${actual_number_json_files}/${expected_number_json_files}"
+
+# "reduce" step of map-reduce: 
+
+info "Combining counts across jobs, and estimating probabilities..."
+estimate-probabilities \
+  --genome ${genome} \
+  --build ${build} \
+  --mutations ${mutations} \
+  --number-chromosomes-min ${number_chromosomes_min} \
+  --kmer-size ${kmer_size} \
+  --tmpdir ${tmpdir} \
+  --model ${model} \
+  --train-regions ${regions_train_filtered} \
+  --progress-bars ${progress_bars} \
+  --max-train-region-length ${max_train_region_length}

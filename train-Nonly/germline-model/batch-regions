@@ -1,0 +1,61 @@
+#!/bin/bash
+#SBATCH --time=5:00:00
+#SBATCH --account=quinlan-rw
+#SBATCH --partition=quinlan-shared-rw
+
+while [[ "$1" =~ ^- ]]; do
+  case $1 in
+    --genome ) shift; [[ ! $1 =~ ^- ]] && genome=$1;;
+    --mutations ) shift; [[ ! $1 =~ ^- ]] && mutations=$1;;
+    --number-chromosomes-min ) shift; [[ ! $1 =~ ^- ]] && number_chromosomes_min=$1;;
+    --kmer-size ) shift; [[ ! $1 =~ ^- ]] && kmer_size=$1;;
+    --train-regions ) shift; [[ ! $1 =~ ^- ]] && train_regions=$1;;
+    --tmpdir ) shift; [[ ! $1 =~ ^- ]] && tmpdir=$1;;
+    --number-of-train-regions-per-job ) shift; [[ ! $1 =~ ^- ]] && number_of_train_regions_per_job=$1;;
+    --progress-bars ) shift; [[ ! $1 =~ ^- ]] && progress_bars=$1;;
+    *) error "$0: $1 is an invalid flag"; exit 1;;
+  esac
+  shift
+done
+
+set -o errexit
+set -o pipefail
+# set -o noclobber
+# set -o xtrace
+set -o nounset 
+
+train_regions_for_job=$(
+  create-intervals-for-job \
+    --intervals ${train_regions} \
+    --number-of-intervals-per-job ${number_of_train_regions_per_job} \
+    --tmpdir ${tmpdir} \
+    --name "train-regions"
+)
+
+counts_for_job=$(
+  create-tmp-file-for-job \
+    --number-of-intervals-per-job ${number_of_train_regions_per_job} \
+    --tmpdir ${tmpdir} \
+    --name "counts" \
+    --suffix "json" 
+)
+
+log_for_job=$(
+  create-log-for-job \
+    --progress-bars ${progress_bars} \
+    --number-of-intervals-per-job ${number_of_train_regions_per_job} \
+    --tmpdir ${tmpdir}
+)
+
+info "Performing counts on:" "${train_regions_for_job}"
+info "Writing counts to:" "${counts_for_job}"
+info "Writing log to:" "${log_for_job}"
+
+aggregate-counts-over-regions \
+  --genome ${genome} \
+  --mutations ${mutations} \
+  --number-chromosomes-min ${number_chromosomes_min} \
+  --kmer-size ${kmer_size} \
+  --train-regions-filename ${train_regions_for_job} \
+  --counts-filename ${counts_for_job} \
+  --log ${log_for_job}
