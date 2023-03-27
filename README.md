@@ -109,9 +109,10 @@ The `train-germline-model-Nonly` subcommand requires:
 
 ```
 --train-regions STR 
-      Bed-format compressed file containing a list of genomic intervals on which the model is to be trained. 
+      Genomic intervals on which the model is to be trained. 
+      Compressed bed format.
 --train-regions-label STR 
-      A string to label the corresponding slurm job
+      A string to tag the corresponding slurm job.
 ```
 
 Optional arguments for `train-germline-model-Nonly` are: 
@@ -162,6 +163,7 @@ Required arguments for `predict-germline-model` and `predict-germline-model-Nonl
 --windows STR
       Path to a set of windows on which to compute z-scores. 
       Windows on X and Y chromosomes are not allowed. 
+      Uncompressed bed format. 
 --zscores STR 
       A path to a file in which the genome-wide z-scores will be stored (.bed.gz)
 --work STR 
