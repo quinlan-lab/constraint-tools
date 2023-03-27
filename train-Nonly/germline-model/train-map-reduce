@@ -12,6 +12,7 @@ while [[ "$1" =~ ^- ]]; do
     --mutations ) shift; [[ ! $1 =~ ^- ]] && mutations=$1;;
     --number-chromosomes-min ) shift; [[ ! $1 =~ ^- ]] && number_chromosomes_min=$1;;
     --train-regions ) shift; [[ ! $1 =~ ^- ]] && regions_train=$1;;
+    --train-regions-label ) shift; [[ ! $1 =~ ^- ]] && regions_train_label=$1;;
     --kmer-size ) shift; [[ ! $1 =~ ^- ]] && kmer_size=$1;;
     --model ) shift; [[ ! $1 =~ ^- ]] && model=$1;;
     --work ) shift; [[ ! $1 =~ ^- ]] && work=$1;;
@@ -75,7 +76,7 @@ clean_up () {
 # https://medium.com/@dirk.avery/the-bash-trap-trap-ce6083f36700
 trap 'clean_up $?' EXIT
 
-parent_slurm_job="batch-regions.kmer-size-${kmer_size}"
+parent_slurm_job="batch-regions.kmerSize-${kmer_size}.trainSet-${regions_train_label}"
 info "Submitting slurm job array with parent-job name:" ${parent_slurm_job}
 
 slurm_logs_directory="${work}/slurm_logs"
