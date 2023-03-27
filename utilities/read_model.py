@@ -4,8 +4,9 @@ import json
 def read_model(filename): 
   with open(filename, 'r') as fh:
     d = json.load(fh) 
-    d['singletonCounts'] = update_types(d['singletonCounts'])
-    d['singletonProbabilities'] = update_types(d['singletonProbabilities'])
+    if ('singletonCounts' in d.keys()) and ('singletonProbabilities' in d.keys()): 
+      d['singletonCounts'] = update_types(d['singletonCounts'])
+      d['singletonProbabilities'] = update_types(d['singletonProbabilities'])
     return d
 
 def test_read_model(): 
