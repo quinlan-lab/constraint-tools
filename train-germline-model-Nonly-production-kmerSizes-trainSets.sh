@@ -11,8 +11,8 @@ CONSTRAINT_TOOLS="${PWD}"
 CONSTRAINT_TOOLS_DATA="/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools" 
 
 trustworthy_noncoding_regions="${CONSTRAINT_TOOLS}/dist/trustworthy-noncoding-regions-germline-grch38.bed.gz"
-merged_exons="${CONSTRAINT_TOOLS_DATA}/genes/grch38/exons.merged.bed"
-chen_windows="${CONSTRAINT_TOOLS_DATA}/chen-et-al-2022/chen-windows.bed"
+merged_exons="${CONSTRAINT_TOOLS_DATA}/genes/grch38/exons.merged.bed.gz"
+chen_windows="${CONSTRAINT_TOOLS_DATA}/chen-et-al-2022/chen-windows.bed.gz"
 
 for kmer_size in "3" "5" "7"; do 
   for trainSet_trainSetLabel in \

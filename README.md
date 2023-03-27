@@ -109,7 +109,7 @@ The `train-germline-model-Nonly` subcommand requires:
 
 ```
 --train-regions STR 
-      Bed-format file containing a list of genomic intervals on which the model is to be trained.
+      Bed-format compressed file containing a list of genomic intervals on which the model is to be trained. 
 --train-regions-label STR 
       A string to label the corresponding slurm job
 ```
