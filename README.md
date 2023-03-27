@@ -181,7 +181,7 @@ while optional arguments are:
       Number of slurm jobs to use. 
 ```
 
-Process substitution in the `predict-germline-model` CLI is not supported. 
+Process substitution in the CLI is not supported. 
 
 ## Input Data
 
