@@ -17,5 +17,8 @@
   },
   "predictGermlineModel": {
     "numberOfJobs": "500"
+  },
+  "predictGermlineModelNonly": {
+    "numberOfJobs": "500"
   }
 }
