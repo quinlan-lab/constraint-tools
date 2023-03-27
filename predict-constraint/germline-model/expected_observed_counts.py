@@ -12,10 +12,10 @@ from snvs import fetch_SNVs
 from pack_unpack import unpack
 from kmer import CpG, not_CpG
 from windows import create_windows 
-from get_p0s_p1s_p2s_p3s import get_p0s_p1s_p2s_p3s
 from get_M_K import get_M_K_testTime 
 from trustworthy_noncoding_regions import get_all_trustworthy_noncoding_regions
 from exons import get_canonical_exons
+from compute_Nbar_Nobserved import compute_Nbar_Nobserved 
 
 import color_traceback
 
@@ -38,21 +38,6 @@ def pull_element(list_, index):
     return list_[index]
   except IndexError: 
     return []
-
-def get_N_observed(window, genome, mutations, model):
-  return len(fetch_SNVs(mutations, genome, window['region'], meta=model))
-
-# https://github.com/quinlan-lab/constraint-tools/blob/main/define-model/germline-model.ipynb
-def get_N_mean_variance_null(window, genome, model, log): 
-  p0s_p1s_p2s_p3s = get_p0s_p1s_p2s_p3s(window, genome, model, log)
-
-  mean_Ns = np.array([0*p0 + 1*p1 + 2*p2 + 3*p3 for p0, p1, p2, p3 in p0s_p1s_p2s_p3s])
-  mean_N = np.sum(mean_Ns)
-
-  mean_N2s = np.array([(0**2)*p0 + (1**2)*p1 + (2**2)*p2 + (3**2)*p3 for p0, p1, p2, p3 in p0s_p1s_p2s_p3s])
-  variance_N = np.sum(mean_N2s - np.square(mean_Ns))
-
-  return mean_N, variance_N
 
 def get_K_mean_variance_null(M, model): 
   possible_Ks = np.arange(0, M+1)
@@ -78,12 +63,6 @@ def compute_Kbar_Kobserved_M(window, model, mutations, genome):
   K_mean_null, K_variance_null = get_K_mean_variance_null(M, model)
   K_bar = (K_observed - K_mean_null)/np.sqrt(K_variance_null)
   return K_bar, K_observed, M
-
-def compute_Nbar_Nobserved(window, model, mutations, genome, log):
-  N_mean_null, N_variance_null = get_N_mean_variance_null(window, genome, model, log)
-  N_observed = get_N_observed(window, genome, mutations, model)
-  N_bar = (N_observed - N_mean_null)/np.sqrt(N_variance_null)
-  return N_bar, N_observed
 
 def filter_by_regions(windows, N_bars, N_observeds, K_bars, K_observeds, regions, how): 
   chromosomes, starts, ends = tuple(zip(*[unpack(window['region']) for window in windows]))

@@ -1,0 +1,66 @@
+#!/usr/bin/env python
+
+import argparse 
+from tqdm import tqdm
+
+from colorize import (
+  print_json, 
+  print_string_as_info, 
+  print_string_as_info_dim
+)
+import color_traceback 
+from pack_unpack import bed_to_sam_string
+from hostname_process_cpu import get_hostname_process_cpu
+from expected_observed_counts import compute_zscores_on_window 
+from read_model import read_model
+from windows import create_window 
+
+def compute_zscores_on_windows(args, progress_bar):   
+  print_json({'windows': args.windows, **get_hostname_process_cpu()})
+  with open(args.windows, 'r') as windows: 
+    number_of_windows = sum(1 for line in windows)
+  with (
+    open(args.windows, 'r') as windows,
+    open(args.zscores, 'w') as zscores
+  ): 
+    zscores.write('chromosome\tstart\tend\tposition\tN_bar\tN_observed\n')
+    model = read_model(args.model)
+    for window_str in tqdm(
+      windows, 
+      total=number_of_windows,
+      file=progress_bar, 
+      desc='compute_Nbars_on_windows'
+    ): 
+      window_str = window_str.strip('\n')
+      window = create_window(bed_to_sam_string(window_str))
+      N_bar, N_observed = compute_zscores_on_window(window, model)
+      zscores.write(f'{window_str}\t{window["position"]}\t{N_bar}\t{N_observed}\n')
+
+  print_string_as_info(f'Computed Nbars for windows:') 
+  print_string_as_info_dim(args.windows) 
+  print_string_as_info('Saved Nbars to:')
+  print_string_as_info_dim(args.zscores)
+  
+def parse_arguments():
+  parser = argparse.ArgumentParser(description='')
+  parser.add_argument('--windows', type=str, help='')
+  parser.add_argument('--log', type=str, help='')
+  parser.add_argument('--zscores', type=str, help='')
+  parser.add_argument('--model', type=str, help='')
+  return parser.parse_args()
+
+def main(): 
+  args = parse_arguments()  
+  import sys 
+  if args.log == 'stdout': 
+    compute_zscores_on_windows(args, progress_bar=sys.stdout)
+  else: 
+    with open(args.log, 'w') as progress_bar:  
+      # logging tqdm output: 
+      # https://github.com/tqdm/tqdm/issues/506#issuecomment-373762049
+      # https://github.com/tqdm/tqdm/issues/506#issuecomment-508458426
+      compute_zscores_on_windows(args, progress_bar=progress_bar)
+
+if __name__ == '__main__':
+  main() 
+
