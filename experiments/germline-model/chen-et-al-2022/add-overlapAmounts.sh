@@ -13,7 +13,7 @@ PATH="${CONSTRAINT_TOOLS}/experiments/germline-model/chen-et-al-2022:$PATH"
 # `printenv | grep -w PYTHONPATH` returns zero output
 export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities"
 
-chen_mchale_windows="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale.multiple-kmers.bed"
+chen_mchale_windows="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale.kmerSizes.trainSets.bed"
 
 # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5467550/
 # data courtesy: Tom Nicholas 
@@ -87,7 +87,7 @@ add-overlapAmounts () {
       -wao 
 }
 
-chen_mchale_windows_with_overlapAmounts="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale.multiple-kmers.overlapAmounts.bed"
+chen_mchale_windows_with_overlapAmounts="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale.kmerSizes.trainSets.overlapAmounts.bed"
 (
   header-line 
   add-overlapAmounts
