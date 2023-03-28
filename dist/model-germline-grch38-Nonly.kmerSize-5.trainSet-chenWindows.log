@@ -1,0 +1,29 @@
+[0;36mTool:  [0mtrain-germline-model-Nonly
+[0;36mTool arguments:  [0m--genome /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38/hg38.analysisSet.fa.gz --build hg38 --mutations /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/gnomad_v3.sorted.tsv.gz --number-chromosomes-min 130000 --kmer-size 5 --model /scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/model-germline-grch38-Nonly.kmerSize-5.trainSet-chenWindows.json --work /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-train-germline-model-Nonly-production.kmerSize-5.trainSet-chenWindows --progress-bars disk --train-regions /scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/chen-et-al-2022/chen-windows.bed.gz --train-regions-label chenWindows
+[0;36mTraining on regions:  [0m/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/chen-et-al-2022/chen-windows.bed.gz
+[0;36mSending progress bars to: [0mdisk
+[0;36mFiltering train regions...[0m
+[0;36m	Remove train regions less than: [0m0bp
+[0;36m	Remove train regions greater than: [0m100000bp
+[0;36m	Remove train regions on chromosomes X and Y[0m
+[0;36m	Filtered train regions: [0m/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-train-germline-model-Nonly-production.kmerSize-5.trainSet-chenWindows/regions-train.filtered.bed
+[0;36mNumber of slurm jobs (tasks):  [0m500
+[0;36mCompute number of (filtered) train regions per job (task):[0m
+[0;36m	Number of intervals: [0m1797153
+[0;36m	Number of intervals per job (task):  [0m3594
+[0;36m	Number of intervals not used: [0m153
+[0;36mSubmitting slurm job array with parent-job name: [0mbatch-regions.kmerSize-5.trainSet-chenWindows
+[0;36mSlurm log directory: [0m/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-train-germline-model-Nonly-production.kmerSize-5.trainSet-chenWindows/slurm_logs
+[0;36mFor each of 500 jobs, aggregate kmer counts over the regions assigned to each job...[0m
+Submitted batch job 5892956
+[0;36mNumber of jobs for which counts were obtained:  [0m500/500
+[0;36mCombining counts across jobs, and estimating probabilities...[0m
+[36mAggregating kmer counts over jobs using count files:[0m
+[90m/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-train-germline-model-Nonly-production.kmerSize-5.trainSet-chenWindows/tmp.Evvwu32ZaD/counts.*.json[0m
+[36mLogging progress of job aggregation to:[0m
+[90m/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-train-germline-model-Nonly-production.kmerSize-5.trainSet-chenWindows/tmp.Evvwu32ZaD/progress-bar.log[0m
+[36mEstimating probability of observing ALT_state, e.g. {C, T}, given kmer, e.g., AAA, ...[0m
+[36mWriting model to:[0m
+[90m/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/dist/model-germline-grch38-Nonly.kmerSize-5.trainSet-chenWindows.json[0m
+[0;36mDeleting tmp directory:  [0m/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-train-germline-model-Nonly-production.kmerSize-5.trainSet-chenWindows/tmp.Evvwu32ZaD
+[0;36mTraining complete.[0m
