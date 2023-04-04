@@ -23,7 +23,7 @@ def compute_zscores_on_windows(args, progress_bar):
     open(args.windows, 'r') as windows,
     open(args.zscores, 'w') as zscores
   ): 
-    zscores.write('chromosome\tstart\tend\tposition\tN_bar\tN_observed\n')
+    zscores.write('chromosome\tstart\tend\tposition\tN_bar\tN_observed\tN_mean_null\tN_variance_null\n')
     model = read_model(args.model)
     for window_str in tqdm(
       windows, 
@@ -33,8 +33,8 @@ def compute_zscores_on_windows(args, progress_bar):
     ): 
       window_str = window_str.strip('\n')
       window = create_window(bed_to_sam_string(window_str))
-      N_bar, N_observed = compute_zscores_on_window(window, model)
-      zscores.write(f'{window_str}\t{window["position"]}\t{N_bar}\t{N_observed}\n')
+      N_bar, N_observed, N_mean_null, N_variance_null = compute_zscores_on_window(window, model)
+      zscores.write(f'{window_str}\t{window["position"]}\t{N_bar}\t{N_observed}\t{N_mean_null}\t{N_variance_null}\n')
 
   print_string_as_info(f'Computed Nbars for windows:') 
   print_string_as_info_dim(args.windows) 

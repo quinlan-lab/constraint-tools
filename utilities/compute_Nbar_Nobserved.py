@@ -18,9 +18,12 @@ def get_N_mean_variance_null(window, genome, model, log):
 
   return mean_N, variance_N
 
-def compute_Nbar_Nobserved(window, model, mutations, genome, log):
+def compute_Nbar_Nobserved(window, model, mutations, genome, log, verbose=False):
   N_mean_null, N_variance_null = get_N_mean_variance_null(window, genome, model, log)
   N_observed = get_N_observed(window, genome, mutations, model)
   N_bar = (N_observed - N_mean_null)/np.sqrt(N_variance_null)
-  return N_bar, N_observed
+  if verbose: 
+    return N_bar, N_observed, N_mean_null, N_variance_null
+  else:
+    return N_bar, N_observed
 
