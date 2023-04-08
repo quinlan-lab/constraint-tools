@@ -1,0 +1,2 @@
+number_bootstrap_samples="100"
+python pathogenic_variant_enrichment_kmerSizes_trainSets.py ${number_bootstrap_samples}
