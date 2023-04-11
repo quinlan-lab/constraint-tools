@@ -1,7 +1,7 @@
 import sys
 
 ## Meant to take the output from bedtools intersects
-## Between chen_mchale.bed and the CCDG, gnomAD, and 1000G DEL beds
+## Between chen-mchale.kmerSizes.trainSets.enhancer-exon.bed and the CCDG, gnomAD, and 1000G DEL beds
 ## And add the following for each region:
 ## total number of DELs that overlap the region
 ## total number of singleton DELs that overlap the region
@@ -13,10 +13,12 @@ def read_bedout(bedout, source):
         fields = line.strip('\n').split('\t')
         
         ## Create an ID for each region
+        # TODO: Tom, index "3" below will no longer correspond to "position", and needs to changed 
         region_id = str(fields[0]) + '.' + str(fields[3])
         
-        ## Save original data from chen_mchale.bed
+        ## Save original data from chen-mchale.kmerSizes.trainSets.enhancer-exon.bed
         if region_id not in original_data:
+            # TODO: Tom, presumably the index "10" below needs to be changed?
             original_data[region_id] = fields[0:10]
 
         ## Initialize region_id in each of the dicts
@@ -31,7 +33,8 @@ def read_bedout(bedout, source):
 
         ## Identify if a region has overlaps
         ## Get and save info accordingly
-        if fields[11] == '-1':
+        # TODO: Tom, we'lll need to edit all the indices in this code block, as necessary 
+        if fields[11] == '-1': 
             continue
         elif fields[11] != '-1':
             region_size = int(fields[2]) - int(fields[1])
@@ -54,6 +57,9 @@ def read_bedout(bedout, source):
             bp_overlaps[source][region_id].append(fraction_bp)
 
 ## Print out a new header
+# TODO: Tom, I don't know what you'll want to change existing_header to, 
+#       but the header of chen-mchale.kmerSizes.trainSets.enhancer-exon.bed is: 
+#       chromosome      start   end     N_observed      N_bar_3_noncoding       N_bar_3_coding  N_bar_3_chenWindows     N_bar_5_noncoding       N_bar_5_coding  N_bar_5_chenWindows     N_bar_7_noncoding       N_bar_7_coding     N_bar_7_chenWindows     enhancer overlap        merged_exon overlap     window overlaps enhancer        window overlaps merged_exon     window overlaps (enhancer, merged_exon) new chen zscore
 existing_header = ["#chromosome", "start", "end", "position", "N_bar", "N_observed", "K_bar", "K_observed", "M", "chen_zscore"]
 ccdg_to_header = ["CCDG_DELs", "CCDG_singletons", "CCDG_Max_AF", "CCDG_bp_overlap"] 
 gnomad_to_header = ["gnomAD_DELs", "gnomAD_singletons", "gnomAD_Max_AF", "gnomAD_bp_overlap"] 

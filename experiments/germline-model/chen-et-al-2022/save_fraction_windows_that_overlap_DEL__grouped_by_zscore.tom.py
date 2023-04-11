@@ -7,8 +7,6 @@ import pandas as pd
 
 chen_mchale_DELs = pd.read_csv(input_filename, sep='\t')
 
-chen_mchale_DELs['negative chen zscore'] = -chen_mchale_DELs['chen_zscore']
-
 def compute_window_overlaps_DEL(df):     
   for source in ['CCDG', 'gnomAD', '1000G']:
     df[f'window overlaps {source} DEL'] = df[f'{source}_DELs'] > 0
@@ -31,7 +29,7 @@ def label_windows_with_score_quantiles(df, score):
   with warnings.catch_warnings():
     warnings.simplefilter("ignore")        
 
-    array_of_quantiles = [0.00, 0.01, 0.02, 0.05, 0.10, 0.25, 0.5, 0.75, 0.90, 0.95, 0.98, 0.99, 1.00]
+    array_of_quantiles = [0.00, 0.002, 0.005, 0.01, 0.02, 0.05, 0.10, 0.25, 0.5, 0.75, 0.90, 0.95, 0.98, 0.99, 0.995, 0.998, 1.00]
     starts = array_of_quantiles[:-1]
     ends = array_of_quantiles[1:]
     quantile_labels = [f'{start} - {end}' for start, end in zip(starts, ends)]
@@ -46,13 +44,17 @@ def label_windows_with_score_quantiles(df, score):
 
     return df
 
+for kmer_size in [3, 5, 7]: 
+    for train_set_label in ['coding', 'noncoding', 'chenWindows']:
+        chen_mchale_DELs = label_windows_with_score_quantiles(
+            chen_mchale_DELs, 
+            score=f'N_bar_{kmer_size}_{train_set_label}'
+        )
+
+chen_mchale_DELs['negative new chen zscore'] = -chen_mchale_DELs['new chen zscore']
 chen_mchale_DELs = label_windows_with_score_quantiles(
-  chen_mchale_DELs, 
-  score='N_bar'
-)
-chen_mchale_DELs = label_windows_with_score_quantiles(
-  chen_mchale_DELs, 
-  score='negative chen zscore'
+    chen_mchale_DELs, 
+    score='negative new chen zscore'
 )
 
 def aggregate(df, zscore, source):
@@ -82,6 +84,8 @@ def save_window_fractions_grouped_by(zscore):
   df.to_pickle(output_filename)
   # print(pd.read_pickle(output_filename))
 
-save_window_fractions_grouped_by('N_bar')
-save_window_fractions_grouped_by('negative chen zscore')
+for kmer_size in [3, 5, 7]: 
+    for train_set_label in ['coding', 'noncoding', 'chenWindows']:
+      save_window_fractions_grouped_by(f'N_bar_{kmer_size}_{train_set_label}')
+save_window_fractions_grouped_by('negative new chen zscore')
 
