@@ -31,15 +31,16 @@ parameters_to_estimate_singleton_probability_under_null = {
 def get_noncoding_svs_windows(source):
     CONSTRAINT_TOOLS_DATA = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools'
     # created using ${CONSTRAINT_TOOLS}/experiments/germline-model/chen-et-al-2022/intersect-noncoding-svs-with-windows.sh : 
-    filename = f'{CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/{source}-noncoding-svs-chen-mchale-enhancer-exon.bed'
+    filename = f'{CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/{source}-noncoding-svs-chen-mchale.kmerSizes.trainSets.enhancer-exon.bed'
     df = pd.read_csv(filename, sep='\t')
-    df['negative chen zscore'] = -df['chen zscore']
+    df['negative new chen zscore'] = -df['new chen zscore']
     
-    df['K_bar'] = pd.to_numeric(df['K_bar'], errors='coerce') # convert '.' to 'NaN'
-#     df = df.dropna(subset=['K_bar']) # drop windows for which K_bar == NaN
-    df['negative K_bar'] = -df['K_bar']
+    columns = ['sv_id', 'sv_length', 'alt_allele_count', 'negative new chen zscore']
+    for kmer_size in [3, 5, 7]: 
+        for train_set_label in ['coding', 'noncoding', 'chenWindows']: 
+            columns.append(f'N_bar_{kmer_size}_{train_set_label}')            
+    df = df[columns]
     
-    df = df[['sv_id', 'sv_length', 'alt_allele_count', 'N_bar', 'negative K_bar', 'negative chen zscore']]
     df['sv is singleton'] = (df['alt_allele_count'] == 1) | (df['alt_allele_count'] == '1')  
     return df 
 
@@ -54,11 +55,13 @@ def get_noncoding_svs_windows(source):
 def aggregate_over_windows(df): 
     groups = df.groupby(['sv_id', 'sv_length', 'alt_allele_count', 'sv is singleton'])
 #     custom_aggregation_function = (f'mean of bottom {zscore_percentile}%', mean_of_bottom)
-    aggregated = groups.agg({
-        'N_bar': ['min', 'mean'],
-        'negative K_bar': ['min', 'mean'],
-        'negative chen zscore': ['min', 'mean']
-    })
+
+    aggregation_functions = {'negative new chen zscore': ['min', 'mean']}
+    for kmer_size in [3, 5, 7]: 
+        for train_set_label in ['coding', 'noncoding', 'chenWindows']: 
+            aggregation_functions[f'N_bar_{kmer_size}_{train_set_label}'] = ['min', 'mean']
+    aggregated = groups.agg(aggregation_functions)
+    
     df = aggregated.reset_index()
     df.columns = [' '.join(col[::-1]).strip() for col in df.columns.values]
     return df
@@ -71,7 +74,7 @@ def get_svs(source, do_resample):
     df = aggregate_over_windows(df)
     if do_resample: df = resample(df)
     return df
-    
+   
 def label_svs_with_length_quantiles(df, params): 
     df['sv length quantile'] = pd.qcut(
         df['sv_length'],
@@ -81,7 +84,7 @@ def label_svs_with_length_quantiles(df, params):
 #         duplicates='drop'
     )
     return df
-    
+
 def aggregate_over_length_quantiles(df, params): 
     groups = df.groupby(['sv length quantile'])
     aggregated = groups.agg({
@@ -186,9 +189,14 @@ def bootstrap_aps(source, score, number_bootstrap_samples, operator='min'):
   return aggregated
 
 def save_aps(number_bootstrap_samples): 
+  sources = ['gnomAD', 'CCDG', '1000G']
+  scores = ['negative new chen zscore']
+  for kmer_size in [3, 5, 7]: 
+      for train_set_label in ['coding', 'noncoding', 'chenWindows']: 
+          scores.append(f'N_bar_{kmer_size}_{train_set_label}')
   aps = defaultdict(lambda: {})
-  for source in ['gnomAD', 'CCDG', '1000G']: 
-    for score in ['N_bar', 'negative K_bar', 'negative chen zscore']: 
+  for source in sources: 
+    for score in scores: 
       aps[source][score] = bootstrap_aps(source, score, number_bootstrap_samples)
   aps = dict(aps)
   with open('aps.pkl', 'wb') as handle:
