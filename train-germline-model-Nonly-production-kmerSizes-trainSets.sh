@@ -14,11 +14,12 @@ trustworthy_noncoding_regions="${CONSTRAINT_TOOLS}/dist/trustworthy-noncoding-re
 merged_exons="${CONSTRAINT_TOOLS_DATA}/genes/grch38/exons.merged.bed.gz"
 chen_windows="${CONSTRAINT_TOOLS_DATA}/chen-et-al-2022/chen-windows.bed.gz"
 
-for kmer_size in "3" "5" "7"; do 
+# for kmer_size in "3" "5" "7"; do 
+for kmer_size in "1"; do 
   for trainSet_trainSetLabel in \
-      "${trustworthy_noncoding_regions},noncoding" \
-      "${merged_exons},coding" \
-      "${chen_windows},chenWindows"; do
+      "${trustworthy_noncoding_regions},noncoding"; do
+      # "${merged_exons},coding" \
+      # "${chen_windows},chenWindows"; do
     IFS=, read train_set train_set_label <<< ${trainSet_trainSetLabel}
     log_file="dist/model-germline-grch38-Nonly.kmerSize-${kmer_size}.trainSet-${train_set_label}.log"
     job_name="train-germline-model-Nonly-production.kmerSize-${kmer_size}.trainSet-${train_set_label}"
