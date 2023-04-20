@@ -1,0 +1,105 @@
+{
+  "mutations": "/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/gnomad/v3/variants/gnomad_v3.sorted.tsv.gz",
+  "genome": "/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/reference/grch38/hg38.analysisSet.fa.gz",
+  "build": "hg38",
+  "regionsTrain": "/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools/work-train-germline-model-Nonly-production.kmerSize-1.trainSet-noncoding/regions-train.filtered.bed",
+  "kmerSize": 1,
+  "numberChromosomesMin": 130000,
+  "maxRegionTrainLength": 100000,
+  "kmerCounts": {
+    "A": {
+      "CpG": false,
+      "count": 175533,
+      "REF": "A",
+      "ALTStateCounts": {
+        "{C}": 4539,
+        "{G}": 16829,
+        "{T}": 4044,
+        "{C,G}": 508,
+        "{C,T}": 175,
+        "{G,T}": 573,
+        "{C,G,T}": 32
+      }
+    },
+    "C": {
+      "CpG": false,
+      "count": 120210,
+      "REF": "C",
+      "ALTStateCounts": {
+        "{A}": 4748,
+        "{G}": 4560,
+        "{T}": 17691,
+        "{A,G}": 344,
+        "{A,T}": 1305,
+        "{G,T}": 1118,
+        "{A,G,T}": 151
+      }
+    },
+    "G": {
+      "CpG": false,
+      "count": 120267,
+      "REF": "G",
+      "ALTStateCounts": {
+        "{A}": 17789,
+        "{C}": 4514,
+        "{T}": 4888,
+        "{A,C}": 1135,
+        "{A,T}": 1282,
+        "{C,T}": 345,
+        "{A,C,T}": 141
+      }
+    },
+    "T": {
+      "CpG": false,
+      "count": 175745,
+      "REF": "T",
+      "ALTStateCounts": {
+        "{A}": 3987,
+        "{C}": 16427,
+        "{G}": 4343,
+        "{A,C}": 553,
+        "{A,G}": 126,
+        "{C,G}": 558,
+        "{A,C,G}": 31
+      }
+    }
+  },
+  "kmerProbabilities": {
+    "A": {
+      "{C}": 0.02528481715336571,
+      "{G}": 0.09467145679490319,
+      "{T}": 0.022862234469565416,
+      "{C,G}": 0.003034633538109418,
+      "{C,T}": 0.0008568711960327718,
+      "{G,T}": 0.0032054384276840567,
+      "{C,G,T}": 0.00017934513405337083
+    },
+    "C": {
+      "{A}": 0.040070360159183624,
+      "{G}": 0.03773333832341554,
+      "{T}": 0.14754009738977117,
+      "{A,G}": 0.002865138869829547,
+      "{A,T}": 0.010757785567850564,
+      "{G,T}": 0.00936887935228733,
+      "{A,G,T}": 0.0012142533381570794
+    },
+    "G": {
+      "{A}": 0.14754009738977117,
+      "{C}": 0.03773333832341554,
+      "{T}": 0.040070360159183624,
+      "{A,C}": 0.00936887935228733,
+      "{A,T}": 0.010757785567850564,
+      "{C,T}": 0.002865138869829547,
+      "{A,C,T}": 0.0012142533381570794
+    },
+    "T": {
+      "{A}": 0.022862234469565416,
+      "{C}": 0.09467145679490319,
+      "{G}": 0.02528481715336571,
+      "{A,C}": 0.0032054384276840567,
+      "{A,G}": 0.0008568711960327718,
+      "{C,G}": 0.003034633538109418,
+      "{A,C,G}": 0.00017934513405337083
+    }
+  }
+}
