@@ -14,6 +14,7 @@ while [[ "$1" =~ ^- ]]; do
   case $1 in
     --kmer-size ) shift; [[ ! $1 =~ ^- ]] && kmer_size=$1;;
     --train-set-label ) shift; [[ ! $1 =~ ^- ]] && train_set_label=$1;;
+    --noisy-label ) shift; [[ ! $1 =~ ^- ]] && noisy_label=$1;;
     *) error "$0: " "$1 is an invalid flag"; exit 1;;
   esac 
   shift
@@ -28,18 +29,19 @@ set -o nounset
 info "Computing Nbars on Chen windows using:"
 info "\tkmer size:" ${kmer_size}bp
 info "\ttraining set:" ${train_set_label}
+info "\tnoisy label:" ${noisy_label}
 
 PATH=${CONSTRAINT_TOOLS}:$PATH 
 
-model="${CONSTRAINT_TOOLS}/dist/model-germline-grch38-Nonly.kmerSize-${kmer_size}.trainSet-${train_set_label}.json"
+model="${CONSTRAINT_TOOLS}/dist/model-germline-grch38-Nonly.kmerSize-${kmer_size}.trainSet-${train_set_label}${noisy_label}.json"
 
 genome_wide_predictions_directory="${CONSTRAINT_TOOLS_DATA}/genome-wide-predictions"
-zscores="${genome_wide_predictions_directory}/predict-germline-grch38-Nonly.chenWindows.kmerSize-${kmer_size}.trainSet-${train_set_label}.bed.gz"
+zscores="${genome_wide_predictions_directory}/predict-germline-grch38-Nonly.chenWindows.kmerSize-${kmer_size}.trainSet-${train_set_label}${noisy_label}.bed.gz"
 
 progress_bars="disk" 
 # progress_bars="stdout" 
 
-work_directory="work-predict-germline-model-Nonly.production.chenWindows.kmerSize-${kmer_size}.trainSet-${train_set_label}"
+work_directory="work-predict-germline-model-Nonly.production.chenWindows.kmerSize-${kmer_size}.trainSet-${train_set_label}${noisy_label}"
 work_directory_should_be_clean="true"
 work="${genome_wide_predictions_directory}/${work_directory}" # path to directory to store intermediate work and logs
 if [[ ${work_directory_should_be_clean} == "true" && -d ${work} ]]; then 
