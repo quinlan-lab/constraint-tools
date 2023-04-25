@@ -1,9 +1,9 @@
-1. Chen + McHale scores on Chen windows, created using merge_chen_zscores_with_mchale_zscores[.Nonly].ipynb
+1. Chen + McHale scores on Chen windows, created using merge_chen_zscores_with_mchale_zscores[.Nonly].ipynb or merge_mchale_zscores.Nonly.noisy.ipynb
 ```
 ${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale.bed
 ${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale.multiple-kmers.bed
 ${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale.kmerSizes.trainSets.bed
-${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale.kmerSizes.trainSets.noisy.bed
+${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/mchale.kmerSizes.trainSets.noisy.bed
 ```
 2. The amount of overlap of Chen windows with things such as enhancers and exons: 
 ```
