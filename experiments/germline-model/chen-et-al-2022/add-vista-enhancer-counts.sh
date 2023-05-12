@@ -13,37 +13,39 @@ PATH="${CONSTRAINT_TOOLS}/experiments/germline-model/chen-et-al-2022:$PATH"
 # `printenv | grep -w PYTHONPATH` returns zero output
 export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities"
 
-chen_mchale_windows="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale.bed"
-vista_enhancers="${CONSTRAINT_TOOLS_DATA}/vista-enhancers/vista-enhancers.hg38.hg19.tsv"
-chen_mchale_windows_with_vista_enhancer_counts="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/chen-mchale.vista-enhancers.bed"
+windows="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/mchale.kmerSizes.trainSets.noisy.enhancer-exon.bed"
+positive_vista_enhancers="${CONSTRAINT_TOOLS_DATA}/vista-enhancers/vista-enhancers.positive.hg38.hg19.tsv"
+windows_with_positive_vista_enhancer_counts="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/mchale.kmerSizes.trainSets.noisy.enhancer-exon.positive-vista-enhancers.bed"
 
 header-line () {
-  echo -e "chromosome\tchen_start\tchen_end\tchen_zscore\tmchale_start\tmchale_end\tmchale_position\tmchale_N_bar\tmchale_N_observed\tmchale_K_bar\tmchale_K_observed\tmchale_M\toverlap_bps\tchen_vista_enhancer_count"
+  set +o errexit
+  echo -e "$(head -1 ${windows})\tpositive-vista-enhancer count"
+  set -o errexit
 }
 
-get-chen-windows () { 
-  cat ${chen_mchale_windows} | tail -n +2
+get-windows-tail () { 
+  cat ${windows} | tail -n +2
 }
 
-get-vista-enhancers () {
-  cut -f1-3 ${vista_enhancers} \
+get-positive-vista-enhancers () {
+  cut -f1-3 ${positive_vista_enhancers} \
     | sort --version-sort -k1,1 -k2,2n \
     | uniq 
 }
 
-add-vista-enhancer-counts () {
+add-positive-vista-enhancer-counts () {
   bedtools intersect \
-      -a <(get-chen-windows) \
-      -b <(get-vista-enhancers) \
+      -a <(get-windows-tail) \
+      -b <(get-positive-vista-enhancers) \
       -c
       # -wo 
 }
 
 (
   header-line 
-  add-vista-enhancer-counts
-) > ${chen_mchale_windows_with_vista_enhancer_counts}  
+  add-positive-vista-enhancer-counts
+) > ${windows_with_positive_vista_enhancer_counts}  
 
-info "Wrote vista enhancer counts to" ${chen_mchale_windows_with_vista_enhancer_counts}  
+info "Wrote positive vista enhancer counts to" ${windows_with_positive_vista_enhancer_counts}  
 
 

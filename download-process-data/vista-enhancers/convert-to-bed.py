@@ -4,7 +4,10 @@ from pack_unpack import unpack
 
 def convert_to_bed(): 
   for line in sys.stdin: 
-    region = line.split('|')[1].strip()
+    fields = line.split('|')
+    region = fields[1].strip()
+    enhancer_class = fields[3].strip()
+    if enhancer_class == 'negative': continue 
     chromosome, start, end = unpack(region)
     print(f'{chromosome}\t{start}\t{end}')
 
