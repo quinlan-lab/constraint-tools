@@ -141,7 +141,7 @@ Required arguments for `browse-germline-model` are:
 
 ```
 --port INT 
-      The port to serve the web-app on
+      The port to serve the web-app on (beware of https://stackoverflow.com/a/69829313)
 ```
 
 while optional arguments are:
