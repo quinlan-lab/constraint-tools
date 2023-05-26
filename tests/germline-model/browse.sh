@@ -8,8 +8,8 @@ set -o nounset
 
 CONSTRAINT_TOOLS=$PWD
 
-window_size="1000"
-model="${CONSTRAINT_TOOLS}/dist/model-germline-grch38.windowSize-${window_size}.json"
+kmer_size="3"
+model="${CONSTRAINT_TOOLS}/dist/model-germline-grch38.kmerSize-${kmer_size}.json"
 port="5001" # https://stackoverflow.com/a/69829313
 trustworthy_noncoding_regions="${CONSTRAINT_TOOLS}/dist/trustworthy-noncoding-regions-germline-grch38.bed.gz"
 
