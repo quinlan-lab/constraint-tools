@@ -11,8 +11,7 @@ from get_p0s_p1s_p2s_p3s import get_p0s_p1s_p2s_p3s
 def create_column_of_Ns_core(number_examples, p0_p1_p2_p3): 
   return np.random.choice(a=[0, 1, 2, 3], size=(number_examples, 1), p=p0_p1_p2_p3)
 
-def fetch_distribution_N(region, model):
-  number_examples = 100000
+def fetch_distribution_N(region, model, number_examples=100000):
   create_column_of_Ns = lambda p0_p1_p2_p3: create_column_of_Ns_core(number_examples, p0_p1_p2_p3)
   with pysam.FastaFile(model['genome']) as genome:
     window = { 'region': region}
