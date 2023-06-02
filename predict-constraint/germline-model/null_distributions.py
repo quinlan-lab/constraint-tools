@@ -15,7 +15,7 @@ def fetch_sample_N(region, model, number_examples):
   create_column_of_Ns = lambda p0_p1_p2_p3: create_column_of_Ns_core(number_examples, p0_p1_p2_p3)
   with pysam.FastaFile(model['genome']) as genome:
     window = { 'region': region}
-    list_of_columns_of_Ns = map(create_column_of_Ns, get_p0s_p1s_p2s_p3s(window, genome, model))
+    list_of_columns_of_Ns = map(create_column_of_Ns, get_p0s_p1s_p2s_p3s(window, genome, model, log=False))
   Ns = np.column_stack(list(list_of_columns_of_Ns))
   N = np.sum(Ns, axis=1)
   return N 
