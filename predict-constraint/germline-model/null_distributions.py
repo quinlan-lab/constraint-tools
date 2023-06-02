@@ -11,13 +11,17 @@ from get_p0s_p1s_p2s_p3s import get_p0s_p1s_p2s_p3s
 def create_column_of_Ns_core(number_examples, p0_p1_p2_p3): 
   return np.random.choice(a=[0, 1, 2, 3], size=(number_examples, 1), p=p0_p1_p2_p3)
 
-def fetch_distribution_N(region, model, number_examples=100000):
+def fetch_sample_N(region, model, number_examples): 
   create_column_of_Ns = lambda p0_p1_p2_p3: create_column_of_Ns_core(number_examples, p0_p1_p2_p3)
   with pysam.FastaFile(model['genome']) as genome:
     window = { 'region': region}
     list_of_columns_of_Ns = map(create_column_of_Ns, get_p0s_p1s_p2s_p3s(window, genome, model))
   Ns = np.column_stack(list(list_of_columns_of_Ns))
   N = np.sum(Ns, axis=1)
+  return N 
+
+def fetch_distribution_N(region, model, number_examples=100000):
+  N = fetch_sample_N(region, model, number_examples)
   N_histogram = collections.Counter(N)    
   max_N = max(N)
   xs = range(max_N+1)
