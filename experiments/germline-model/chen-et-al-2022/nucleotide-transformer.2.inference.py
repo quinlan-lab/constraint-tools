@@ -104,7 +104,7 @@ def do_inference_on_window(window):
         alleles.append(allele)
       sequences.append(alleles)
   sequences = np.array(sequences)
-  sequences = sequences.T # [A, C, G, T] X [site1, site2, ...]
+  sequences = sequences.T # sequences is now indexed as BASES X [site1, site2, ...]
   sequences_raveled = ravel(sequences)
 
   # Tokenize sequence(s)
