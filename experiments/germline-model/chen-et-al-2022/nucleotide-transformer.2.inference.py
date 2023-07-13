@@ -92,7 +92,7 @@ MCHALE_MODEL = read_model(MCHALE_MODEL_FILENAME)
 def do_inference_on_window(window): 
   chromosome = window['chromosome']
   start = window['start']
-  end = window['start'] + 3 # TODO: replace with window['end']
+  end = window['start'] + 20 # TODO: replace with window['end']
   region = pack(chromosome, start, end)
   
   sequences = []
