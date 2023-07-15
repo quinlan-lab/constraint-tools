@@ -6,6 +6,8 @@ import warnings
 
 pd.set_option('display.max_columns', 50)
 
+NUMBER_WINDOWS_PER_QUANTILE = 10
+
 def get_windows_scores_annotations():
     filename = f'{CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/enhancer-characteristics-enrichment.bed'
     df = pd.read_csv(filename, sep='\t')
@@ -40,7 +42,7 @@ def subset(df, score='negative new chen zscore'):
   df = (
     df
     .groupby([f'{score} quantile'], as_index=True)
-    .apply(lambda df_subset: df_subset.sample())
+    .apply(lambda df_subset: df_subset.sample(NUMBER_WINDOWS_PER_QUANTILE))
     .reset_index(drop=True)
   )
   out_filename = f'{CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/enhancer-characteristics-enrichment-subset.bed'
