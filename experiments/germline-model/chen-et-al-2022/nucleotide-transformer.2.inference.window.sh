@@ -1,12 +1,13 @@
 #!/bin/bash
-#SBATCH --time=20:00:00
-#SBATCH --account=redwood-gpu
-#SBATCH --partition=redwood-gpu
-#SBATCH --mem=20g # sacct -o reqmem,maxrss,averss,elapsed -j JOBID
+#SBATCH --time=24:00:00
+#SBATCH --account=quinlan-rw
+#SBATCH --partition=quinlan-rw
+#SBATCH --mem=192g # sacct -o reqmem,maxrss,averss,elapsed -j JOBID
 
-# previously used: 
-# --account=quinlan-rw
-# --partition=quinlan-shared-rw
+# $ myallocation
+
+# Redwood general cluster hardware overview: 
+# https://www.chpc.utah.edu/documentation/guides/redwood.php#apexHardware
 
 # https://devhints.io/bash#miscellaneous
 # put option-fetching before "set -o nounset" so that we can detect flags without arguments
