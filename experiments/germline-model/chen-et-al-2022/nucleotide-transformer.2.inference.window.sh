@@ -2,12 +2,15 @@
 #SBATCH --time=24:00:00
 #SBATCH --account=quinlan-rw
 #SBATCH --partition=quinlan-rw
-#SBATCH --mem=192g # sacct -o reqmem,maxrss,averss,elapsed -j JOBID
+#SBATCH --mem=30g # sacct -o reqmem,maxrss,averss,elapsed -j JOBID
 
 # $ myallocation
 
 # Redwood general cluster hardware overview: 
 # https://www.chpc.utah.edu/documentation/guides/redwood.php#apexHardware
+
+# previously used as much as: 
+# --mem=192g
 
 # https://devhints.io/bash#miscellaneous
 # put option-fetching before "set -o nounset" so that we can detect flags without arguments
