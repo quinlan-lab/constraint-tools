@@ -28,12 +28,12 @@ NUCLEOTIDE_TRANSFORMER_MODEL = '500M_human_ref' #@param['500M_human_ref', '500M_
 # NUMBER_TOKENS_PER_SEQUENCE: split sequence into book-ended 6-mer tokens and add CLS token
 
 # 12 mins per window
-SEQUENCE_LENGTH = 11 
-NUMBER_TOKENS_PER_SEQUENCE = 15 
+# SEQUENCE_LENGTH = 11 
+# NUMBER_TOKENS_PER_SEQUENCE = 15 
 
-# # TODO: 1.5 hr per window
-# SEQUENCE_LENGTH = 501 
-# NUMBER_TOKENS_PER_SEQUENCE = 100 
+# 1.5 hr per window
+SEQUENCE_LENGTH = 501
+NUMBER_TOKENS_PER_SEQUENCE = 100 
 
 # # TODO: 15 hrs per window 
 # SEQUENCE_LENGTH = 5977
