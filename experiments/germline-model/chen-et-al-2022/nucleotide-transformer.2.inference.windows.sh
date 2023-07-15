@@ -39,7 +39,11 @@ while read -r window; do
   info "Wrote:" ${window_filename}  
 
   info "Submitting job to infer using nucleotide transformer..."
-  log_file="${directory}/window-${window_index}.log" 
+
+  # %j indicates job number (JOBID) and %N indicates first node
+  # use "sacct -o reqmem,maxrss,averss,elapsed -j JOBID" to determine memory usage over lifetime of job
+  log_file="${directory}/window-${window_index}-%j-%N.log" 
+
   job_name="nucleotide-transformer.window-${window_index}"
   sbatch \
     --output=${log_file} \
