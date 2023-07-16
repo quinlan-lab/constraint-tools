@@ -2,7 +2,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --account=quinlan-rw
 #SBATCH --partition=quinlan-rw
-#SBATCH --mem=30g # sacct -o reqmem,maxrss,averss,elapsed -j JOBID
+#SBATCH --mem=50g # sacct -o reqmem,maxrss,averss,elapsed -j JOBID
 
 # $ myallocation
 
