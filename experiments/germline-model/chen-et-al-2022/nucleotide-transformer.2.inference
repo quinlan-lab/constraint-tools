@@ -100,7 +100,7 @@ def infer(window):
   region = pack(chromosome, start, end)
 
   sequences = []
-  with pysam.FastaFile(MCHALE_MODEL['genome']) as genome:
+  with pysam.FastaFile(MCHALE_MODEL['genome']) as genome: # type: ignore
     for sequence in fetch_kmers(region, genome, kmer_size=SEQUENCE_LENGTH, log=True): # upper case
       alleles = []
       for new_center_nucleotide in BASES:
