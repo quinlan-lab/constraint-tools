@@ -1,0 +1,2 @@
+BASES = 'ACGT'
+
