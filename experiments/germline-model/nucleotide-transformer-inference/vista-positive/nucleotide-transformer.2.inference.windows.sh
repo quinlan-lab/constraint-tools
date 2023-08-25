@@ -27,6 +27,7 @@ get-body () {
   cat ${windows_filename} \
     | sed '/^chrX/d' \
     | sed '/^chrY/d' \
+    | awk '$3 - $2 < 1000' \
     | shuf -n 100 \
     | cut -f1-3
 }
