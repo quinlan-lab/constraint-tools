@@ -17,8 +17,8 @@ Also see: https://mail.google.com/mail/u/0/#inbox/QgrcJHsNjBschvpNVgQXNsdnxpDwSv
 `download-process-data/khurana/convert-to-bed.ipynb`
 2. [DONE] Use the web interface to translate hg19 coordinates of enhancers to grch38 coordinates (liftover): 
 https://genome.ucsc.edu/cgi-bin/hgLiftOver
-3. Merge hg38 coordinates with Khurana scores: `download-process-data/khurana/create-hg38-enhancers-and-khurana-scores.ipynb`
-4. Intersect enhancers with Chen windows and Chen scores: `experiments/germline-model/chen-et-al-2022/intersect-khurana-enhancers-with-chen-windows.sh`
-5. Reproduce Fig 4a of Khurana paper and extend to Chen scores: `experiments/germline-model/chen-et-al-2022/khurana.1.ipynb`
+3. [DONE] Merge hg38 coordinates with Khurana scores: `download-process-data/khurana/create-hg38-enhancers-and-khurana-scores.ipynb`
+4. [DONE] Intersect enhancers with Chen windows and Chen scores: `experiments/germline-model/chen-et-al-2022/intersect-khurana-enhancers-with-chen-windows.sh`
+5. [DONE] Reproduce Fig 4a of Khurana paper and extend to Chen scores: `experiments/germline-model/chen-et-al-2022/khurana.1.ipynb`
 
 
