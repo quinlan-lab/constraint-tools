@@ -14,7 +14,8 @@ PATH="${CONSTRAINT_TOOLS}/experiments/germline-model/chen-et-al-2022:$PATH"
 export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities"
 
 get-khurana-enhancers () {
-  local khurana_enhancers="${CONSTRAINT_TOOLS_DATA}/khurana/enhancers-and-khurana-scores.hg38.sorted.bed"
+  local prefix=$1
+  local khurana_enhancers="${CONSTRAINT_TOOLS_DATA}/khurana/${prefix}-and-khurana-scores.hg38.sorted.bed"
   cat ${khurana_enhancers} 
 }
 
@@ -23,17 +24,21 @@ get-chen-windows () {
 }
 
 intersect-enhancers-with-windows () {
-  khurana_enhancers_intersect_chen_windows="${CONSTRAINT_TOOLS_DATA}/khurana/khurana-enhancers-intersect-chen-windows.bed"
+  local prefix=$1
+  khurana_enhancers_intersect_chen_windows="${CONSTRAINT_TOOLS_DATA}/khurana/${prefix}-intersect-chen-windows.bed"
   bedtools intersect \
-      -a <(get-khurana-enhancers) \
+      -a <(get-khurana-enhancers ${prefix}) \
       -b <(get-chen-windows) \
       -wa \
       -wb \
     > ${khurana_enhancers_intersect_chen_windows}  
-  info "Wrote khurana enhancers with intersecting chen windows to:" ${khurana_enhancers_intersect_chen_windows}  
+  info "Wrote ${prefix} with intersecting chen windows to:" ${khurana_enhancers_intersect_chen_windows}  
 }
 
-intersect-enhancers-with-windows
+intersect-enhancers-with-windows "enhancers"
+intersect-enhancers-with-windows "disease-enhancers"
+intersect-enhancers-with-windows "pacbio-deleted-enhancers"
+
 
 
 
