@@ -40,6 +40,7 @@ intersect-enhancers-with-deletions () {
   bedtools intersect \
     -a <(get-labeled-enhancers-tail) \
     -b <(get-topmed-homozygous-deletions-tail) \
+    -f 1.0 \
     -wao  
 }
 
