@@ -13,7 +13,7 @@ PATH="${CONSTRAINT_TOOLS}/experiments/germline-model/chen-et-al-2022:$PATH"
 # `printenv | grep -w PYTHONPATH` returns zero output
 export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities"
 
-LABELED_ENHANCERS="${CONSTRAINT_TOOLS_DATA}/khurana/labeled-enhancers.bed"
+LABELED_ENHANCERS="${CONSTRAINT_TOOLS_DATA}/khurana/labeled-enhancers.1.bed"
 TOPMED_SVS="/scratch/ucgd/lustre-work/quinlan/u0055382/SVAFotate/supporting_data/TOPMed.GRCh38.bed.gz"
 
 get-labeled-enhancers-head () {
@@ -49,7 +49,7 @@ create-header () {
 }
 
 intersect-enhancers-with-deletions-with-header () {
-  enhancers_intersect_deletions="${CONSTRAINT_TOOLS_DATA}/khurana/labeled-enhancers-intersect-topmed-homozygous-deletions.bed"
+  enhancers_intersect_deletions="${CONSTRAINT_TOOLS_DATA}/khurana/labeled-enhancers-1-intersect-topmed-homozygous-deletions.bed"
   (
     create-header
     intersect-enhancers-with-deletions
