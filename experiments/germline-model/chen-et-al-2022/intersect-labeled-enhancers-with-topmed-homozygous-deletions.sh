@@ -24,35 +24,36 @@ get-labeled-enhancers-tail () {
   tail -n +2 ${LABELED_ENHANCERS} 
 }
 
-get-topmed-svs-head () {
+get-topmed-homozygous-deletions-head () {
   less ${TOPMED_SVS} \
     | head -1 
 }
 
-get-topmed-svs-tail () {
+get-topmed-homozygous-deletions-tail () {
   less ${TOPMED_SVS} \
     | tail -n +2 \
-    | awk '{print "chr"$0}'
+    | awk '{print "chr"$0}' \
+    | awk '$5 == "DEL" && $11 > 0' 
 }
 
-intersect-enhancers-with-svs () {
+intersect-enhancers-with-deletions () {
   bedtools intersect \
     -a <(get-labeled-enhancers-tail) \
-    -b <(get-topmed-svs-tail) \
+    -b <(get-topmed-homozygous-deletions-tail) \
     -wao  
 }
 
 create-header () {
-  echo -e "$(get-labeled-enhancers-head)\t$(get-topmed-svs-head)\tenhancer-sv-overlap"
+  echo -e "$(get-labeled-enhancers-head)\t$(get-topmed-homozygous-deletions-head)\tenhancer-deletion-overlap"
 }
 
-intersect-enhancers-with-svs-with-header () {
-  enhancers_intersect_svs="${CONSTRAINT_TOOLS_DATA}/khurana/labeled-enhancers-intersect-topmed-svs.bed"
+intersect-enhancers-with-deletions-with-header () {
+  enhancers_intersect_deletions="${CONSTRAINT_TOOLS_DATA}/khurana/labeled-enhancers-intersect-topmed-homozygous-deletions.bed"
   (
     create-header
-    intersect-enhancers-with-svs
-  ) > ${enhancers_intersect_svs}  
-  info "Wrote labeled enhancers with intersecting topmed svs to:" ${enhancers_intersect_svs}  
+    intersect-enhancers-with-deletions
+  ) > ${enhancers_intersect_deletions}  
+  info "Wrote labeled enhancers with intersecting topmed homozygous deletions to:" ${enhancers_intersect_deletions}  
 }
 
-intersect-enhancers-with-svs-with-header
+intersect-enhancers-with-deletions-with-header
