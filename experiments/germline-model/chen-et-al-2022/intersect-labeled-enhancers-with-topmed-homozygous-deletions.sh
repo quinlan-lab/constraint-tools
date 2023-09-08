@@ -4,7 +4,7 @@ set -o pipefail
 # set -o xtrace
 set -o nounset 
 
-source set-environment-variables.sh 
+source /scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/set-environment-variables.sh 
 
 PATH="${CONSTRAINT_TOOLS}/experiments/germline-model/chen-et-al-2022:$PATH"
 
