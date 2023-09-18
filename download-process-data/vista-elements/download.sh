@@ -13,9 +13,8 @@ write-vista-elements () {
 
   output=${CONSTRAINT_TOOLS_DATA}/vista-elements/vista-elements.${label}.hg19.tsv
 
-  curl $url \
-    | grep "^>Human" \
-    | python ${CONSTRAINT_TOOLS}/download-process-data/vista-elements/convert-to-bed.py ${label} \
+  curl $url 2> /dev/null \
+    | python ${CONSTRAINT_TOOLS}/download-process-data/vista-elements/convert-to-bed.py ${label} 2> /dev/null \
     | sort --version-sort -k1,1 -k2,2n -k3,3n \
     > ${output}
 
