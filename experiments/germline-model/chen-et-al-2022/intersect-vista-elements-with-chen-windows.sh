@@ -15,6 +15,7 @@ export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities"
 
 get-vista-elements () {
   local label=$1
+  # download-process-data/vista-elements/
   local vista_elements="${CONSTRAINT_TOOLS_DATA}/vista-elements/vista-elements.${label}.hg38.hg19.tsv"
   cut -f1-3 ${vista_elements} 
 }
