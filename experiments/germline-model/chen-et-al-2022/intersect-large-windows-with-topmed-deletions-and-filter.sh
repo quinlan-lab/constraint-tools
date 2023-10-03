@@ -16,10 +16,8 @@ export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities"
 LARGE_WINDOWS="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/large-windows.bed"
 TOPMED_SVS="/scratch/ucgd/lustre-work/quinlan/u0055382/SVAFotate/supporting_data/TOPMed.GRCh38.bed.gz"
 
-OVERLAP_FRACTION=$1 
-
 get-large-windows-head () {
-  echo -e "chrom\tstart\tend"
+  echo -e "chrom_window\tstart_window\tend_window"
 }
 
 get-large-windows-tail () {
@@ -39,16 +37,20 @@ get-topmed-deletions-tail () {
     | awk '$5 == "DEL"' 
 }
 
+get-merged-topmed-deletions-tail () {
+  get-topmed-deletions-tail \
+    | bedtools merge -i - 
+}
+
 intersect-large-windows-with-deletions () {
   bedtools intersect \
     -a <(get-large-windows-tail) \
     -b <(get-topmed-deletions-tail) \
-    -f ${OVERLAP_FRACTION} \
     -c
 }
 
 create-header () {
-  echo -e "$(get-large-windows-head)\tnumber_of_overlapping_topmed_deletions"
+  echo -e "$(get-large-windows-head)\tnumber_of_overlapping_topmed_deletions\tchrom_merged_deletion\tstart_merged_deletion\tend_merged_deletion\twindow_merged_deletion_overlap"
 }
 
 get-exclude-regions () {
@@ -67,14 +69,21 @@ intersect-large-windows-with-deletions-and-filter () {
     -A 
 }
 
-write-large-windows-with-deletion-counts () {
-  large_windows_intersect_deletions="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/filtered-large-windows-with-deletion-counts.bed"
+intersect-large-windows-with-merged-deletions () {
+  bedtools intersect \
+    -a <(intersect-large-windows-with-deletions-and-filter) \
+    -b <(get-merged-topmed-deletions-tail) \
+    -wao
+}
+
+write-large-windows-with-deletions () {
+  large_windows_intersect_deletions="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/filtered-large-windows-with-deletions.bed"
   (
     create-header
-    intersect-large-windows-with-deletions-and-filter
+    intersect-large-windows-with-merged-deletions
   ) > ${large_windows_intersect_deletions}
   info "Wrote (filtered) large windows with intersecting topmed deletions to:" ${large_windows_intersect_deletions}  
 }  
 
-write-large-windows-with-deletion-counts
+write-large-windows-with-deletions
 
