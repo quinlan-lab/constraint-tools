@@ -26,12 +26,12 @@ curl --location ${url}/${data} \
 
 info "Find and store centromere locations..." 
 grep --ignore-case "cen" ${dir}/chromosome-bands.sorted.bed \
-  | awk '{print $1,$2,$3}' \
+  | awk -v OFS=$'\t' '{print $1,$2,$3}' \
   | sort -k1,1 -k2,2n --version-sort \
   > ${dir}/centromeres.bed  
 
 info "Find and store telomere locations (p-arm and q-arm)..."
-awk '{print $1,$2,$3}' ${dir}/chromosome-bands.sorted.bed \
+awk -v OFS=$'\t' '{print $1,$2,$3}' ${dir}/chromosome-bands.sorted.bed \
   | extract-telomeres \
   | sort -k1,1 -k2,2n --version-sort \
   > ${dir}/telomeres.bed
