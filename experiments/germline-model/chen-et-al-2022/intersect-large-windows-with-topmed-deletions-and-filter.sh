@@ -16,6 +16,12 @@ export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities"
 LARGE_WINDOWS="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/large-windows.bed"
 TOPMED_SVS="/scratch/ucgd/lustre-work/quinlan/u0055382/SVAFotate/supporting_data/TOPMed.GRCh38.bed.gz"
 
+GET_TOPMED_DELETIONS_TAIL="${1}" 
+DELETION_TYPE="${2}" 
+LOWER_SIZE_LIMIT="${3}"
+UPPER_SIZE_LIMIT="${4}"
+ALLELE_FREQ_THRESHOLD="${5}"
+
 get-large-windows-head () {
   echo -e "chrom_window\tstart_window\tend_window"
 }
@@ -30,22 +36,53 @@ get-topmed-deletions-head () {
 }
 
 # both het and homalt deletions: 
-get-topmed-deletions-tail () {
+get-all-topmed-deletions-tail () {
   less ${TOPMED_SVS} \
     | tail -n +2 \
     | awk '{print "chr"$0}' \
     | awk '$5 == "DEL"' 
 }
 
-get-merged-topmed-deletions-tail () {
-  get-topmed-deletions-tail \
-    | bedtools merge -i - 
+get-rare-topmed-deletions-tail () { 
+  get-all-topmed-deletions-tail \
+    | awk \
+      -v threshold=${ALLELE_FREQ_THRESHOLD} \
+      '$8 < threshold'
+}
+
+get-common-topmed-deletions-tail () { 
+  get-all-topmed-deletions-tail \
+    | awk \
+      -v threshold=${ALLELE_FREQ_THRESHOLD} \
+      '$8 > threshold'
+}
+
+get-short-topmed-deletions-tail () { 
+  get-all-topmed-deletions-tail \
+    | awk \
+      -v threshold=${LOWER_SIZE_LIMIT} \
+      '$4 < threshold'
+}
+
+get-medium-topmed-deletions-tail () { 
+  get-all-topmed-deletions-tail \
+    | awk \
+      -v lower=${LOWER_SIZE_LIMIT} \
+      -v upper=${UPPER_SIZE_LIMIT} \
+      '$4 >= lower && $4 < upper'
+}
+
+get-long-topmed-deletions-tail () { 
+  get-all-topmed-deletions-tail \
+    | awk \
+      -v threshold=${UPPER_SIZE_LIMIT} \
+      '$4 >= threshold'
 }
 
 intersect-large-windows-with-deletions () {
   bedtools intersect \
     -a <(get-large-windows-tail) \
-    -b <(get-topmed-deletions-tail) \
+    -b <(${GET_TOPMED_DELETIONS_TAIL}) \
     -c
 }
 
@@ -69,6 +106,11 @@ intersect-large-windows-with-deletions-and-filter () {
     -A 
 }
 
+get-merged-topmed-deletions-tail () {
+  ${GET_TOPMED_DELETIONS_TAIL} \
+    | bedtools merge -i - 
+}
+
 intersect-large-windows-with-merged-deletions () {
   bedtools intersect \
     -a <(intersect-large-windows-with-deletions-and-filter) \
@@ -77,13 +119,19 @@ intersect-large-windows-with-merged-deletions () {
 }
 
 write-large-windows-with-deletions () {
-  large_windows_intersect_deletions="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/filtered-large-windows-with-deletions.bed"
+  local large_windows_intersect_deletions="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/filtered-large-windows-with-${DELETION_TYPE}-deletions.bed"
   (
     create-header
     intersect-large-windows-with-merged-deletions
   ) > ${large_windows_intersect_deletions}
-  info "Wrote (filtered) large windows with intersecting topmed deletions to:" ${large_windows_intersect_deletions}  
+  info "Wrote (filtered) large windows with intersecting ${DELETION_TYPE} topmed deletions to:" ${large_windows_intersect_deletions}  
 }  
 
-write-large-windows-with-deletions
+write-deletion-count () { 
+  local number_deletions_filename="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/number-${DELETION_TYPE}-deletions.txt"
+  ${GET_TOPMED_DELETIONS_TAIL} | wc -l > ${number_deletions_filename}
+  info "Wrote number of deletions in this particular class to:" ${number_deletions_filename}
+}
 
+write-large-windows-with-deletions
+write-deletion-count
