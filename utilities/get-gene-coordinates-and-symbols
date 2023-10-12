@@ -1,0 +1,20 @@
+#!/usr/bin/env python
+
+import sys 
+
+def main(): 
+  for line in sys.stdin: 
+    # gff3 format spec: 
+    # https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md
+    if line.startswith('#'): continue 
+    seqid, source, feature_type, start, end, score, strand, phase, attributes = line.strip().split('\t')
+    if feature_type != 'gene': continue 
+    tag_value_pairs = attributes.strip().split(';')
+    for tag_value in tag_value_pairs: 
+      tag, value = tag_value.strip().split('=')
+      if tag == 'Name': 
+        print(f'chr{seqid}\t{start}\t{end}\t{value}')
+        break 
+
+if __name__ == '__main__': 
+  main()
