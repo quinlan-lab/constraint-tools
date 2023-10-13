@@ -1,0 +1,32 @@
+#!/usr/bin/env python
+
+import sys 
+import pandas as pd 
+
+def main(): 
+  gene_symbols = pd.read_csv(sys.argv[1], sep='\t', header=None)
+  gene_symbols.columns = ['gene_symbol']
+
+  gene_coordinates_and_symbols = pd.read_csv(sys.argv[2], sep='\t', header=None)
+  gene_coordinates_and_symbols.columns = ['chromosome', 'start', 'end', 'gene_symbol']
+
+  subset_gene_coordinates_and_symbols = pd.merge(
+    gene_symbols, 
+    gene_coordinates_and_symbols, 
+    on='gene_symbol', 
+    how='inner'
+  )
+
+  subset_gene_coordinates_and_symbols = subset_gene_coordinates_and_symbols[
+    ['chromosome', 'start', 'end', 'gene_symbol']
+  ]
+
+  subset_gene_coordinates_and_symbols.to_csv(
+    sys.stdout, 
+    sep='\t', 
+    index=False, 
+    header=False
+  )
+
+if __name__ == "__main__": 
+  main()
