@@ -14,6 +14,11 @@ autosomal_dominant_gene_symbols="https://raw.githubusercontent.com/macarthur-lab
 haploinsufficient_gene_symbols="https://raw.githubusercontent.com/macarthur-lab/gene_lists/master/lists/clingen_level3_genes_2018_09_13.tsv"
 olfactor_receptor_gene_symbols="https://raw.githubusercontent.com/macarthur-lab/gene_lists/master/lists/olfactory_receptors.tsv"
 
+get-header () {
+  local header="chromosome\texon_start\texon_end\tgene_symbol\texon_rank\tgene_biotype"
+  echo -e "${header}" 
+}
+
 get-positive-gene-symbols () { 
   (
     curl ${autosomal_dominant_gene_symbols}
@@ -30,12 +35,15 @@ write-canonical-exons-in-class () {
 
   local output="${genes_path}/canonical-exons.${class}.sorted.bed"
   info "Merging the gene symbols of the ${class} genes with all canonical exons to extract the coordinates of the ${class} canonical exons..." 
-  get-exon-coordinates-from-symbols \
-      <(get-${class}-gene-symbols) \
-      <(zcat ${genes_path}/canonical-exons.sorted.bed.gz) \
-    | get-regular-chromosomes \
-    | sort -k1,1V -k2,2n \
-  > ${output}
+  (
+    get-header 
+    get-exon-coordinates-from-symbols \
+        <(get-${class}-gene-symbols) \
+        <(zcat ${genes_path}/canonical-exons.sorted.bed.gz) \
+        <(get-header) \
+      | get-regular-chromosomes \
+      | sort -k1,1V -k2,2n 
+  ) > ${output}
   info "Wrote" ${output}
 }
 

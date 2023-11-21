@@ -3,7 +3,7 @@
 import sys 
 import pandas as pd 
 
-def main(): 
+def get_exon_coordinates_from_symbols(): 
   gene_symbols = pd.read_csv(sys.argv[1], sep='\t', header=None)
   gene_symbols.columns = ['gene_symbol']
 
@@ -18,9 +18,11 @@ def main():
     how='inner'
   )
 
-  subset_exon_coordinates_and_gene_symbols = subset_exon_coordinates_and_gene_symbols[
-    ['chromosome', 'exon_start', 'exon_end', 'gene_symbol', 'exon_rank', 'gene_biotype']
-  ]
+  with open(sys.argv[3]) as fh: 
+    header = fh.read().strip() 
+    header = header.split('\t')
+
+  subset_exon_coordinates_and_gene_symbols = subset_exon_coordinates_and_gene_symbols[header]
 
   subset_exon_coordinates_and_gene_symbols.to_csv(
     sys.stdout, 
@@ -30,4 +32,4 @@ def main():
   )
 
 if __name__ == "__main__": 
-  main()
+  get_exon_coordinates_from_symbols()
