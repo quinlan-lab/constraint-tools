@@ -16,14 +16,18 @@ export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities"
 # bed file to intersect with SVs:
 WINDOWS="${1}"
 
+WINDOWS_WITH_DELETIONS="${2}" 
+
 TOPMED_SVS="/scratch/ucgd/lustre-work/quinlan/u0055382/SVAFotate/supporting_data/TOPMed.GRCh38.bed.gz"
 
-GET_TOPMED_DELETIONS_TAIL="${2}" 
-DELETION_TYPE="${3}" 
-LOWER_SIZE_LIMIT="${4}"
-UPPER_SIZE_LIMIT="${5}"
-ALLELE_FREQ_THRESHOLD="${6}"
+# How to stratify deletions:
+GET_TOPMED_DELETIONS_TAIL="${3}" 
+DELETION_TYPE="${4}" 
+LOWER_SIZE_LIMIT="${5}"
+UPPER_SIZE_LIMIT="${6}"
+ALLELE_FREQ_THRESHOLD="${7}"
 
+# Filter out false deletions: 
 SUSPICIOUS_DELETION_SIZE_THRESHOLD="1000000"
 
 info "We assume that the first line of the following is a header line:" ${WINDOWS}
@@ -87,18 +91,13 @@ get-long-topmed-deletions-tail () {
       '$4 >= threshold'
 }
 
-intersect-windows-with-deletions () {
+get-windows-with-deletion-counts () {
   bedtools intersect \
     -a <(get-windows-tail) \
     -b <(${GET_TOPMED_DELETIONS_TAIL}) \
     -f 0.5 \
     -c
 }
-
-# TODO 
-# continue from here: 
-intersect-windows-with-deletions | head 
-exit 1 
 
 get-exclude-regions () {
   cat \
@@ -109,9 +108,9 @@ get-exclude-regions () {
     | sort -k1,1 -k2,2n --version-sort
 }
 
-intersect-windows-with-deletions-and-filter () {
+filter-windows-with-deletion-counts () {
   bedtools subtract \
-    -a <(intersect-windows-with-deletions) \
+    -a <(get-windows-with-deletion-counts) \
     -b <(get-exclude-regions) \
     -A 
 }
@@ -121,31 +120,31 @@ get-merged-topmed-deletions-tail () {
     | bedtools merge -i - 
 }
 
-intersect-large-windows-with-merged-deletions () {
+add-deletion-overlaps-to-windows () {
   bedtools intersect \
-    -a <(intersect-large-windows-with-deletions-and-filter) \
-    -b <(get-merged-topmed-deletions-tail) \
-    -wao
+      -a <(filter-windows-with-deletion-counts) \
+      -b <(get-merged-topmed-deletions-tail) \
+      -wao \
+    | cut -f1-7,11
 }
 
 create-header () {
-  echo -e "$(get-large-windows-head)\tnumber_of_overlapping_topmed_deletions\tchrom_merged_deletion\tstart_merged_deletion\tend_merged_deletion\twindow_merged_deletion_overlap"
+  echo -e "$(get-windows-head)\tdeletion_count\tdeletion_overlap"
 }
 
-write-large-windows-with-deletions () {
-  local large_windows_intersect_deletions="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/filtered-large-windows-with-${DELETION_TYPE}-deletions.bed"
+write-windows-with-deletions () {
   (
     create-header
-    intersect-large-windows-with-merged-deletions
-  ) > ${large_windows_intersect_deletions}
-  info "Wrote (filtered) large windows with intersecting ${DELETION_TYPE} topmed deletions to:" ${large_windows_intersect_deletions}  
+    add-deletion-overlaps-to-windows
+  ) > ${WINDOWS_WITH_DELETIONS}
+  info "Wrote windows with deletion counts and overlaps to:" ${WINDOWS_WITH_DELETIONS}  
 }  
 
 write-deletion-count () { 
   local number_deletions_filename="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/number-${DELETION_TYPE}-deletions.txt"
   ${GET_TOPMED_DELETIONS_TAIL} | wc -l > ${number_deletions_filename}
-  info "Wrote number of deletions in this particular class to:" ${number_deletions_filename}
+  info "Wrote number of deletions in this particular stratum to:" ${number_deletions_filename}
 }
 
-write-large-windows-with-deletions
+write-windows-with-deletions
 write-deletion-count
