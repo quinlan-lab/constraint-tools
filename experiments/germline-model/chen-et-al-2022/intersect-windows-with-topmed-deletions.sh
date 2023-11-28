@@ -17,15 +17,16 @@ export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities"
 WINDOWS="${1}"
 
 WINDOWS_WITH_DELETIONS="${2}" 
+PROCESSED_DELETIONS="${3}"
 
 TOPMED_SVS="/scratch/ucgd/lustre-work/quinlan/u0055382/SVAFotate/supporting_data/TOPMed.GRCh38.bed.gz"
 
 # How to stratify deletions:
-GET_TOPMED_DELETIONS_TAIL="${3}" 
-DELETION_TYPE="${4}" 
-LOWER_SIZE_LIMIT="${5}"
-UPPER_SIZE_LIMIT="${6}"
-ALLELE_FREQ_THRESHOLD="${7}"
+GET_TOPMED_DELETIONS_TAIL="${4}" 
+DELETION_TYPE="${5}" 
+LOWER_SIZE_LIMIT="${6}"
+UPPER_SIZE_LIMIT="${7}"
+ALLELE_FREQ_THRESHOLD="${8}"
 
 # Filter out false deletions: 
 SUSPICIOUS_DELETION_SIZE_THRESHOLD="1000000"
@@ -147,9 +148,8 @@ write-deletion-count () {
 }
 
 write-deletions () { 
-  local deletions_filename="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/${DELETION_TYPE}-deletions.bed"
-  ${GET_TOPMED_DELETIONS_TAIL} | cut -f1-3 > ${deletions_filename}
-  info "Wrote deletions in this particular stratum to:" ${deletions_filename}
+  ${GET_TOPMED_DELETIONS_TAIL} | cut -f1-3 > ${PROCESSED_DELETIONS}
+  info "Wrote deletions in this particular stratum to:" ${PROCESSED_DELETIONS}
 }
 
 write-windows-with-deletions
