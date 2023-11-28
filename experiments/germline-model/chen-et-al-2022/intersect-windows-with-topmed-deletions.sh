@@ -146,5 +146,12 @@ write-deletion-count () {
   info "Wrote number of deletions in this particular stratum to:" ${number_deletions_filename}
 }
 
+write-deletions () { 
+  local deletions_filename="${CONSTRAINT_TOOLS_DATA}/benchmark-genome-wide-predictions/chen-et-al-2022/${DELETION_TYPE}-deletions.bed"
+  ${GET_TOPMED_DELETIONS_TAIL} | cut -f1-3 > ${deletions_filename}
+  info "Wrote deletions in this particular stratum to:" ${deletions_filename}
+}
+
 write-windows-with-deletions
 write-deletion-count
+write-deletions
