@@ -148,8 +148,9 @@ write-deletion-count () {
 }
 
 write-deletions () { 
-  ${GET_TOPMED_DELETIONS_TAIL} | cut -f1-3 > ${PROCESSED_DELETIONS}
-  info "Wrote deletions in this particular stratum to:" ${PROCESSED_DELETIONS}
+  echo "track name=${DELETION_TYPE}-deletions description="XXX" color=255,0,0," > ${PROCESSED_DELETIONS}
+  ${GET_TOPMED_DELETIONS_TAIL} | cut -f1-3 >> ${PROCESSED_DELETIONS}
+  info "Wrote deletions in UCSC-genome-browser format for this particular stratum to:" ${PROCESSED_DELETIONS}
 }
 
 write-windows-with-deletions
