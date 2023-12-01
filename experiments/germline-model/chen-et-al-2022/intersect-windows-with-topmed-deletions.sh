@@ -17,16 +17,18 @@ export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities"
 WINDOWS="${1}"
 
 WINDOWS_WITH_DELETIONS="${2}" 
-PROCESSED_DELETIONS="${3}"
+
+PUBLIC_REPO_DIR="${3}"
+PROCESSED_DELETIONS="${4}"
 
 TOPMED_SVS="/scratch/ucgd/lustre-work/quinlan/u0055382/SVAFotate/supporting_data/TOPMed.GRCh38.bed.gz"
 
 # How to stratify deletions:
-GET_TOPMED_DELETIONS_TAIL="${4}" 
-DELETION_TYPE="${5}" 
-LOWER_SIZE_LIMIT="${6}"
-UPPER_SIZE_LIMIT="${7}"
-ALLELE_FREQ_THRESHOLD="${8}"
+GET_TOPMED_DELETIONS_TAIL="${5}" 
+DELETION_TYPE="${6}" 
+LOWER_SIZE_LIMIT="${7}"
+UPPER_SIZE_LIMIT="${8}"
+ALLELE_FREQ_THRESHOLD="${9}"
 
 # Filter out false deletions: 
 SUSPICIOUS_DELETION_SIZE_THRESHOLD="1000000"
@@ -147,12 +149,19 @@ write-deletion-count () {
   info "Wrote number of deletions in this particular stratum to:" ${number_deletions_filename}
 }
 
-write-deletions () { 
-  echo "track name=${DELETION_TYPE}-deletions description=${DELETION_TYPE}-deletions color=255,0,0," > ${PROCESSED_DELETIONS}
-  ${GET_TOPMED_DELETIONS_TAIL} | cut -f1-3 >> ${PROCESSED_DELETIONS}
-  info "Wrote deletions in UCSC-genome-browser format for this particular stratum to:" ${PROCESSED_DELETIONS}
+push-deletions-to-public-repo () { 
+  local output="${PUBLIC_REPO_DIR}/${PROCESSED_DELETIONS}"
+  echo "track name=${DELETION_TYPE}-deletions description=${DELETION_TYPE}-deletions color=255,0,0," > ${output}
+  ${GET_TOPMED_DELETIONS_TAIL} | cut -f1-3 >> ${output}
+  info "Wrote deletions in UCSC-genome-browser format for this particular stratum to:" ${output}
+
+  cd ${PUBLIC_REPO_DIR}
+  git add ${output}
+  ( git commit -m "Add ${DELETION_TYPE} deletions" ) || true
+  git push
+  info "Pushed ${output} to public repo"
 }
 
 write-windows-with-deletions
 write-deletion-count
-write-deletions
+push-deletions-to-public-repo
