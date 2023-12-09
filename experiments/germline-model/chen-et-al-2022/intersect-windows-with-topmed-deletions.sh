@@ -31,7 +31,7 @@ UPPER_SIZE_LIMIT="${8}"
 ALLELE_FREQ_THRESHOLD="${9}"
 
 # Filter out false deletions: 
-SUSPICIOUS_DELETION_SIZE_THRESHOLD="1000000"
+SUSPICIOUS_DELETION_SIZE_THRESHOLD="${10}"
 
 info "We assume that the first line of the following is a header line:" ${WINDOWS}
 
