@@ -29,7 +29,7 @@ UPPER_SIZE_LIMIT="${8}"
 ALLELE_FREQ_THRESHOLD="${9}"
 
 # Filter out false deletions: 
-SUSPICIOUS_DELETION_SIZE_THRESHOLD="1000000"
+SUSPICIOUS_DELETION_SIZE_THRESHOLD="${10}"
 
 info "We assume that the first line of the following is a header line:" ${WINDOWS}
 
@@ -116,12 +116,11 @@ add-deletion-overlaps-to-windows () {
   bedtools intersect \
       -a <(filter-windows-with-deletion-counts) \
       -b <(get-merged-deletions-tail) \
-      -wao \
-    | cut -f1-7,11
+      -wao 
 }
 
 create-header () {
-  echo -e "$(get-windows-head)\tdeletion_count\tdeletion_overlap"
+  echo -e "$(get-windows-head)\tdeletion_count\tmerged_deletion_chrom\tmerged_deletion_start\tmerged_deletion_end\tmerged_deletion_overlap"
 }
 
 write-windows-with-deletions () {
