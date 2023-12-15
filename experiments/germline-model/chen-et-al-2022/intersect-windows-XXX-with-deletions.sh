@@ -1,0 +1,135 @@
+set -o errexit
+set -o pipefail
+# set -o noclobber
+# set -o xtrace
+set -o nounset
+
+source /scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools/set-environment-variables.sh 
+
+PATH="${CONSTRAINT_TOOLS}/experiments/germline-model/chen-et-al-2022:$PATH" 
+
+# https://stackoverflow.com/a/43476575/6674256
+# need to export PYTHONPATH since it is not already in the environment: 
+# `printenv | grep -w PYTHONPATH` returns zero output
+export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities"
+
+# https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5467550/
+# data courtesy: Tom Nicholas 
+# https://docs.google.com/presentation/d/1o1rOcvnj69F9-qfXK0r19UKLupoivBvBlzBboM9u2dQ/edit#slide=id.g22aad12e963_0_24
+ENHANCERS="/scratch/ucgd/lustre-work/quinlan/u0055382/genome_reference/genehancer/genehancer_GRCh38.bed.gz" 
+
+DELETIONS_CLASS="${1}"
+WINDOWS_WITH_DELETIONS="${2}" 
+
+# How to stratify deletions:
+DELETION_TYPE="${3}" 
+GET_DELETIONS_TAIL="get-${DELETION_TYPE}-deletions-tail"
+
+LOWER_SIZE_LIMIT="${4}"
+UPPER_SIZE_LIMIT="${5}"
+ALLELE_FREQ_THRESHOLD="${6}"
+
+# Filter out false deletions: 
+SUSPICIOUS_DELETION_SIZE_THRESHOLD="${7}"
+
+WINDOW_SIZE="${8}" 
+
+get-windows-head () { 
+  set +o errexit
+  zcat ${ENHANCERS} \
+    | head -1 \
+    | awk --assign OFS=$'\t' '{ print "window_chrom", "window_start", "window_end", $0 }'
+  set -o errexit
+}
+
+# TODO: 
+# generalize this code to use "bedtools flank"
+get-windows-tail () {
+  zcat ${ENHANCERS} \
+    | tail -n +2 \
+    | awk  \
+      --assign OFS=$'\t' \
+      --assign window_size=${WINDOW_SIZE} \
+      '{ midpoint = 0.5*($2+$3); start = (midpoint-0.5*window_size > 0 ? midpoint-0.5*window_size : 0); printf "chr%s\t%d\t%d\tchr%s\n", $1, start, midpoint+0.5*window_size, $0}'
+}
+
+source "${CONSTRAINT_TOOLS}/experiments/germline-model/chen-et-al-2022/get-${DELETIONS_CLASS}-deletions.sh"
+
+get-all-deletions-tail () { 
+  get-deletions-tail
+}
+
+get-rare-deletions-tail () { 
+  get-deletions-tail \
+    | awk \
+      -v threshold=${ALLELE_FREQ_THRESHOLD} \
+      '$8 < threshold'
+}
+
+get-common-deletions-tail () { 
+  get-deletions-tail \
+    | awk \
+      -v threshold=${ALLELE_FREQ_THRESHOLD} \
+      '$8 > threshold'
+}
+
+get-short-deletions-tail () { 
+  get-deletions-tail \
+    | awk \
+      -v threshold=${LOWER_SIZE_LIMIT} \
+      '$4 < threshold'
+}
+
+get-medium-deletions-tail () { 
+  get-deletions-tail \
+    | awk \
+      -v lower=${LOWER_SIZE_LIMIT} \
+      -v upper=${UPPER_SIZE_LIMIT} \
+      '$4 >= lower && $4 < upper'
+}
+
+get-long-deletions-tail () { 
+  get-deletions-tail \
+    | awk \
+      -v threshold=${UPPER_SIZE_LIMIT} \
+      '$4 >= threshold'
+}
+
+get-windows-with-deletion-overlaps-head () {
+  echo -e "$(get-windows-head)\t$(get-deletions-head)"
+}  
+
+get-windows-with-deletion-overlaps-tail () {
+  bedtools intersect \
+    -a <(get-windows-tail) \
+    -b <(${GET_DELETIONS_TAIL}) \
+    -wa -wb
+}
+
+# TODO: integrate this: 
+get-exclude-regions () {
+  cat \
+    "${CONSTRAINT_TOOLS_DATA}/chromosome-bands/grch38/centromeres.bed" \
+    "${CONSTRAINT_TOOLS_DATA}/chromosome-bands/grch38/telomeres.bed" \
+    <(zcat "${CONSTRAINT_TOOLS_DATA}/gaps/grch38/gaps.sorted.bed.gz") \
+    | get-nonXY-chromosomes \
+    | sort -k1,1 -k2,2n --version-sort
+}
+
+# TODO: integrate this: 
+filter-windows-with-deletion-counts () {
+  bedtools subtract \
+    -a <(get-windows-with-deletion-counts) \
+    -b <(get-exclude-regions) \
+    -A 
+}
+
+write-windows-with-deletion-overlaps () {
+  (
+    get-windows-with-deletion-overlaps-head
+    get-windows-with-deletion-overlaps-tail
+  ) > ${WINDOWS_WITH_DELETIONS}
+  info "Wrote windows with deletion overlaps to:" ${WINDOWS_WITH_DELETIONS}  
+}  
+
+write-windows-with-deletion-overlaps
