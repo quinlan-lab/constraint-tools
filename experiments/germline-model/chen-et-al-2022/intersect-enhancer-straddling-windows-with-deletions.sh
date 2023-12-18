@@ -31,9 +31,11 @@ WINDOW_SIZE="${8}"
 
 ENHANCERS_CLASS="${9}"
 
+CHROMOSOME_SIZES="${CONSTRAINT_TOOLS_DATA}/reference/grch38/chromosome-sizes/hg38.chrom.sizes.sorted"
+
 source "${CONSTRAINT_TOOLS}/experiments/germline-model/chen-et-al-2022/get-${DELETIONS_CLASS}-deletions.sh"
 
-source "${CONSTRAINT_TOOLS}/experiments/germline-model/chen-et-al-2022/get-${ENHANCERS_CLASS}-enhancers.sh"
+source "${CONSTRAINT_TOOLS}/experiments/germline-model/chen-et-al-2022/get-windows-from-${ENHANCERS_CLASS}-enhancers.sh"
 
 get-all-deletions-tail () { 
   get-deletions-tail
@@ -86,7 +88,6 @@ get-windows-with-deletion-overlaps-tail () {
     -wa -wb
 }
 
-# TODO: integrate this: 
 get-exclude-regions () {
   cat \
     "${CONSTRAINT_TOOLS_DATA}/chromosome-bands/grch38/centromeres.bed" \
@@ -96,10 +97,9 @@ get-exclude-regions () {
     | sort -k1,1 -k2,2n --version-sort
 }
 
-# TODO: integrate this: 
-filter-windows-with-deletion-counts () {
+filter-windows-with-deletion-overlaps-tail () {
   bedtools subtract \
-    -a <(get-windows-with-deletion-counts) \
+    -a <(get-windows-with-deletion-overlaps-tail) \
     -b <(get-exclude-regions) \
     -A 
 }
@@ -107,7 +107,7 @@ filter-windows-with-deletion-counts () {
 write-windows-with-deletion-overlaps () {
   (
     get-windows-with-deletion-overlaps-head
-    get-windows-with-deletion-overlaps-tail
+    filter-windows-with-deletion-overlaps-tail
   ) > ${WINDOWS_WITH_DELETIONS}
   info "Wrote windows with deletion overlaps to:" ${WINDOWS_WITH_DELETIONS}  
 }  

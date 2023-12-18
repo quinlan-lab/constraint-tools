@@ -9,19 +9,18 @@ get-windows-head () {
   set -o errexit
 }
 
-# TODO: 
-# generalize this code to use "bedtools flank"
+# create windows by subtracting 0.5*WINDOW_SIZE from enhancer_midpoint and adding 0.5*WINDOW_SIZE to enhancer_midpoint
 get-windows-tail () {
   cat ${ENHANCERS} \
     | tail -n +2 \
     | awk  \
       --assign OFS=$'\t' \
-      --assign window_size=${WINDOW_SIZE} \
       '{ 
         midpoint = 0.5*($2+$3)
-        start = (midpoint-0.5*window_size > 0 ? midpoint-0.5*window_size : 0)
-        end = midpoint+0.5*window_size
+        start = midpoint-1 
+        end = midpoint
         printf "%s\t%d\t%d\t%s\n", $1, start, end, $0
-      }'
+      }' \
+    | bedtools slop -i - -g ${CHROMOSOME_SIZES} -b $((WINDOW_SIZE/2))
 }
 
