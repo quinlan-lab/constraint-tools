@@ -14,7 +14,7 @@ PATH="${CONSTRAINT_TOOLS}/experiments/germline-model/chen-et-al-2022:$PATH"
 export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities"
 
 WINDOW_SIZE="$1" 
-DELETIONS="$2"
+FEATURES_FILENAME="$2"
 COVERAGE_FILENAME="$3"
 SLIDING_WINDOW_SIZE="$4"
 
@@ -29,8 +29,8 @@ make_sliding_windows () {
 
 bedtools coverage \
   -a <(make_sliding_windows) \
-  -b $DELETIONS \
+  -b $FEATURES_FILENAME \
   -counts \
   > ${COVERAGE_FILENAME}
 
-info "Wrote deletions coverage:" "${COVERAGE_FILENAME}"
+info "Wrote coverage:" "${COVERAGE_FILENAME}"
