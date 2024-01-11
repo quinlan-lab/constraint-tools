@@ -29,7 +29,7 @@ make_sliding_windows () {
 
 bedtools coverage \
   -a <(make_sliding_windows) \
-  -b $FEATURES_FILENAME \
+  -b ${FEATURES_FILENAME} \
   -counts \
   > ${COVERAGE_FILENAME}
 
