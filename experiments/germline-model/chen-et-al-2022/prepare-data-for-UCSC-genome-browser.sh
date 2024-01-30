@@ -28,7 +28,7 @@ type=bedGraph \
 name=${TRACK_NAME} \
 description=${TRACK_DESCRIPTION} \
 visibility=full \
-color=0,0,255" 
+color=0,0,0" 
     set +o errexit
     sort -k1,1V -k2,2n  "${DATA_DIRECTORY}/${DATA_STEM}.bed"
     set -o errexit
