@@ -45,6 +45,7 @@ push-to-public-repo () {
   git add "${DATA_STEM}.bedGraph" ".gitattributes"
   ( git commit -m "Add ${DATA_STEM} in UCSC-genome-browser format (bedgraph)" ) || true
   git push
+  git lfs prune --recent
   info "Pushed ${DATA_STEM}.bedGraph to public repo"
 }
 
