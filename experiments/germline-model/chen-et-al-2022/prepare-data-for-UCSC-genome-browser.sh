@@ -32,14 +32,13 @@ color=0,0,0"
     set +o errexit
     sort -k1,1V -k2,2n  "${DATA_DIRECTORY}/${DATA_STEM}.bed"
     set -o errexit
-  ) > "${DATA_DIRECTORY}/${DATA_STEM}.bedGraph"
+  ) > "${PUBLIC_REPO_DIR}/${DATA_STEM}.bedGraph" 
   info \
     "Wrote:" \
-    "${DATA_DIRECTORY}/${DATA_STEM}.bedGraph"
+    "${PUBLIC_REPO_DIR}/${DATA_STEM}.bedGraph" 
 }
 
 push-to-public-repo () { 
-  mv "${DATA_DIRECTORY}/${DATA_STEM}.bedGraph" "${PUBLIC_REPO_DIR}/${DATA_STEM}.bedGraph" 
   cd ${PUBLIC_REPO_DIR}
   git lfs track "${DATA_STEM}.bedGraph"
   git add "${DATA_STEM}.bedGraph" ".gitattributes"
