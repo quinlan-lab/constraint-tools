@@ -1,0 +1,12 @@
+#!/usr/bin/env python
+
+import sys 
+
+end = 0
+for line in sys.stdin: 
+  start = end
+  chrom, B, segment_length = line.split()
+  B = float(B)/1000 
+  segment_length = int(segment_length)
+  end = start + segment_length
+  print(chrom, start, end, B, sep='\t')
