@@ -13,6 +13,8 @@ PATH="${CONSTRAINT_TOOLS}/experiments/germline-model/chen-et-al-2022:$PATH"
 # `printenv | grep -w PYTHONPATH` returns zero output
 export PYTHONPATH="${CONSTRAINT_TOOLS}/utilities"
 
+extract_directory="${CONSTRAINT_TOOLS_DATA}/background-selection"
+
 rm -rf "${CONSTRAINT_TOOLS_DATA}/background-selection/CADD-B-map"
 
 url="https://github.com/sellalab/HumanLinkedSelectionMaps/raw/master/Bmaps/CADD_bestfit.tar.gz"
@@ -21,7 +23,6 @@ save_path="${CONSTRAINT_TOOLS_DATA}/background-selection/CADD_bestfit.tar.gz"
 info "Downloading CADD B-map from ${url} to ${save_path}"
 wget -O "${save_path}" "${url}"
 
-extract_directory="${CONSTRAINT_TOOLS_DATA}/background-selection"
 tar -xzf "${save_path}" -C "${extract_directory}"
 info "Extracted CADD B-map to:" "${extract_directory}"
 rm "${save_path}"
@@ -34,8 +35,6 @@ mv "${extract_directory}/CADD_bestfit" "${extract_directory}/CADD-B-map"
 # of the segment in base pairs. Segments sum to
 # the length of each chromosome in the hg19 
 # build.
-
-# convert B-maps to bed format: 
 for chrom_id in {1..22}; do
   convert-bmap-to-bed \
     < <(\
@@ -45,4 +44,28 @@ for chrom_id in {1..22}; do
   rm "${extract_directory}/CADD-B-map/chr${chrom_id}.bmap.txt"
   info "Converted CADD B-map for chr${chrom_id} to bed format"
 done
+
+sort -k1,1V -k2,2n "${extract_directory}/CADD-B-map/bmap.hg19.bed" > "${extract_directory}/CADD-B-map/bmap.hg19.sorted.bed"
+rm "${extract_directory}/CADD-B-map/bmap.hg19.bed"
+
+lift () {
+  local filename_root=$1
+  info "Lifting ${filename_root}.hg19.sorted.bed to hg38"
+  bash \
+    ${CONSTRAINT_TOOLS}/download-process-data/lift.sh \
+    "${filename_root}.hg19.sorted.bed" \
+    hg19 \
+    hg38
+  mv \
+    ${filename_root}.hg19.sorted.bed.hg38 \
+    ${filename_root}.hg38.bed
+  mv \
+    ${filename_root}.hg19.sorted.bed.hg38.unmapped \
+    ${filename_root}.hg19.unmapped.bed
+}
+
+lift "${extract_directory}/CADD-B-map/bmap"
+
+
+
 
