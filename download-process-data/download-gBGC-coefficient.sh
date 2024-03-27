@@ -33,7 +33,8 @@ lift () {
     ${CONSTRAINT_TOOLS}/download-process-data/lift.sh \
     "${gBGC_path}/gBGC-coefficient.hg18.EUR.bed" \
     hg18 \
-    hg38
+    hg38 \
+    "-bedPlus=3 -tab"
   mv \
     "${gBGC_path}/gBGC-coefficient.hg18.EUR.bed.hg38" \
     "${gBGC_path}/gBGC-coefficient.hg38.EUR.bed"
