@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+
+import sys
+
+header_encountered = False
+
+for line in sys.stdin:
+  if line.startswith('NA'):
+    continue
+
+  columns = line.rstrip().split('\t')
+
+  if not header_encountered:
+    columns[1] = 'start'
+    columns.insert(2, 'end')
+    newline = '\t'.join(columns)
+    print(newline)
+    header_encountered = True
+    continue
+
+  columns[0] = 'chr' + columns[0]
+  columns[1] = str(int(columns[1]) * 1000000)
+  columns.insert(2, str(int(columns[1]) + 999999))
+  newline = '\t'.join(columns)
+  print(newline)
+
+
+
+
