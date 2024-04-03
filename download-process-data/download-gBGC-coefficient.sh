@@ -2,7 +2,7 @@ set -o errexit
 set -o pipefail
 # set -o noclobber
 # set -o xtrace
-set -o nounset 
+set -o nounset
 
 source download-process-data/set-environment-variables.sh 
 
@@ -37,16 +37,16 @@ lift () {
   info "Lifting over..."
   bash \
     ${CONSTRAINT_TOOLS}/download-process-data/lift.sh \
-    "${gBGC_path}/gBGC-coefficient.hg18.EUR.bed" \
+    "${gBGC_path}/gBGC-coefficient.hg18.${pop}.bed" \
     hg18 \
     hg38 \
     "-bedPlus=3 -tab"
   mv \
-    "${gBGC_path}/gBGC-coefficient.hg18.EUR.bed.hg38" \
-    "${gBGC_path}/gBGC-coefficient.hg38.EUR.bed"
+    "${gBGC_path}/gBGC-coefficient.hg18.${pop}.bed.hg38" \
+    "${gBGC_path}/gBGC-coefficient.hg38.${pop}.bed"
   mv \
-    "${gBGC_path}/gBGC-coefficient.hg18.EUR.bed.hg38.unmapped" \
-    "${gBGC_path}/gBGC-coefficient.hg18.EUR.umapped.bed"
+    "${gBGC_path}/gBGC-coefficient.hg18.${pop}.bed.hg38.unmapped" \
+    "${gBGC_path}/gBGC-coefficient.hg18.${pop}.umapped.bed"
 }
 
 lift 

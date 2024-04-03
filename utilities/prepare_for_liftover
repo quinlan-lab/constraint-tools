@@ -3,16 +3,19 @@
 import os
 import pandas as pd
 
+from colorize import print_string_as_info
+
 gBGC_path = os.getenv('gBGC_path')
 pop = os.getenv('pop')
 
-columns = f"chromosome,start,end,B_M1star.{pop},Bmean_M3starPop.{pop},Bmean_M3starHM.{pop},Bmean_M3starHMT6.{pop}"
+columns = f"chromosome,start,end,B_M1star.{pop},B0_M3starHMT6.{pop},B1_M3starHMT6.{pop},Bmean_M3starHMT6.{pop},lambda_M3starHMT6.{pop}"
 columns = columns.strip().split(',')
 
 df = pd.read_csv(f'{gBGC_path}/gBGC-coefficient.hg18.{pop}.tsv', sep='\t')
 df = df[columns]
 df = df.fillna('.')
 df.to_csv(f'{gBGC_path}/gBGC-coefficient.hg18.{pop}.bed', sep='\t', header=False, index=False)
+print_string_as_info(f'Wrote: {gBGC_path}/gBGC-coefficient.hg18.{pop}.bed')
 
 # Write the columns to disk
 with open(f'{gBGC_path}/gBGC-coefficient.{pop}.columns.txt', 'w') as f:
