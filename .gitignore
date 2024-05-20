@@ -41,3 +41,5 @@ tests/germline-model/*log
 
 trash
 .trash
+
+*.png
