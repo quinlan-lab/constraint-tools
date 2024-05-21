@@ -17,6 +17,7 @@ def compute_limits(df, feature, mean_factor, std_factor):
 
 def slice_feature_space(df, conditional_features_and_lims): 
   for conditional_feature, lim in conditional_features_and_lims: 
+    print(f'conditioning on {conditional_feature} in [{lim[0]}, {lim[1]}]')
     df = df[
       (df[conditional_feature] > lim[0]) & 
       (df[conditional_feature] < lim[1])
