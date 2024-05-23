@@ -24,13 +24,13 @@ def slice_feature_space(df, conditional_features_and_lims):
     ]
   return df 
 
-def plot_feature_distribution(df, feature, xlabel, lim=None): 
+def plot_feature_distribution(df, feature, xlabel, lim=None, density=True): 
     x = df[feature] 
 
     fig, ax = plt.subplots(1, 1, figsize=(12, 6))
     ax.hist(
         x, 
-        density=True, 
+        density=density, 
         bins=100,
         histtype='stepfilled', 
         alpha=0.2, 
@@ -42,7 +42,7 @@ def plot_feature_distribution(df, feature, xlabel, lim=None):
         ax.axvspan(lim[0], lim[1], alpha=0.2, color='red', label='conditioned values')
 
     ax.set_xlabel(xlabel)
-    ax.set_ylabel('probability density')
+    ax.set_ylabel('probability density' if density else 'window count')
     ax.set_yscale('linear')
     ax.set_xlim(x.min(), x.max())
     ax.legend()
