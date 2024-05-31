@@ -1,5 +1,5 @@
 CONSTRAINT_TOOLS = '/scratch/ucgd/lustre-work/quinlan/u6018199/constraint-tools'
-CONSTRAINT_TOOLS_DATA = '/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools'
+CONSTRAINT_TOOLS_DATA = '/scratch/ucgd/lustre-labs/quinlan/data-shared/constraint-tools'
 
 import sys
 sys.path.append(f'{CONSTRAINT_TOOLS}/utilities')
@@ -18,6 +18,7 @@ def compute_N_mean_null_gnocchi(row):
 
 # Non-exonic windows, with Gnocchi and various features (e.g. GC content), and enhancer-overlap status 
 def get_windows_with_GC_content_and_cpg_islands(): 
+  print(CONSTRAINT_TOOLS_DATA)
   df1 = pd.read_csv(
     f'{CONSTRAINT_TOOLS_DATA}/chen-et-al-2023-published-version/41586_2023_6045_MOESM4_ESM/Supplementary_Data_2.gnocchi.N_expected.N_observed.B.paternal_recombination_rate.maternal_recombination_rate.gBGC-tract-counts.non-exonic.gBGC.bed', 
     sep='\t', 
