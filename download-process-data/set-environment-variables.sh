@@ -18,6 +18,6 @@ PATH="${CONSTRAINT_TOOLS}/bin:$PATH"
 
 info $(printenv | grep CONSTRAINT_TOOLS)
 
-export CONSTRAINT_TOOLS_DATA="/scratch/ucgd/lustre-work/quinlan/data-shared/constraint-tools" 
+export CONSTRAINT_TOOLS_DATA="/scratch/ucgd/lustre-labs/quinlan/data-shared/constraint-tools" 
 
 
