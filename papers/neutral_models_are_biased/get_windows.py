@@ -8,6 +8,8 @@ import pandas as pd
 from functools import reduce
 import numpy as np 
 
+import os 
+
 def compute_N_mean_null_gnocchi(row): 
     a = 1 
     b = -(2*row['N_observed'] + row['gnocchi']**2)
@@ -63,3 +65,25 @@ def get_windows_with_GC_content_and_cpg_islands():
 
   return df
 
+def get_windows_with_features_and_constraint_scores(): 
+    filename = f'{CONSTRAINT_TOOLS_DATA}/chen-et-al-2023-published-version/41586_2023_6045_MOESM4_ESM/Supplementary_Data_2.features.constraint_scores.bed'
+    if os.path.exists(filename): 
+        df = pd.read_csv(
+            filename,
+            sep='\t', 
+        )        
+    else: 
+        df1 = get_windows_with_GC_content_and_cpg_islands()
+        df2 = pd.read_csv(
+            f'{CONSTRAINT_TOOLS_DATA}/chen-et-al-2023-published-version/41586_2023_6045_MOESM4_ESM/Supplementary_Data_2.gnocchi.N_expected.N_observed.B.paternal_recombination_rate.maternal_recombination_rate.gBGC-tract-counts.non-exonic.gBGC.depletion_rank_constraint_score.bed',
+            sep='\t', 
+        )
+        df2 = df2[['chrom', 'start', 'end', 'depletion_rank_constraint_score']]
+        df = pd.merge(df1, df2, on=['chrom', 'start', 'end'], how='inner')
+        df.to_csv(
+            filename, 
+            sep='\t',
+            index=False
+        ) 
+
+    return df 
