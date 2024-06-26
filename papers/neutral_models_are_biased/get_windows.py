@@ -79,6 +79,7 @@ def get_windows_with_features_and_constraint_scores():
             sep='\t', 
         )
         df2 = df2[['chrom', 'start', 'end', 'depletion_rank_constraint_score']]
+        df2['depletion_rank_constraint_score_complement'] = 1 - df2['depletion_rank_constraint_score']
         df = pd.merge(df1, df2, on=['chrom', 'start', 'end'], how='inner')
         df.to_csv(
             filename, 
