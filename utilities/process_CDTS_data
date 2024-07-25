@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+
+import sys
+
+# assumes no header line in input
+for line in sys.stdin:
+    columns = line.rstrip().split('\t')
+
+    columns[0] = 'chr' + columns[0]
+
+    newline = '\t'.join(columns)
+    print(newline)
+
+
+
+
