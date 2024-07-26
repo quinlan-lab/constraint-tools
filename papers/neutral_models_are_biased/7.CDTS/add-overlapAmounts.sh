@@ -27,6 +27,8 @@ GeneHancer_enhancers="/scratch/ucgd/lustre-labs/quinlan/u0055382/genome_referenc
 
 merged_exons="${CONSTRAINT_TOOLS_DATA}/genes/grch38/exons.merged.bed"
 
+chromosome_sizes="${CONSTRAINT_TOOLS_DATA}/reference/grch38/chromosome-sizes/hg38.chrom.sizes.sorted"
+
 get-CDTS-windows-head () { 
   set +o errexit
   cat ${CDTS_windows} | head -1 
@@ -34,7 +36,25 @@ get-CDTS-windows-head () {
 }
 
 get-CDTS-windows-tail () { 
-  cat ${CDTS_windows} | tail -n +2
+  # "the calculated CDTS across the 550-bp window was attributed to the middle 10-bp bin"
+  # omit alternate chromosomes, and X and Y chromosomes 
+  cat ${CDTS_windows} \
+    | tail -n +2 \
+    | awk '{if ($3 - $2 == 10) print $0}' \
+    | awk  \
+      --assign OFS=$'\t' \
+      '{ 
+        midpoint = 0.5*($2+$3)
+        start = midpoint-1 
+        end = midpoint
+        printf "%s\t%d\t%d", $1, start, end
+        for(i=4; i<=NF; i++) {
+          printf "\t%s", $i
+        }
+        printf "\n"
+      }' \
+    | get-nonXY-chromosomes \
+    | bedtools slop -i - -g ${chromosome_sizes} -b 275
 }
 
 get-GeneHancer-enhancers () {
