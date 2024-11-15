@@ -10,6 +10,7 @@ libexec
 
 .vscode
 .DS_Store
+.venv
 
 .ipynb_checkpoints
 *.pyc
