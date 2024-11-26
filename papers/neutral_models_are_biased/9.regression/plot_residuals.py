@@ -10,15 +10,16 @@ def plot_residuals_vs_feature(ax, df, standardized, model_type):
     )
 
     residual_label = f'standardized_residuals_{model_type}Model' if standardized else f'residuals_{model_type}Model'    
+    residual_label_plot = f'standardized residuals' if standardized else f'residuals'    
 
     average_residual = df.groupby('x_bin_midpoints')[residual_label].mean()  
 
-    ax.scatter(df['x'], df[residual_label], alpha=0.7, label=residual_label)
+    ax.scatter(df['x'], df[residual_label], alpha=0.7, label=residual_label_plot)
     ax.plot(average_residual.index, average_residual.values, color='red', lw=2, label=f'average') 
     ax.axhline(0, color='black', linestyle='--')
 
     ax.set_title(f'{model_type} model')
-    ax.set_xlabel('x')
+    ax.set_xlabel('genomic feature')
     ylim = (-10, 10) if standardized else (-100, 100) 
     ax.set_ylim(ylim)
     yticks = [-10, -5, 0, 5, 10] if standardized else [-100, -50, 0, 50, 100] 

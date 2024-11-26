@@ -15,15 +15,16 @@ def plot_y(df, model_type, true_params):
     true_rate = compute_true_rate(true_params)
     y_ = true_rate(x_)
 
-    plt.figure(figsize=(12, 6))
-    plt.plot(df['x'], df['y'], 'o', alpha=0.5, label='y')
-    plt.plot(df['x'], df[f'predicted_y_{model_type}Model'], 'o', label=f'Learned rate under {model_type} model')
+    plt.figure(figsize=(6, 6))
+    plt.plot(df['x'], df['y'], 'o', alpha=0.5, label='SNV counts')
+    plt.plot(df['x'], df[f'predicted_y_{model_type}Model'], 'o', label=f'Learned rate')
     plt.plot(x_, y_, label='True rate', color='black')
     plt.yscale('log')
-    plt.xlabel('x')
+    plt.xlabel('genomic feature')
     plt.legend(prop={'size': 25})
     plt.xlim(-5, 5)
     plt.ylim(1e1, 1e4)
+    plt.title(f'{model_type} model')
     plt.show()
 
 def fit_poisson_model(df, model_type, true_params):

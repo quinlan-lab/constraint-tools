@@ -14,8 +14,8 @@ def plot_xs(number_examples):
 
     plt.figure(figsize=(12, 6))
     plt.hist(xs, bins=100)
-    plt.xlabel('x')
-    plt.ylabel('number of examples')
+    plt.xlabel('genomic feature')
+    plt.ylabel('number of windows')
 
 def compute_true_params(A, B, C):
     return { 
@@ -39,8 +39,8 @@ def plot_ys(true_params, number_examples):
 
     plt.figure(figsize=(12, 6))
     plt.hist(ys, bins=1000)
-    plt.xlabel('y (before selection)')
-    plt.ylabel('number of examples')
+    plt.xlabel('SNV counts (before selection)')
+    plt.ylabel('number of windows')
     plt.xlim(0, 400)
 
 def compute_y_pos_1(xs, ys, num_pos):
@@ -76,6 +76,8 @@ def generate_xs_ys_with_selection(true_params, number_examples, positive_fractio
 
     plt.figure(figsize=(12, 6))
     sns.scatterplot(data=data, x='x', y='y', hue='constrained', palette='viridis', alpha=0.5)
+    plt.xlabel('genomic feature')
+    plt.ylabel('SNV counts')
     plt.yscale('log')
 
     return data

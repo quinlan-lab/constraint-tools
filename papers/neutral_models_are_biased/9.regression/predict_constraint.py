@@ -20,6 +20,7 @@ def normal_distribution(x, mu, sigma):
 
 def plot_residual_distributions(ax, df, standardized, xlim, model_type, title, ylabel, ylim):
     xlabel = f'standardized_residuals_{model_type}Model' if standardized else f'residuals_{model_type}Model'    
+    xlabel_plot = f'standardized residual ({model_type} model)' if standardized else f'residual ({model_type} model)'    
 
     bins = np.linspace(xlim[0], xlim[1], 100)         
     bin_centers = (bins[1:] + bins[:-1]) / 2
@@ -54,7 +55,7 @@ def plot_residual_distributions(ax, df, standardized, xlim, model_type, title, y
     y_scaled = y * negative_class_count * bin_width  
     normal_line, = ax.plot(x, y_scaled, color='red', lw=2)
 
-    ax.set_xlabel(xlabel)
+    ax.set_xlabel(xlabel_plot)
     ax.set_ylabel(ylabel)
     ax.set_yscale('log')  
     ax.set_xlim(xlim) 
@@ -103,10 +104,10 @@ def plot_pr_curve_wrapper(df, model_types, positive_fraction):
                     standardized=False, 
                     xlim=(-50, 50), 
                     model_type='quadratic', 
-                    title=f'x-bin width = {bin_width}', 
+                    title=f'feature-bin width = {bin_width}', 
                     ylabel=(
-                        'number of examples\n'
-                        f'(x-bin center = {bin_center})'
+                        'number of windows\n'
+                        f'(feature-bin center = {bin_center})'
                     ), 
                     ylim=(1, 1e3)
                 )
@@ -116,7 +117,7 @@ def plot_pr_curve_wrapper(df, model_types, positive_fraction):
                 ax.plot([0, 1], [positive_fraction, positive_fraction], color='black', lw=2, linestyle=':', label='random classifier')
                 ax.set_xlabel('Recall')
                 ax.set_ylabel('Precision')
-                ax.set_title(f'x-bin width: {bin_width}')
+                ax.set_title(f'feature-bin width: {bin_width}')
                 ax.legend(prop={'size': 15})  
                 ax.set_xlim(0, 1)
                 ax.set_ylim(0, 1)

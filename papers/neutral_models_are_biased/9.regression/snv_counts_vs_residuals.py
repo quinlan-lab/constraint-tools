@@ -3,31 +3,31 @@ import matplotlib.pyplot as plt
 
 def plot_snv_counts_vs_residuals(df, model_type):
     df = pd.DataFrame({ 
-        'y': df['y'],
-        f'predicted_y_{model_type}Model': df[f'predicted_y_{model_type}Model'],
-        f'standardized_residuals_{model_type}Model_bin': pd.qcut(
+        'observed SNV counts': df['y'],
+        f'predicted SNV counts ({model_type} model)': df[f'predicted_y_{model_type}Model'],
+        f'standardized residuals bin ({model_type} model)': pd.qcut(
             df[f'standardized_residuals_{model_type}Model'], 25, labels=None
         ), 
     })
 
     df_grouped = ( 
         df
-        .groupby(f'standardized_residuals_{model_type}Model_bin')
+        .groupby(f'standardized residuals bin ({model_type} model)')
         .agg({
-            'y': 'mean',
-            f'predicted_y_{model_type}Model': 'mean',
+            'observed SNV counts': 'mean',
+            f'predicted SNV counts ({model_type} model)': 'mean',
         })
     )
 
-    df_grouped['y_all_bins'] = df['y'].mean()
+    df_grouped['SNV counts (all bins)'] = df['observed SNV counts'].mean()
 
     df_grouped.plot(
-        y=['y', f'predicted_y_{model_type}Model', 'y_all_bins'], 
+        y=['observed SNV counts', f'predicted SNV counts ({model_type} model)', 'SNV counts (all bins)'], 
         kind='line', 
         figsize=(8, 5)
     )
 
-    plt.xlabel(f'standardized residuals ({model_type}Model)')
+    plt.xlabel(f'standardized residuals ({model_type} model)')
     plt.ylabel('mean value')
     plt.legend()
     plt.xticks(rotation=45)
