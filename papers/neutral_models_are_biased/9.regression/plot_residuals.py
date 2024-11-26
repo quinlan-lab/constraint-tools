@@ -25,10 +25,10 @@ def plot_residuals_vs_feature(ax, df, standardized, model_type):
     yticks = [-10, -5, 0, 5, 10] if standardized else [-100, -50, 0, 50, 100] 
     ax.set_yticks(yticks)
     ax.set_xlim(-5, 5)
-    ax.legend(prop={'size': 20})
+    ax.legend(prop={'size': 15})
 
 def plot_residuals_vs_feature_all_models(df, standardized, model_types): 
-    fig, axes = plt.subplots(1, len(model_types), figsize=(7*len(model_types), 5))
+    fig, axes = plt.subplots(1, len(model_types), figsize=(5*len(model_types), 5))
 
     for i, model_type in enumerate(model_types):
         ax = axes[i]
