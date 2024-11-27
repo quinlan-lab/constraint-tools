@@ -69,9 +69,9 @@ def plot_residual_distributions(ax, df, standardized, xlim, model_type, title, y
         normal_line
     ]
     labels = [
-        'Constrained = False', 
-        'Constrained = True', 
-        'Standard Normal' if standardized else 'Normal'
+        'neutral', 
+        'constrained', 
+        'standard normal dist.' if standardized else 'normal dist.'
     ]
     ax.legend(handles=handles, labels=labels, prop={'size': 15})
 
