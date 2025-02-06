@@ -9,16 +9,15 @@ def generate_xs(number_examples):
     xs = np.random.normal(loc=MEAN, scale=STD, size=number_examples)
     return xs
 
-def plot_xs(number_examples):
+def plot_xs(ax, number_examples, xlim=(-5, 5), yscale='log'):
     xs = generate_xs(number_examples)
 
-    plt.figure(figsize=(6, 6))
-    plt.hist(xs, bins=100)
-    plt.xlabel('genomic feature')
-    plt.ylabel('number of windows')
-    plt.yscale('log')
+    ax.hist(xs, bins=100, color='black', alpha=0.1)
+    ax.set_xlabel('genomic feature')
+    ax.set_ylabel('number of windows')
+    ax.set_yscale(yscale)
+    ax.set_xlim(xlim)
     # plt.gca().yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: '{:.0e}'.format(y)))
-    plt.show()
 
 def compute_true_params(A, B, C):
     return { 

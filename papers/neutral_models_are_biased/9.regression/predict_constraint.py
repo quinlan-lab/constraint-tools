@@ -4,6 +4,8 @@ from matplotlib.patches import Patch
 import matplotlib.pyplot as plt
 import numpy as np
 
+from generate_data import plot_xs
+
 NUMBER_EXAMPLES_MIN = 100
 
 def filter_by_bin(df, bin_center, bin_width):
@@ -50,7 +52,7 @@ def plot_residual_distributions(ax, df, standardized, xlim, model_type, title, y
         # so that the average y value of the negative examples is a good estimate of TRUE_RATE(x0)
         lambda_ = df[df['constrained'] == False]['y'].mean()
 
-        y = normal_distribution(x, mu=0, sigma=np.sqrt(lambda_))            
+        y = normal_distribution(x, mu=0, sigma=np.sqrt(lambda_)) 
     negative_class_count = len(df[df['constrained'] == False])
     y_scaled = y * negative_class_count * bin_width  
     normal_line, = ax.plot(x, y_scaled, color='red', lw=2)
@@ -73,47 +75,110 @@ def plot_residual_distributions(ax, df, standardized, xlim, model_type, title, y
         'constrained', 
         'standard normal dist.' if standardized else 'normal dist.'
     ]
-    ax.legend(handles=handles, labels=labels, prop={'size': 15})
+    ax.legend(handles=handles, labels=labels, prop={'size': 15}, loc='lower center')
 
-def plot_pr_curve(ax, df, model_type):
+def plot_pr_curve(ax, df, model_type, standardized):
     # using standardized_residuals appear to yield larger auPRC than raw residuals
     # c.f., section entitled "Model bias is responsible for poor genome-wide performance" in this notebook
-    precision, recall, _ = precision_recall_curve(df['constrained'], df[f'standardized_residuals_{model_type}Model'])
+    if standardized:
+        precision, recall, _ = precision_recall_curve(df['constrained'], df[f'standardized_residuals_{model_type}Model'])
+    else:
+        precision, recall, _ = precision_recall_curve(df['constrained'], df[f'residuals_{model_type}Model'])
     num_examples = len(df)
 
     if num_examples > NUMBER_EXAMPLES_MIN:
         ax.plot(recall, precision, label=f'{model_type} model')
 
-def plot_pr_curve_wrapper(df, model_types, positive_fraction): 
+def compute_delta_sigma(df):
+    df_neutral = df[df['constrained'] == False]
+    df_constrained = df[df['constrained'] == True]
+    delta = df_neutral['y'].mean() - df_constrained['y'].mean()
+    sigma = df_neutral['y'].std()
+    return delta, sigma
+
+def annotate_plot_residual_distributions(ax, delta, sigma): 
+    ax.axvline(x=0, color='green', linestyle='--', lw=2)
+    ax.axvline(x=delta, color='green', linestyle='--', lw=2)
+    ax.annotate(
+        text='', 
+        xy=(0, ax.get_ylim()[1] / 2), 
+        xytext=(delta, ax.get_ylim()[1] / 2), 
+        arrowprops=dict(arrowstyle='<->', color='green', lw=2)
+    )
+    ax.text(
+        x=delta / 2, 
+        y=(ax.get_ylim()[1] / 2) * 1.5, 
+        s=r'$\Delta$', 
+        ha='center', 
+        va='center', 
+        color='green', 
+        fontsize=15
+    )
+
+    ax.annotate(
+        text='', 
+        xy=(-sigma, ax.get_ylim()[1] / 4), 
+        xytext=(sigma, ax.get_ylim()[1] / 4), 
+        arrowprops=dict(arrowstyle='<->', color='red', lw=2)
+    )
+    ax.text(
+        x=0, 
+        y=(ax.get_ylim()[1] / 4) * 1.5, 
+        s=r'$2\sigma$', 
+        ha='center', 
+        va='center', 
+        color='red', 
+        fontsize=15
+    )
+    
+def plot_pr_curve_wrapper(df, model_types, positive_fraction, xlim_residual, ylim_residual, standardized, number_examples, bin_widths): 
     bin_centers = [0, 1, 2]
 
-    bin_widths = [0.1, 1, 10]     
-    # duplicate the first element so we can create two different plots for the smallest bin width:
+    # duplicate the first element so we can plot the distribution of residuals for the smallest bin width:
     bin_widths.insert(0, bin_widths[0]) 
     
-    fig, axes = plt.subplots(len(bin_centers), len(bin_widths), figsize=(5*len(bin_widths), 5*len(bin_centers)))
+    number_rows = len(bin_centers)
+    number_columns = len(bin_widths) + 1 # +1 for an additional column that shows the distribution of feature values
+    fig, axes = plt.subplots(number_rows, number_columns, figsize=(5*number_columns, 5*number_rows))
 
     for i, bin_center in enumerate(bin_centers):
+        plot_xs(axes[i, 0], number_examples, xlim=(-0.5, 2.5), yscale='linear')
         for j, bin_width in enumerate(bin_widths):
             df_filtered = filter_by_bin(df, bin_center, bin_width)
+
+            j += 1 # skip the first column
             ax = axes[i, j]
-            if j == 0:
+            if j == 1:
+                if bin_width < 0.1 + 1e-6: 
+                    delta, sigma = compute_delta_sigma(df_filtered) 
+                else: 
+                    raise ValueError('bin_width too large to reliably compute delta (depletion of SNVs) and sigma (std of predicted SNV counts)')
+                SNR = delta/sigma # signal-to-noise ratio
                 plot_residual_distributions(
-                    ax, 
+                    ax,
                     df_filtered, 
-                    standardized=False, 
-                    xlim=(-50, 50), 
+                    standardized=standardized, 
+                    xlim=xlim_residual,
                     model_type='quadratic', 
-                    title=f'feature-bin width = {bin_width}', 
+                    title=(
+                        r'$SNR = \Delta/\sigma = '
+                        f'{SNR:.2f}$\n' 
+                        f'feature-bin width = {bin_width}'
+                    ),
                     ylabel=(
                         'number of windows\n'
                         f'(feature-bin center = {bin_center})'
                     ), 
-                    ylim=(1, 1e3)
+                    ylim=ylim_residual
                 )
+                if not standardized:
+                    annotate_plot_residual_distributions(ax, delta, sigma)
+
             else: 
+                axes[i, 0].axvspan(bin_center - bin_width / 2, bin_center + bin_width / 2, color='red', alpha=0.3)
+
                 for model_type in model_types:                
-                    plot_pr_curve(ax, df_filtered, model_type)
+                    plot_pr_curve(ax, df_filtered, model_type, standardized)
                 ax.plot([0, 1], [positive_fraction, positive_fraction], color='black', lw=2, linestyle=':', label='random classifier')
                 ax.set_xlabel('Recall')
                 ax.set_ylabel('Precision')
