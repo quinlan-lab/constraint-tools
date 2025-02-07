@@ -153,7 +153,7 @@ def plot_pr_curve_wrapper(df, model_types, positive_fraction, xlim_residual, yli
                     delta, sigma = compute_delta_sigma(df_filtered) 
                 else: 
                     raise ValueError('bin_width too large to reliably compute delta (depletion of SNVs) and sigma (std of predicted SNV counts)')
-                SNR = delta/sigma # signal-to-noise ratio
+                SNR = 1 + (delta/sigma)**2 # signal-to-noise ratio
                 plot_residual_distributions(
                     ax,
                     df_filtered, 
@@ -161,8 +161,7 @@ def plot_pr_curve_wrapper(df, model_types, positive_fraction, xlim_residual, yli
                     xlim=xlim_residual,
                     model_type='quadratic', 
                     title=(
-                        r'$SNR = \Delta/\sigma = '
-                        f'{SNR:.2f}$\n' 
+                        f'SNR = {SNR:.2f}\n' 
                         f'feature-bin width = {bin_width}'
                     ),
                     ylabel=(
