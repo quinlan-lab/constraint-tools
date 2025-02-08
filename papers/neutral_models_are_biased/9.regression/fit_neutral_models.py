@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import statsmodels.api as sm
 
-from generate_data import compute_true_rate
+from generate_data import compute_true_rate, compute_overall_model_bias
 
 # Mute SettingWithCopyWarning
 pd.options.mode.chained_assignment = None
@@ -11,20 +11,24 @@ pd.options.mode.chained_assignment = None
 def plot_y(df, model_type, true_params):
     df = df[df['constrained'] == False]
 
-    x_ = np.linspace(df['x'].min(), df['x'].max(), 100)
     true_rate = compute_true_rate(true_params)
-    y_ = true_rate(x_)
+    df['true_rate'] = true_rate(df['x'])
+
+    overall_model_bias = compute_overall_model_bias(df, model_type, true_params)
 
     plt.figure(figsize=(6, 6))
     plt.plot(df['x'], df['y'], 'o', alpha=0.5, label='SNV counts')
     plt.plot(df['x'], df[f'predicted_y_{model_type}Model'], 'o', label=f'Learned rate')
-    plt.plot(x_, y_, label='True rate', color='black')
+    plt.plot(df['x'], df['true_rate'], 'o', label='True rate', color='black')
     plt.yscale('log')
     plt.xlabel('genomic feature')
     plt.legend(prop={'size': 25})
     plt.xlim(-5, 5)
     plt.ylim(1e1, 1e4)
-    plt.title(f'{model_type} model')
+    plt.title(
+        f'overall bias: {overall_model_bias:.0f}\n'
+        f'{model_type} model'
+    )
     plt.show()
 
 def fit_poisson_model(df, model_type, true_params):

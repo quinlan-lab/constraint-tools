@@ -30,6 +30,11 @@ def compute_true_rate(true_params):
     true_rate = lambda x: np.exp(A + B*x + C*x**2) # rate function
     return true_rate
 
+def compute_overall_model_bias(df, model_type, true_params):
+    true_rate = compute_true_rate(true_params)
+    overall_model_bias = ((df[f'predicted_y_{model_type}Model'] - true_rate(df['x'])) ** 2).mean()
+    return overall_model_bias
+
 def generate_ys(true_params, xs):
     true_rate = compute_true_rate(true_params)
     ys = np.random.poisson(lam=true_rate(xs))
