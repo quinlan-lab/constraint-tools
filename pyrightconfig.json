@@ -1,0 +1,13 @@
+{
+    "pythonVersion": "3.11",
+    "venvPath": ".",
+    "venv": ".venv",
+    "typeCheckingMode": "basic",
+    "executionEnvironments": [
+        {
+          "root": ".",
+          "extraPaths": ["utilities"]
+        }
+      ]
+    
+} 
