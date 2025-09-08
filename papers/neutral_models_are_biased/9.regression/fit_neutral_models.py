@@ -10,6 +10,7 @@ pd.options.mode.chained_assignment = None
 
 def plot_y(df, model_type, true_params):
     df = df[df['constrained'] == False]
+    df = df.sort_values('x') # order by x-value to plot rates as lines
 
     true_rate = compute_true_rate(true_params)
     df['true_rate'] = true_rate(df['x'])
@@ -17,16 +18,16 @@ def plot_y(df, model_type, true_params):
     overall_model_bias = compute_overall_model_bias(df, model_type, true_params)
 
     plt.figure(figsize=(6, 6))
-    plt.plot(df['x'], df['y'], 'o', alpha=0.5, label='SNV counts')
-    plt.plot(df['x'], df[f'predicted_y_{model_type}Model'], 'o', label=f'Learned rate')
-    plt.plot(df['x'], df['true_rate'], 'o', label='True rate', color='black')
+    plt.plot(df['x'], df['y'], 'o', color='lightgrey', alpha=1, label='SNV counts')
+    plt.plot(df['x'], df['true_rate'], '-', label='True rate', color='black', linewidth=5)
+    plt.plot(df['x'], df[f'predicted_y_{model_type}Model'], '-', color='orange', label=f'Learned rate', linewidth=3, alpha=0.8)
     plt.yscale('log')
-    plt.xlabel('genomic feature')
-    plt.legend(prop={'size': 25})
+    plt.xlabel('Genomic feature')
+    plt.legend(prop={'size': 25}, frameon=False)
     plt.xlim(-5, 5)
     plt.ylim(1e1, 1e4)
     plt.title(
-        f'overall bias: {overall_model_bias:.0f}\n'
+        f'Overall bias: {overall_model_bias:.0f}\n'
         f'{model_type} model'
     )
     plt.show()
@@ -34,13 +35,13 @@ def plot_y(df, model_type, true_params):
 def fit_poisson_model(df, model_type, true_params):
     df_neg = df[df['constrained'] == False]
 
-    if model_type == 'constant':
+    if model_type == 'Constant':
         x_model_neg = np.ones((df_neg.shape[0], 1))
         x_model = np.ones((df.shape[0], 1))  
-    elif model_type == 'linear':
+    elif model_type == 'Linear':
         x_model_neg = sm.add_constant(df_neg['x'])
         x_model = sm.add_constant(df['x'])
-    elif model_type == 'quadratic':
+    elif model_type == 'Quadratic':
         df_neg['x2'] = df_neg['x']**2
         x_model_neg = sm.add_constant(df_neg[['x', 'x2']])
         df['x2'] = df['x']**2
